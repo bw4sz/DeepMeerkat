@@ -1,4 +1,5 @@
 import cv2
+import numpy as np
 from Geometry import *
 
 class Video:
@@ -27,6 +28,8 @@ class Video:
         
     def analyze(self):
  
+        if self.args.show: cv2.namedWindow("Motion_Event")            
+        
         while True:
             
             #read frame
@@ -53,39 +56,29 @@ class Video:
             #Next frame if no bounding boxes
             if len(bounding_boxes) == 0 :
                 continue
+
+            #minimum box size
+            width = np.size(self.original_image, 1)
+            height = np.size(self.original_image, 0)
+            area = width * height
             
-            #Write bounding box events
-            self.annotations[self.frame_count] = bounding_boxes
-
-    def show(self):
-        
-        cv2.namedWindow("Motion_Event")            
-        show_count=0
-        cap=cv2.VideoCapture(self.args.video)
-        
-        while True:
-            show_count+=1
-
-            #read frame
-            ret,image=cap.read()
-            if not ret:
-                break
-            if show_count in self.annotations:
-                                
-                #draw
-                if True:
-                    for bounding_box in self.annotations[show_count]:
-                        cv2.rectangle(image, (bounding_box.x, bounding_box.y), (bounding_box.x+bounding_box.w, bounding_box.y+bounding_box.h), (0,0,255), 2)
-                        
-                cv2.imshow("Motion_Event", image)
-                cv2.waitKey(0)
-            else:
-                continue
+            #remove if smaller than min size
+            remaining_bounding_box=[]
+            
+            for bounding_box in bounding_boxes:
+                if area * self.args.size < bounding_box.h * bounding_box.w:
+                    remaining_bounding_box.append(bounding_box)
                 
+            #Write bounding box events
+            self.annotations[self.frame_count] = remaining_bounding_box
+            
+            if self.args.show:
+                for bounding_box in remaining_bounding_box:
+                    if self.args.draw: cv2.rectangle(self.original_image, (bounding_box.x, bounding_box.y), (bounding_box.x+bounding_box.w, bounding_box.y+bounding_box.h), (0,0,255), 2)
+                    cv2.imshow("Motion_Event", self.original_image)
+                    cv2.waitKey(5)
         cv2.destroyAllWindows()            
-        
-    #Lower level functions
-    
+
     def create_background(self):
         
         self.fgbg = cv2.createBackgroundSubtractorMOG2(detectShadows=False,varThreshold=float(self.args.mogvariance))
@@ -98,7 +91,7 @@ class Video:
         self.image = self.fgbg.apply(self.original_image,learningRate=self.args.moglearning)
         
         #Erode to remove noise, dilate the areas to merge bounded objects
-        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(9,9))
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(15,15))
         self.image= cv2.morphologyEx(self.image, cv2.MORPH_OPEN, kernel)
 
     def find_contour(self):
