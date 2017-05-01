@@ -4,7 +4,7 @@ from Geometry import *
 
 class Video:
     def __init__(self,vid,args):
-        
+                
         #store args from MotionMeerkat
         self.args=args
         self.args.video=vid
@@ -20,6 +20,10 @@ class Video:
         
         #background subtraction
         self.background_instance=self.create_background() 
+        
+        #Detector almost always returns first frame
+        self.IS_FIRST_FRAME=True
+        
 
     def read_frame(self):
         self.cap.read()
@@ -45,6 +49,11 @@ class Video:
                 break
             
             self.frame_count+=1
+            
+            #skip the first frame
+            if self.IS_FIRST_FRAME:
+                self.IS_FIRST_FRAME=False
+                continue
             
             #background subtraction
             self.background_apply()
@@ -79,7 +88,8 @@ class Video:
                 tensorflow_instance=predict.tensorflow()
                 self.tensorflow_label=tensorflow_instance.predict(sess=sess,read_from="numpy",image_array=[self.original_image])
                 
-                if self.tensorflow_label=="negative":
+                #next frame if negative label
+                if self.tensorflow_label.values=="negative":
                     continue
                 
             #Write bounding box events
