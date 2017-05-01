@@ -22,7 +22,7 @@ class Video:
         self.background_instance=self.create_background() 
         
         #Detector almost always returns first frame
-        self.IS_FIRST_FRAME=True
+        self.IS_FIRST_FRAME = True
 
     def read_frame(self):
         self.cap.read()
@@ -89,10 +89,10 @@ class Video:
                     remaining_bounding_box.append(bounding_box)
             
             if self.args.tensorflow:
-                self.tensorflow_label=self.tensorflow_instance.predict(sess=sess,read_from="numpy",image_array=[self.original_image])
+                self.tensorflow_label=self.tensorflow_instance.predict(sess=sess,read_from="numpy",image_array=[self.original_image],numpy_name=self.frame_count)
             
             #next frame if negative label
-            if self.tensorflow_label["image"]=="negative":
+            if self.tensorflow_label[self.frame_count]=="negative":
                     continue
                 
             #Write bounding box events
@@ -102,7 +102,7 @@ class Video:
                 for bounding_box in remaining_bounding_box:
                     if self.args.draw: cv2.rectangle(self.original_image, (bounding_box.x, bounding_box.y), (bounding_box.x+bounding_box.w, bounding_box.y+bounding_box.h), (0,0,255), 2)
                     cv2.imshow("Motion_Event", self.original_image)
-                    cv2.waitKey(0)
+                    cv2.waitKey(5)
         cv2.destroyAllWindows()            
 
     def create_background(self):
@@ -169,3 +169,7 @@ class Video:
         def __init__(self, rect):
             self.update_rect(rect)
             self.members = []    
+    
+    def write(self):
+        #TODO write image
+        print(self.args.review_type)

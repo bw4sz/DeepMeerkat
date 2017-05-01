@@ -10,10 +10,12 @@ class tensorflow:
     def __init__(self):
         print("Tensorflow object")
                     
-    def predict(self,read_from,sess,image_array=None,imagedir=None):
+    def predict(self,read_from,sess,image_array=None,imagedir=None,numpy_name=None):
         
         #frames to be analyzed
-        tfimages=[]            
+        tfimages=[]     
+        #names for those frames
+        image_name=[]
         
         # Read in the image_data
         if read_from=="file":
@@ -22,9 +24,11 @@ class tensorflow:
                 for x in find_photos:
                     image_data = tf.gfile.FastGFile(x, 'rb').read()    
                     tfimages.append(image_data)
+                    image_name.append(x)
             else:
                 image_data = tf.gfile.FastGFile(imagedir, 'rb').read()                    
                 tfimages.append(image_data)
+                image_name.append(imagedir)
                 
         if read_from=="numpy":
             for x in image_array:
@@ -32,7 +36,7 @@ class tensorflow:
                 tfimages.append(bimage)
                 
                 #set imagedir for dict recall
-                imagedir="image"
+                image_name.append(numpy_name)
 
         # Loads label file, strips off carriage return
         self.label_lines = [line.rstrip() for line in tf.gfile.GFile("tensorflow/dict.txt")]
@@ -50,7 +54,7 @@ class tensorflow:
             for node_id in top_k:
                 human_string = self.label_lines[node_id]
                 score = predictions[x][node_id]
-                print('%s (score = %.5f)' % (human_string, score))
+                print('%s (score = %.4f)' % (human_string, score))
             results_frame[imagedir]=self.label_lines[top_k[0]]
         
         for x in results_frame.items():
