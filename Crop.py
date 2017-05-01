@@ -1,4 +1,25 @@
+import cv2
+
+# BBoxes must be in the format:
+# ( (topleft_x), (topleft_y) ), ( (bottomright_x), (bottomright_y) ) )
+top = 0
+bottom = 1
+left = 0
+right = 1
+
+BLUE = (255,0,0)        # rectangle color
+GREEN = (0,255,0)        # rectangle color
+RED = (0,0,255)        # rectangle color
+
+#Set globals for mouse map, callback has unique syntax
+drawing = False # true if mouse is pressed
+drawing_area = False # true if mouse is pressed
+roi=[]  
+ix,iy = -1,-1
+
 def Crop(img,title):
+
+
     def onmouse(event,x,y,flags,param):
         global ix,iy,roi,drawing        
         
@@ -22,7 +43,7 @@ def Crop(img,title):
     cv2.setMouseCallback(title,onmouse)
 
     print ("Right click and hold to draw a single rectangle ROI, beginning at the top left corner of the desired area. A blue box should appear. Hit esc to exit screen. Window can be resized by selecting borders.")
-    while(1):
+    while True:
             cv2.namedWindow(title,cv2.WINDOW_NORMAL)                 
             cv2.imshow(title,img)
             k = cv2.waitKey(1) & 0xFF

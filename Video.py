@@ -49,18 +49,7 @@ class Video:
         
         #Detector almost always returns first frame
         self.IS_FIRST_FRAME = True
-        
-    def read_frame(self):
-        ret,image=self.cap.read()
-        
-        if self.args.crop:
-            roi=Crop(image) 
-            cropped_image=image[roi[1]:roi[3], roi[0]:roi[2]]
-            return((ret,cropped_image))
-        else:
-            return((ret,image))
-       
-        
+                       
     def analyze(self):
  
         #load tensorflow model?
@@ -74,7 +63,7 @@ class Video:
         if self.args.show: cv2.namedWindow("Motion_Event")            
             
         while True:
-            
+
             #read frame
             ret,self.original_image=self.read_frame()
             
@@ -141,7 +130,25 @@ class Video:
                     cv2.imshow("Motion_Event", self.original_image)
                     cv2.waitKey(5)
         cv2.destroyAllWindows()            
-
+    
+    def read_frame(self):
+        
+        #read frame
+        ret,image=self.cap.read()
+        
+        if not ret:
+            return((ret,image))
+        
+        #set crop settings if first frame
+        if self.IS_FIRST_FRAME:
+            if self.args.crop:
+                self.roi=Crop.Crop(image,"Crop")            
+        if self.args.crop:
+            cropped_image=image[self.roi[1]:self.roi[3], self.roi[0]:self.roi[2]]
+            return((ret,cropped_image))
+        else:
+            return((ret,image))
+    
     def create_background(self):
         
         self.fgbg = cv2.createBackgroundSubtractorMOG2(detectShadows=False,varThreshold=float(self.args.mogvariance))

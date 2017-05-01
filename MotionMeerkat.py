@@ -34,7 +34,6 @@ class MotionMeerkat:
             video_instance=Video.Video(vid,self.args)
             video_instance.analyze()
             video_instance.write()
-            #Save
         
 if __name__ == "__main__":
     MM=MotionMeerkat()  
