@@ -21,15 +21,21 @@ class Video:
         #background subtraction
         self.background_instance=self.create_background() 
 
-
     def read_frame(self):
         self.cap.read()
         #ROI settings
         
     def analyze(self):
  
-        if self.args.show: cv2.namedWindow("Motion_Event")            
         
+        if self.args.tensorflow:
+            import tensorflow as tf
+            import predict
+            sess=tf.Session()
+            tf.saved_model.loader.load(sess,[tf.saved_model.tag_constants.SERVING], self.args.path_to_model)                
+        
+        if self.args.show: cv2.namedWindow("Motion_Event")            
+            
         while True:
             
             #read frame
@@ -68,6 +74,13 @@ class Video:
             for bounding_box in bounding_boxes:
                 if area * self.args.size < bounding_box.h * bounding_box.w:
                     remaining_bounding_box.append(bounding_box)
+            
+            if self.args.tensorflow:
+                tensorflow_instance=predict.tensorflow()
+                self.tensorflow_label=tensorflow_instance.predict(sess=sess,read_from="numpy",image_array=[self.original_image])
+                
+                if self.tensorflow_label=="negative":
+                    continue
                 
             #Write bounding box events
             self.annotations[self.frame_count] = remaining_bounding_box
