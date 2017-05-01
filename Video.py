@@ -23,20 +23,23 @@ class Video:
         
         #Detector almost always returns first frame
         self.IS_FIRST_FRAME=True
-        
 
     def read_frame(self):
         self.cap.read()
-        #ROI settings
+        #TODO ROI settings
         
     def analyze(self):
  
-        
+        #load tensorflow model?
         if self.args.tensorflow:
             import tensorflow as tf
             import predict
             sess=tf.Session()
             tf.saved_model.loader.load(sess,[tf.saved_model.tag_constants.SERVING], self.args.path_to_model)                
+            self.tensorflow_instance=predict.tensorflow()
+        else:
+            #Do not run tensorflow, pass all images
+            self.tensorflow_label == "positive"
         
         if self.args.show: cv2.namedWindow("Motion_Event")            
             
@@ -52,6 +55,7 @@ class Video:
             
             #skip the first frame
             if self.IS_FIRST_FRAME:
+                print("Skipping first frame")
                 self.IS_FIRST_FRAME=False
                 continue
             
@@ -85,11 +89,10 @@ class Video:
                     remaining_bounding_box.append(bounding_box)
             
             if self.args.tensorflow:
-                tensorflow_instance=predict.tensorflow()
-                self.tensorflow_label=tensorflow_instance.predict(sess=sess,read_from="numpy",image_array=[self.original_image])
-                
-                #next frame if negative label
-                if self.tensorflow_label.values=="negative":
+                self.tensorflow_label=self.tensorflow_instance.predict(sess=sess,read_from="numpy",image_array=[self.original_image])
+            
+            #next frame if negative label
+            if self.tensorflow_label["image"]=="negative":
                     continue
                 
             #Write bounding box events
@@ -99,7 +102,7 @@ class Video:
                 for bounding_box in remaining_bounding_box:
                     if self.args.draw: cv2.rectangle(self.original_image, (bounding_box.x, bounding_box.y), (bounding_box.x+bounding_box.w, bounding_box.y+bounding_box.h), (0,0,255), 2)
                     cv2.imshow("Motion_Event", self.original_image)
-                    cv2.waitKey(5)
+                    cv2.waitKey(0)
         cv2.destroyAllWindows()            
 
     def create_background(self):
@@ -118,7 +121,6 @@ class Video:
         self.image= cv2.morphologyEx(self.image, cv2.MORPH_OPEN, kernel)
 
     def find_contour(self):
-        
             _,self.contours,hierarchy = cv2.findContours(self.image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE )
             self.contours = [contour for contour in self.contours if cv2.contourArea(contour) > 50]
         
