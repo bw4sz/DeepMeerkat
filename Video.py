@@ -1,10 +1,18 @@
 import cv2
+from datetime import datetime, timedelta
+import os
 import numpy as np
 from Geometry import *
+import csv
+import time
+import Crop
 
 class Video:
     def __init__(self,vid,args):
                 
+        #start time
+        self.start_time=time.time()
+        
         #store args from MotionMeerkat
         self.args=args
         self.args.video=vid
@@ -15,18 +23,43 @@ class Video:
         #Annotations dictionary
         self.annotations={}
         
+        #create output directory
+        normFP=os.path.normpath(self.args.input)
+        (filepath, filename)=os.path.split(normFP)
+        (shortname, extension) = os.path.splitext(filename)
+        (_,IDFL) = os.path.split(filepath) 
+        self.file_destination=os.path.join(self.args.output,shortname)        
+        
+        if not os.path.exists(self.file_destination):
+            os.makedirs(self.file_destination)        
+            
         #read video
         self.cap=cv2.VideoCapture(self.args.video)
         
+        #set frame frate
+        self.frame_rate=round(self.cap.get(5))
+        
+        #This seems to misinterpret just .tlv files
+        if extension in ['.tlv','.TLV']: 
+            self.frame_rate=1
+            print("File type is .tlv, setting frame rate to 1 fps")        
+
         #background subtraction
         self.background_instance=self.create_background() 
         
         #Detector almost always returns first frame
         self.IS_FIRST_FRAME = True
-
+        
     def read_frame(self):
-        self.cap.read()
-        #TODO ROI settings
+        ret,image=self.cap.read()
+        
+        if self.args.crop:
+            roi=Crop(image) 
+            cropped_image=image[roi[1]:roi[3], roi[0]:roi[2]]
+            return((ret,cropped_image))
+        else:
+            return((ret,image))
+       
         
     def analyze(self):
  
@@ -37,18 +70,17 @@ class Video:
             sess=tf.Session()
             tf.saved_model.loader.load(sess,[tf.saved_model.tag_constants.SERVING], self.args.path_to_model)                
             self.tensorflow_instance=predict.tensorflow()
-        else:
-            #Do not run tensorflow, pass all images
-            self.tensorflow_label == "positive"
         
         if self.args.show: cv2.namedWindow("Motion_Event")            
             
         while True:
             
             #read frame
-            ret,self.original_image=self.cap.read()
+            ret,self.original_image=self.read_frame()
             
             if not ret:
+                #end time
+                self.end_time=time.time()
                 break
             
             self.frame_count+=1
@@ -91,11 +123,16 @@ class Video:
             if self.args.tensorflow:
                 self.tensorflow_label=self.tensorflow_instance.predict(sess=sess,read_from="numpy",image_array=[self.original_image],numpy_name=self.frame_count)
             
-            #next frame if negative label
-            if self.tensorflow_label[self.frame_count]=="negative":
-                    continue
+                #next frame if negative label
+                if self.tensorflow_label[self.frame_count]=="negative":
+                        continue
                 
-            #Write bounding box events
+            #Write bounding box time event, depends on proper frame rate
+            sec = timedelta(seconds=int(self.frame_count/float(self.frame_rate)))             
+            d = datetime(1,1,1) + sec                        
+            for box in remaining_bounding_box:
+                box.time = d
+
             self.annotations[self.frame_count] = remaining_bounding_box
             
             if self.args.show:
@@ -165,11 +202,47 @@ class Video:
             self.y = rect.l_top.y
             self.w = rect.width
             self.h = rect.height
+            self.time=None
 
         def __init__(self, rect):
             self.update_rect(rect)
             self.members = []    
     
-    def write(self):
-        #TODO write image
-        print(self.args.review_type)
+    def write(self):      
+        
+        #write parameter logs
+        
+        self.output_args=self.file_destination + "/parameters.csv"
+        with open(self.output_args, 'w',newline="") as f:  
+            writer = csv.writer(f,)
+            writer.writerows(self.args.__dict__.items())
+            
+            #Total time
+            self.total_min=(self.start_time-self.end_time)/60
+            writer.writerow(["Minutes",self.total_min])
+            
+            #Frames in file
+            writer.writerow(["Total Frames",self.frame_count])
+            
+            #Frames returned to file
+            writer.writerow(["Motion Events",len(self.annotations)])
+            
+            #Hit rate
+            len(self.annotations)
+            writer.writerow(["Return rate",float(len(self.annotations)/self.frame_count)])
+            
+            #Frames per second
+            writer.writerow(["Frame processing rate",round(float(self.frame_count)/(self.total_min*60),2)])
+        
+        #Write frame annotations
+        self.output_annotations=self.file_destination + "/annotations.csv"
+        with open(self.output_annotations, 'w',newline="") as f:  
+            writer = csv.writer(f,)
+            writer.writerow(["Frame","x","y","h","w"])
+            for x in self.annotations.keys():   
+                bboxes=self.annotations[x]
+                for bbox in bboxes: 
+                    writer.writerow([x,bbox.x,bbox.y,bbox.h,bbox.w])
+            
+            
+            
