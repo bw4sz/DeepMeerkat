@@ -55,7 +55,7 @@ class tensorflow:
                 human_string = self.label_lines[node_id]
                 score = predictions[x][node_id]
                 print('%s (score = %.4f)' % (human_string, score))
-            results_frame[imagedir]=self.label_lines[top_k[0]]
+            results_frame[image_name[x]]=self.label_lines[top_k[0]]
         
         for x in results_frame.items():
             print(x)

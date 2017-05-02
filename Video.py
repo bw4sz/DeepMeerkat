@@ -28,8 +28,13 @@ class Video:
         (filepath, filename)=os.path.split(normFP)
         (shortname, extension) = os.path.splitext(filename)
         (_,IDFL) = os.path.split(filepath) 
-        self.file_destination=os.path.join(self.args.output,shortname)        
         
+        if self.batch:
+            self.file_destination=os.path.join(self.args.output,shortname)        
+        else:
+            self.file_destination=os.path.join(self.args.output,IDFL)
+            self.file_destination=os.path.join(self.file_destination,shortname)        
+
         if not os.path.exists(self.file_destination):
             os.makedirs(self.file_destination)        
             
@@ -74,14 +79,17 @@ class Video:
             
             self.frame_count+=1
             
-            #skip the first frame
+            #adapt settings of mogvariance to keep from running away
+            self.adapt()
+            
+            #background subtraction
+            self.background_apply()
+            
+            #skip the first frame after adding it to the background.
             if self.IS_FIRST_FRAME:
                 print("Skipping first frame")
                 self.IS_FIRST_FRAME=False
                 continue
-            
-            #background subtraction
-            self.background_apply()
             
             #contour analysis
             self.countours=self.find_contour()
@@ -114,7 +122,7 @@ class Video:
             
                 #next frame if negative label
                 if self.tensorflow_label[self.frame_count]=="negative":
-                        continue
+                    continue
                 
             #Write bounding box time event, depends on proper frame rate
             sec = timedelta(seconds=int(self.frame_count/float(self.frame_rate)))             
@@ -184,7 +192,7 @@ class Video:
                     x2,y2,w2,h2 = cv2.boundingRect(contours[j])
                     rect = Rect(x2, y2, w2, h2)
                     distance = parent_bounding_box.rect.distance_to_rect(rect)
-                    if distance < 20:
+                    if distance < 80:
                         parent_bounding_box.update_rect(self.extend_rectangle(parent_bounding_box.rect, rect))
                         parent_bounding_box.members.append(j)
         return bounding_boxes
@@ -217,15 +225,14 @@ class Video:
     
     def write(self):      
         
-        #write parameter logs
-        
+        #write parameter logs        
         self.output_args=self.file_destination + "/parameters.csv"
         with open(self.output_args, 'w',newline="") as f:  
             writer = csv.writer(f,)
             writer.writerows(self.args.__dict__.items())
             
             #Total time
-            self.total_min=(self.start_time-self.end_time)/60
+            self.total_min=round((self.end_time-self.start_time)/60,3)
             writer.writerow(["Minutes",self.total_min])
             
             #Frames in file
@@ -250,6 +257,22 @@ class Video:
                 bboxes=self.annotations[x]
                 for bbox in bboxes: 
                     writer.writerow([x,bbox.x,bbox.y,bbox.h,bbox.w])
+                    
+    def adapt(self):
+        
+            #If current frame is a multiple of the 1000 frames
+            if self.frame_count % 1000 == 0:                                  
+                #get the percent of frames returned in the last 10 minutes
+                if (sum([x < self.frame_count-1000 for x in self.annotations.keys()])/1000) > 0.05:
+                        
+                    #increase tolerance rate
+                    self.args.mogvariance+=5
+    
+                    #add a ceiling
+                    if self.args.mogvariance > 120: 
+                        self.args.mogvariance = 120
+                    print("Adapting to video conditions: increasing MOG variance tolerance to %d" % self.args.mogvariance)
+        
             
             
             
