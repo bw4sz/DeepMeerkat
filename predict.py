@@ -20,8 +20,8 @@ class tensorflow:
         # Read in the image_data
         if read_from=="file":
             if os.path.isdir(imagedir):
-                find_photos=glob.glob(imagedir+"*.jpg")            
-                for x in find_photos:
+                self.find_photos=glob.glob(imagedir+"*.jpg")            
+                for x in self.find_photos:
                     image_data = tf.gfile.FastGFile(x, 'rb').read()    
                     tfimages.append(image_data)
                     image_name.append(x)
@@ -45,7 +45,8 @@ class tensorflow:
         softmax_tensor = sess.graph.get_tensor_by_name('final_ops/softmax:0')
         predictions = sess.run(softmax_tensor, {'Placeholder:0': tfimages})
         
-        results_frame={}
+        #output results
+        self.results_frame={}
         
         for x in range(0,len(predictions)):
             # Sort to show labels of first prediction in order of confidence
@@ -55,19 +56,28 @@ class tensorflow:
                 human_string = self.label_lines[node_id]
                 score = predictions[x][node_id]
                 print('%s (score = %.4f)' % (human_string, score))
-            results_frame[image_name[x]]=self.label_lines[top_k[0]]
+            self.results_frame[image_name[x]]=self.label_lines[top_k[0]]
         
-        for x in results_frame.items():
+        for x in self.results_frame.items():
             print(x)
             
-        return(results_frame)
+        return(self.results_frame)
+    def show(self):
+        
+        font = cv2.FONT_HERSHEY_SIMPLEX        
+        for x in self.find_photos:
+            image=cv2.imread(x)
+            annotation=self.results_frame[x]
+            cv2.putText(image,annotation,(10,20), font, 0.75,(255,255,255),1,cv2.LINE_AA)            
+            cv2.imshow("Annotation", image)
+            cv2.waitKey(0)
+        
 
 if __name__ == "__main__":
     sess=tf.Session()
     tf.saved_model.loader.load(sess,[tf.saved_model.tag_constants.SERVING], "C:/Users/Ben/Dropbox/GoogleCloud/hummingbird_model/")    
     tensorflow_instance=tensorflow()
     photos_run=glob.glob("C:/Users/Ben/Dropbox/GoogleCloud/Negatives/*.jpg")
-    results=[]
     for x in photos_run:
         pred=tensorflow_instance.predict(read_from="file",sess=sess,imagedir=x)
-        results.append(pred)
+        tensorflow_instance.show()
