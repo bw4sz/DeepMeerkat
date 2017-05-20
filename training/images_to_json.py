@@ -22,7 +22,7 @@ Example usage:
 
 import argparse
 import base64
-from io import StringIO
+from cStringIO import StringIO
 import json
 import sys
 
