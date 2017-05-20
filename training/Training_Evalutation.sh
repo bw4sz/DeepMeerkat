@@ -25,7 +25,7 @@ python pipeline.py \
     --input_dict gs://api-project-773889352370-ml/Hummingbirds/dict.txt \
     --deploy_model_name "DeepMeerkat" \
     --gcs_bucket ${BUCKET} \
-    --output_dir "${GCS_PATH}/training" \
+    --output_dir "${GCS_PATH}/" \
     --sample_image_uri  gs://api-project-773889352370-ml/Hummingbirds/Positives/10000.jpg  
     
 #Run evaluation predictions 
@@ -44,7 +44,7 @@ gsutil cp gs://api-project-773889352370-ml/Hummingbirds/trainingdata.csv .
 head trainingdata.csv | cut -d ',' -f1 > eval.csv
 
 #extract eval frames to predict
-cat ~/mnt/gcs-bucket/Hummingbirds/testingdata.csv  | cut -f 1 -d "," > eval_files.txt
+cat /mnt/gcs-bucket/Hummingbirds/testingdata.csv  | cut -f 1 -d "," | head -n 20 > eval_files.txt
 #fix local mount path
 sed "s|gs://api-project-773889352370-ml/|/mnt/gcs-bucket/|g" eval_files.txt  > jpgs.txt
 
@@ -54,10 +54,10 @@ python images_to_json.py -o $JSON_INSTANCES $(cat jpgs.txt)
 gsutil cp $JSON_INSTANCES gs://api-project-773889352370-ml/Hummingbirds/Prediction/
 
 JOB_NAME=predict_Meerkat_$(date +%Y%m%d_%H%M%S)
-gcloud beta ml jobs submit prediction ${JOB_NAME} \
-    --model=${MODEL_NAME} \
+gcloud ml-engine jobs submit prediction $JOB_NAME \
+    --model=$MODEL_NAME \
     --data-format=TEXT \
-    --input-paths=gs://api-project-773889352370-ml/Hummingbirds/$JSON_INSTANCES \
+    --input-paths=gs://api-project-773889352370-ml/Hummingbirds/Prediction/$JSON_INSTANCES \
     --output-path=gs://api-project-773889352370-ml/Hummingbirds/Prediction/ \
     --region=us-central1
     
@@ -65,7 +65,6 @@ gcloud beta ml jobs submit prediction ${JOB_NAME} \
 
 #Python script to compute confusion matrix
 
-#COPY analysis results to file
 
 exit
 
