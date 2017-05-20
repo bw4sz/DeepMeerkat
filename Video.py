@@ -29,7 +29,7 @@ class Video:
         (shortname, extension) = os.path.splitext(filename)
         (_,IDFL) = os.path.split(filepath) 
         
-        if self.batch:
+        if self.args.batch:
             self.file_destination=os.path.join(self.args.output,shortname)        
         else:
             self.file_destination=os.path.join(self.args.output,IDFL)

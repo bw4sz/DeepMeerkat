@@ -17,7 +17,7 @@ class MotionMeerkat:
         
         #Create Pool of Videos
         if not os.path.isfile(self.args.input):
-            self.batch=True
+            self.args.batch=True
             for (root, dirs, files) in os.walk(self.args.input):
                 for files in files:
                     fileupper=files.upper()
@@ -26,7 +26,7 @@ class MotionMeerkat:
                         print("Added " + str(files) + " to queue")
         else:
             self.queue=[self.args.input]
-            self.batch=False
+            self.args.batch=False
             
         if len(self.queue)==0:
             raise ValueError("No videos in the supplied folder. If videos exist, ensure that they can be read by standard video CODEC libraries.")
