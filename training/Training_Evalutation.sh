@@ -1,7 +1,7 @@
 #!/bin/bash 
 
 #Start docker instance
-sudo docker run -it -- gcr.io/api-project-773889352370/cloudmlengine --privledged
+sudo docker run -it --privileged -- gcr.io/api-project-773889352370/cloudmlengine 
 
 #Startup script
 git clone https://github.com/bw4sz/DeepMeerkat.git
@@ -30,13 +30,7 @@ python pipeline.py \
     
 #Run evaluation predictions 
 #Mount directory
-export GCSFUSE_REPO=gcsfuse-jessie
-echo "deb http://packages.cloud.google.com/apt $GCSFUSE_REPO main" | tee /etc/apt/sources.list.d/gcsfuse.list
-curl https://packages.cloud.google.com/apt/doc/apt-key.gpg |  apt-key add -
-apt-get update
-apt-get install -y gcsfuse
 
-# # cd ~
 # #make empty directory for mount
 mkdir /mnt/gcs-bucket
 
@@ -49,16 +43,10 @@ gcsfuse --implicit-dirs api-project-773889352370-ml ~/mnt/gcs-bucket
 gsutil cp gs://api-project-773889352370-ml/Hummingbirds/trainingdata.csv .
 head trainingdata.csv | cut -d ',' -f1 > eval.csv
 
-#get json request file
-python images_to_json.py -o request.json $(cat eval.csv)
-gsutil cp eval.csv gs://api-project-773889352370-ml/Hummingbirds/request.json
-
-
-
 #extract eval frames to predict
-cat mnt/gcs-bucket/Hummingbirds/testing_dataGCS.csv  | cut -f 1 -d "," > eval_files.txt
+cat ~/mnt/gcs-bucket/Hummingbirds/testingdata.csv  | cut -f 1 -d "," > eval_files.txt
 #fix local mount path
-sed "s|gs://api-project-773889352370-ml/|mnt/gcs-bucket/|g" eval_files.txt  > jpgs.txt
+sed "s|gs://api-project-773889352370-ml/|/mnt/gcs-bucket/|g" eval_files.txt  > jpgs.txt
 
 #Batch prediction
 JSON_INSTANCES=Instances_$(date +%Y%m%d_%H%M%S).json
