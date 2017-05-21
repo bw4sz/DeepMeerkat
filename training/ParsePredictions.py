@@ -1,6 +1,7 @@
 import json
 import argparse
 import glob
+import csv
 
 class ParseJson:
     def __init__(self,args):
@@ -11,14 +12,21 @@ class ParseJson:
         self.fns=glob.glob(self.args.input+"prediction.results*")      
     
     def parse_json(self):
-        data=[]
+        self.data=[]
         
         for fn in self.fns:
             with open(fn) as f:
                 for line in f:
-                    data.append(json.loads(line))
+                    self.data.append(json.loads(line))
                 
-        print(data)     
+        print(self.data)
+    def write_table(self):
+        with open("test.csv",'w',newline="") as outfile:
+            w = csv.DictWriter(outfile,self.data[0].keys())
+            w.writeheader()
+            w.writerows(self.data)
+
+        outfile.close()
         
 if __name__=="__main__":
     
@@ -34,6 +42,9 @@ if __name__=="__main__":
     
     #read dicts
     jparser.parse_json()
+    
+    #write to table
+    jparser.write_table()
     
 
     
