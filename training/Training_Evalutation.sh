@@ -63,7 +63,7 @@ gcloud ml-engine jobs submit prediction $JOB_NAME \
     
 #TODO RUN Out of sample predictions
 
-#Python script to compute confusion matrix
+#Python script to compute confusion matrix?
 
 
 exit
