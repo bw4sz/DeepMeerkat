@@ -1,5 +1,8 @@
 #!/bin/bash 
 
+#ssh if needed
+gcloud compute ssh cloudml 
+
 #Start docker instance
 sudo docker run -it --privileged -- gcr.io/api-project-773889352370/cloudmlengine 
 
@@ -7,12 +10,11 @@ sudo docker run -it --privileged -- gcr.io/api-project-773889352370/cloudmlengin
 git clone https://github.com/bw4sz/DeepMeerkat.git
 cd DeepMeerkat/training
 
-declare -r USER="Ben"
 declare -r PROJECT=$(gcloud config list project --format "value(core.project)")
-declare -r JOB_ID="DeepMeerkat_${USER}_$(date +%Y%m%d_%H%M%S)"
 declare -r BUCKET="gs://${PROJECT}-ml"
-declare -r GCS_PATH="${BUCKET}/${USER}/${JOB_ID}"
 declare -r MODEL_NAME="DeepMeerkat"
+declare -r JOB_ID="${MODEL_NAME}_$(date +%Y%m%d_%H%M%S)"
+declare -r GCS_PATH="${BUCKET}/${MODEL_NAME}/${JOB_ID}"
 
 #from scratch
 python pipeline.py \
@@ -47,6 +49,7 @@ head trainingdata.csv | cut -d ',' -f1 > eval.csv
 
 #extract eval frames to predict
 cat /mnt/gcs-bucket/Hummingbirds/testingdata.csv  | cut -f 1 -d "," | head -n 20 > eval_files.txt
+
 #fix local mount path
 sed "s|gs://api-project-773889352370-ml/|/mnt/gcs-bucket/|g" eval_files.txt  > jpgs.txt
 
@@ -63,11 +66,12 @@ gcloud ml-engine jobs submit prediction $JOB_NAME \
     --output-path=gs://api-project-773889352370-ml/Hummingbirds/Prediction/ \
     --region=us-central1
 
+
 ##########################
 #Out of sample predictions
 ##########################
 
-gsutil cp gs://api-project-773889352370-ml/Hummingbirds/trainingdata.csv .
+gsutil cp gs://api-project-773889352370-ml/Hummingbirds/holdoutdata.csv .
 head trainingdata.csv | cut -d ',' -f1 > eval.csv
 
 #extract eval frames to predict
@@ -80,21 +84,28 @@ JSON_INSTANCES=Instances_$(date +%Y%m%d_%H%M%S).json
 python images_to_json.py -o $JSON_INSTANCES $(cat jpgs.txt)
 gsutil cp $JSON_INSTANCES gs://api-project-773889352370-ml/Hummingbirds/Prediction/
 
-JOB_NAME=predict_Meerkat_$(date +%Y%m%d_%H%M%S)
-gcloud ml-engine jobs submit prediction $JOB_NAME \
+JOB_NAME_holdout=predict_Meerkat_$(date +%Y%m%d_%H%M%S)
+gcloud ml-engine jobs submit prediction $JOB_NAME_holdout \
     --model=$MODEL_NAME \
     --data-format=TEXT \
-    --input-paths=gs://api-project-773889352370-ml/Hummingbirds/Prediction/$JSON_INSTANCES \
-    --output-path=gs://api-project-773889352370-ml/Hummingbirds/Prediction/ \
+    --input-paths=gs://api-project-773889352370-ml/Hummingbirds/Prediction/$JOB_NAME_holdout \
+    --output-path=gs://api-project-773889352370-ml/Hummingbirds/Prediction/$JOB_NAME_holdout \
     --region=us-central1
-    
-#bring in predictions file
-gsutil cp -r gs://api-project-773889352370-ml/Hummingbirds/Prediction/ .
 
+#Wait for prediction to finish
+gcloud ml-engine jobs stream-logs $JOB_NAME_holdout
+
+#holdout
 #Parse predictions and enter information into database, key, prediction, run, date
-python ParsePredictions.py -input Prediction/ -ouput $JOB_NAME
+python ParsePredictions.py -input /mnt/gcs-bucket/Hummingbirds/Prediction/$JOB_NAME -ouput $JOB_NAME
 
-gsutil cp $JOB_NAME.csv gs://api-project-773889352370-ml/Hummingbirds/Prediction/
+gsutil cp $JOB_NAME.csv gs://api-project-773889352370-ml/Hummingbirds/Prediction
+
+#eva;
+python ParsePredictions.py -input /mnt/gcs-bucket/Hummingbirds/Prediction/$JOB_NAME_holdout -ouput $JOB_NAME_holdout
+
+gsutil cp $JOB_NAME_holdout.csv gs://api-project-773889352370-ml/Hummingbirds/Prediction
+
 
 exit
 

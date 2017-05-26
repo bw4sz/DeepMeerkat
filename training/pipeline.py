@@ -34,7 +34,7 @@ from tensorflow.python.framework import errors
 import trainer.preprocess as preprocess_lib
 
 # Model variables
-MODEL_NAME = 'flowers'
+MODEL_NAME = 'DeepMeerkat'
 TRAINER_NAME = 'trainer-0.1.tar.gz'
 METADATA_FILE_NAME = 'metadata.json'
 EXPORT_SUBDIRECTORY = 'model'
@@ -210,7 +210,7 @@ class FlowersE2E(object):
       dataflow_sdk_location: path to Dataflow SDK package.
       trainer_uri: Path to the Flower's trainer package.
     """
-    job_name = ('cloud-ml-sample-flowers-' +
+    job_name = ('DeepMeerkat' +
                 datetime.datetime.now().strftime('%Y%m%d%H%M%S')  +
                 '-' + dataset_name)
 
@@ -255,7 +255,7 @@ class FlowersE2E(object):
     ]
 
     if self.args.cloud:
-      job_name = 'flowers_model' + datetime.datetime.now().strftime(
+      job_name = 'DeepMeerkat' + datetime.datetime.now().strftime(
           '_%y%m%d_%H%M%S')
       command = [
           'gcloud', 'ml-engine', 'jobs', 'submit', 'training', job_name,
