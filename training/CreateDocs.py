@@ -24,8 +24,8 @@ except:
 
 def process_args():
     parser = argparse.ArgumentParser(description='Runs Flowers Sample E2E pipeline.')
-    parser.add_argument('--positives', help='Google cloud storage path for positive samples.')
-    parser.add_argument('--negatives', help='Google cloud storage path for negatives samples.')
+    parser.add_argument('--positives', help='Google cloud storage path for positive samples.',default="gs://api-project-773889352370-ml/Hummingbirds/Positives/")
+    parser.add_argument('--negatives', help='Google cloud storage path for negatives samples.',default="gs://api-project-773889352370-ml/Hummingbirds/Negatives/")
     parser.add_argument('--prop', help='Proportion of training data',default=0.8,type=float)
     parser.add_argument('--prop_out', help='Proportion of testing data to hold out of sample',default=0.5,type=float)    
     parser.add_argument('--debug', help='Debug dataset, only write a small portion to reduce run time',action="store_true")    
@@ -34,10 +34,10 @@ def process_args():
     return args    
 
 class Organizer:
-    def __init__(self,positives,negatives,testing):
+    def __init__(self,positives,negatives,debug):
         
         #set testing switch
-        self.testing=testing
+        self.debug=debug
         
         credentials = GoogleCredentials.get_application_default()
         """Downloads a blob from the bucket."""
@@ -97,7 +97,6 @@ class Organizer:
         
         self.negatives_training=negatives_random[:int(len(negatives_random)*prop)]
         self.negatives_testing=negatives_random[int(len(negatives_random)*prop):]
-        
         
         #split testing data into in sample and out of sample
         self.negatives_holdout=self.negatives_testing[:int(len(self.negatives_testing)*prop_out)]
@@ -176,6 +175,6 @@ class Organizer:
         
 if __name__ == "__main__":
     args = process_args()
-    p=Organizer(positives=args.positives, negatives=args.negatives,testing=args.testing)
-    p.divide_data(prop=args.prop)
+    p=Organizer(positives=args.positives, negatives=args.negatives,debug=args.debug)
+    p.divide_data(prop=args.prop,prop_out=args.prop_out)
     p.write_data()

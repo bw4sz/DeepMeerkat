@@ -37,6 +37,11 @@ chmod a+w /mnt/gcs-bucket
 
 #MOUNT 
 gcsfuse --implicit-dirs api-project-773889352370-ml ~/mnt/gcs-bucket
+
+##########################
+#Evaluation data
+##########################
+
 gsutil cp gs://api-project-773889352370-ml/Hummingbirds/trainingdata.csv .
 head trainingdata.csv | cut -d ',' -f1 > eval.csv
 
@@ -57,13 +62,16 @@ gcloud ml-engine jobs submit prediction $JOB_NAME \
     --input-paths=gs://api-project-773889352370-ml/Hummingbirds/Prediction/$JSON_INSTANCES \
     --output-path=gs://api-project-773889352370-ml/Hummingbirds/Prediction/ \
     --region=us-central1
-    
-#TODO RUN Out of sample predictions?
+
+##########################
+#Out of sample predictions
+##########################
+
 gsutil cp gs://api-project-773889352370-ml/Hummingbirds/trainingdata.csv .
 head trainingdata.csv | cut -d ',' -f1 > eval.csv
 
 #extract eval frames to predict
-cat /mnt/gcs-bucket/Hummingbirds/testingdata.csv  | cut -f 1 -d "," | head -n 20 > eval_files.txt
+cat /mnt/gcs-bucket/Hummingbirds/holdoutdata.csv  | cut -f 1 -d "," | head -n 20 > eval_files.txt
 #fix local mount path
 sed "s|gs://api-project-773889352370-ml/|/mnt/gcs-bucket/|g" eval_files.txt  > jpgs.txt
 
