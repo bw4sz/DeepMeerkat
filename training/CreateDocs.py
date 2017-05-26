@@ -27,8 +27,8 @@ def process_args():
     parser.add_argument('--positives', help='Google cloud storage path for positive samples.')
     parser.add_argument('--negatives', help='Google cloud storage path for negatives samples.')
     parser.add_argument('--prop', help='Proportion of training data',default=0.8,type=float)
-    parser.add_argument('--prop_out', help='Proportion of out of sample data',default=0.1,type=float)    
-    parser.add_argument('--testing', help='Testing dataset, only write a small portion to reduce run time',action="store_true")    
+    parser.add_argument('--prop_out', help='Proportion of testing data to hold out of sample',default=0.5,type=float)    
+    parser.add_argument('--debug', help='Debug dataset, only write a small portion to reduce run time',action="store_true")    
     
     args, _ = parser.parse_known_args()
     return args    
@@ -82,30 +82,40 @@ class Organizer:
             
         print( "Found %d results" % (len( self.negatives_files)))  
         
-    def divide_data(self,training_prop=0.8):
+    def divide_data(self,prop,prop_out):
         
         #Shuffle positive datasets and divide
         positives_random=self.positives_files
         random.shuffle(positives_random)
         
-        self.positives_training=positives_random[:int(len(positives_random)*training_prop)]
-        self.positives_testing=positives_random[int(len(positives_random)*training_prop):]
+        self.positives_training=positives_random[:int(len(positives_random)*prop)]
+        self.positives_testing=positives_random[int(len(positives_random)*prop):]
 
         #Shuffle negatives datasets and divide
         negatives_random=self.negatives_files
         random.shuffle(negatives_random)
         
-        self.negatives_training=negatives_random[:int(len(negatives_random)*training_prop)]
-        self.negatives_testing=negatives_random[int(len(negatives_random)*training_prop):]
+        self.negatives_training=negatives_random[:int(len(negatives_random)*prop)]
+        self.negatives_testing=negatives_random[int(len(negatives_random)*prop):]
         
-        #testing, only write a tiny dataset
-        if self.testing:
+        
+        #split testing data into in sample and out of sample
+        self.negatives_holdout=self.negatives_testing[:int(len(self.negatives_testing)*prop_out)]
+        self.positives_holdout=self.positives_testing[:int(len(self.positives_testing)*prop_out)]
+
+        self.negatives_testing=self.negatives_testing[int(len(self.negatives_testing)*prop_out):]
+        self.positives_testing=self.positives_testing[int(len(self.positives_testing)*prop_out):]
+                
+        #debug model, only write a tiny dataset
+        if self.debug:
             self.positives_training=self.positives_training[0:50]
             self.positives_testing=self.positives_testing[0:10]
             self.negatives_training=self.negatives_training[0:50]
             self.negatives_testing=self.negatives_training[0:10]
             
     def write_data(self):
+        
+        ##Training
         
         #Write to temp then send to google cloud
         handle, fn = tempfile.mkstemp(suffix='.csv')
@@ -121,6 +131,8 @@ class Organizer:
         blob=self.bucket.blob("Hummingbirds/trainingdata.csv")
         blob.upload_from_filename(fn)
         
+        ##Testing
+        
         #Write to temp then send to google cloud
         handle, fn = tempfile.mkstemp(suffix='.csv')
         
@@ -134,7 +146,23 @@ class Organizer:
         #write to google cloud
         blob=self.bucket.blob("Hummingbirds/testingdata.csv")
         blob.upload_from_filename(fn)    
+
+        ##Holdout
         
+        #Write to temp then send to google cloud
+        handle, fn = tempfile.mkstemp(suffix='.csv')
+        
+        with open(handle,"w",newline='') as f:
+            writer=csv.writer(f)
+            for eachrow in  self.positives_testing:
+                writer.writerow([eachrow,"positive"])
+            for eachrow in  self.negatives_testing:
+                writer.writerow([eachrow,"negative"])
+        
+        #write to google cloud
+        blob=self.bucket.blob("Hummingbirds/holdoutdata.csv")
+        blob.upload_from_filename(fn)    
+
         #write dict file 
         handle, fn = tempfile.mkstemp(suffix='.txt')        
         with open(handle,"w",newline="") as f:
@@ -149,5 +177,5 @@ class Organizer:
 if __name__ == "__main__":
     args = process_args()
     p=Organizer(positives=args.positives, negatives=args.negatives,testing=args.testing)
-    p.divide_data(training_prop=args.prop)
+    p.divide_data(prop=args.prop)
     p.write_data()

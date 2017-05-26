@@ -25,14 +25,13 @@ class ParseJson:
             w = csv.DictWriter(outfile,self.data[0].keys())
             w.writeheader()
             w.writerows(self.data)
-
         outfile.close()
         
 if __name__=="__main__":
     
     parser = argparse.ArgumentParser()
     parser.add_argument('-input',default="C:/Users/Ben/Dropbox/GoogleCloud/" ,help='Path to json directory')
-    parser.add_argument('-out',default="test" ,help='csv filename')
+    parser.add_argument('-output',default="test" ,help='csv filename')
     
     args = parser.parse_args()    
     
