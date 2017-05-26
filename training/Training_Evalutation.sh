@@ -31,10 +31,10 @@ python pipeline.py \
 #Run evaluation predictions 
 #Mount directory
 
-# #make empty directory for mount
+#make empty directory for mount
 mkdir /mnt/gcs-bucket
 
-# #give it permissions
+#give it permissions
 chmod a+w /mnt/gcs-bucket
 
 #MOUNT 
@@ -61,10 +61,15 @@ gcloud ml-engine jobs submit prediction $JOB_NAME \
     --output-path=gs://api-project-773889352370-ml/Hummingbirds/Prediction/ \
     --region=us-central1
     
-#TODO RUN Out of sample predictions
+#TODO RUN Out of sample predictions?
 
-#Python script to compute confusion matrix?
+#bring in predictions file
+gsutil cp -r gs://api-project-773889352370-ml/Hummingbirds/Prediction/ .
 
+#Parse predictions and enter information into database, key, prediction, run, date
+python ParsePredictions.py -input Prediction/
+
+gsutil cp Predictions.csv gs://api-project-773889352370-ml/Hummingbirds/Prediction/
 
 exit
 

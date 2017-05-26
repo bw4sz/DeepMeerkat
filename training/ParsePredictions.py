@@ -21,9 +21,8 @@ class ParseJson:
                 
         print(self.data)
     def write_table(self):
-        with open("test.csv",'w',newline="") as outfile:
+        with open("Predictions.csv",'a',newline="") as outfile:
             w = csv.DictWriter(outfile,self.data[0].keys())
-            w.writeheader()
             w.writerows(self.data)
 
         outfile.close()
