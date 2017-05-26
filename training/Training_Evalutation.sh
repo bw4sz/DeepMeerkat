@@ -14,8 +14,6 @@ declare -r BUCKET="gs://${PROJECT}-ml"
 declare -r GCS_PATH="${BUCKET}/${USER}/${JOB_ID}"
 declare -r MODEL_NAME="DeepMeerkat"
 
-#TODO if model name exists:
-
 #from scratch
 python pipeline.py \
     --project ${PROJECT} \
@@ -39,7 +37,6 @@ chmod a+w /mnt/gcs-bucket
 
 #MOUNT 
 gcsfuse --implicit-dirs api-project-773889352370-ml ~/mnt/gcs-bucket
-
 gsutil cp gs://api-project-773889352370-ml/Hummingbirds/trainingdata.csv .
 head trainingdata.csv | cut -d ',' -f1 > eval.csv
 
@@ -67,9 +64,9 @@ gcloud ml-engine jobs submit prediction $JOB_NAME \
 gsutil cp -r gs://api-project-773889352370-ml/Hummingbirds/Prediction/ .
 
 #Parse predictions and enter information into database, key, prediction, run, date
-python ParsePredictions.py -input Prediction/
+python ParsePredictions.py -input Prediction/ -ouput $JOB_NAME
 
-gsutil cp Predictions.csv gs://api-project-773889352370-ml/Hummingbirds/Prediction/
+gsutil cp $JOB_NAME.csv gs://api-project-773889352370-ml/Hummingbirds/Prediction/
 
 exit
 
