@@ -110,7 +110,7 @@ python ParsePredictions.py -input /mnt/gcs-bucket/Hummingbirds/Prediction/$JOB_N
 gsutil cp $JOB_NAME.csv gs://api-project-773889352370-ml/Hummingbirds/Prediction/Summary/
 
 #eva;
-python ParsePredictions.py -input /mnt/gcs-bucket/Hummingbirds/Prediction/$JOB_NAME_holdout/ -ouput $JOB_NAME_holdout
+python ParsePredictions.py -input /mnt/gcs-bucket/Hummingbirds/Prediction/$JOB_NAME_holdout/ -output $JOB_NAME_holdout
 
 gsutil cp $JOB_NAME_holdout.csv gs://api-project-773889352370-ml/Hummingbirds/Prediction/Summary
 
