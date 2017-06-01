@@ -105,14 +105,14 @@ gcloud ml-engine jobs stream-logs $JOB_NAME_holdout
 
 #holdout
 #Parse predictions and enter information into database, key, prediction, run, date
-python ParsePredictions.py -input /mnt/gcs-bucket/Hummingbirds/Prediction/$JOB_NAME/ -ouput $JOB_NAME
+python ParsePredictions.py -input /mnt/gcs-bucket/Hummingbirds/Prediction/$JOB_NAME/ -output $JOB_NAME
 
-gsutil cp $JOB_NAME.csv gs://api-project-773889352370-ml/Hummingbirds/Prediction/Summary/
+gsutil cp "$JOB_NAME"_eval.csv gs://api-project-773889352370-ml/Hummingbirds/Prediction/Summary/
 
 #eva;
 python ParsePredictions.py -input /mnt/gcs-bucket/Hummingbirds/Prediction/$JOB_NAME_holdout/ -output $JOB_NAME_holdout
 
-gsutil cp $JOB_NAME_holdout.csv gs://api-project-773889352370-ml/Hummingbirds/Prediction/Summary
+gsutil cp "$JOB_NAME_holdout"_holdout.csv gs://api-project-773889352370-ml/Hummingbirds/Prediction/Summary
 
 
 exit
