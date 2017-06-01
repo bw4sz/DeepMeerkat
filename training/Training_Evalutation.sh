@@ -52,7 +52,7 @@ gsutil cp gs://api-project-773889352370-ml/Hummingbirds/trainingdata.csv .
 head trainingdata.csv | cut -d ',' -f1 > eval.csv
 
 #extract eval frames to predict
-cat /mnt/gcs-bucket/Hummingbirds/testingdata.csv  | cut -f 1 -d "," | head -n 20 > eval_files.txt
+cat /mnt/gcs-bucket/Hummingbirds/testingdata.csv  | cut -f 1 -d "," > eval_files.txt
 
 #fix local mount path
 sed "s|gs://api-project-773889352370-ml/|/mnt/gcs-bucket/|g" eval_files.txt  > jpgs.txt
@@ -80,7 +80,7 @@ gsutil cp gs://api-project-773889352370-ml/Hummingbirds/holdoutdata.csv .
 head trainingdata.csv | cut -d ',' -f1 > eval.csv
 
 #extract eval frames to predict
-cat /mnt/gcs-bucket/Hummingbirds/holdoutdata.csv  | cut -f 1 -d "," | head -n 20 > eval_files.txt
+cat /mnt/gcs-bucket/Hummingbirds/holdoutdata.csv  | cut -f 1 -d ","  > eval_files.txt
 
 #fix local mount path
 sed "s|gs://api-project-773889352370-ml/|/mnt/gcs-bucket/|g" eval_files.txt  > jpgs.txt

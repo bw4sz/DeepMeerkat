@@ -39,7 +39,7 @@ class tensorflow:
                 self.image_name.append(numpy_name)
 
         # Loads label file, strips off carriage return
-        self.label_lines = [line.rstrip() for line in tf.gfile.GFile("tensorflow/dict.txt")]
+        self.label_lines = [line.rstrip() for line in tf.gfile.GFile("training/dict.txt")]
         
         # Feed the image_data as input to the graph and get first prediction
         softmax_tensor = sess.graph.get_tensor_by_name('final_ops/softmax:0')
