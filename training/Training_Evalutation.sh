@@ -48,9 +48,6 @@ gcsfuse --implicit-dirs api-project-773889352370-ml ~/mnt/gcs-bucket
 #Evaluation data
 ##########################
 
-gsutil cp gs://api-project-773889352370-ml/Hummingbirds/trainingdata.csv .
-head trainingdata.csv | cut -d ',' -f1 > eval.csv
-
 #extract eval frames to predict
 cat /mnt/gcs-bucket/Hummingbirds/testingdata.csv  | cut -f 1 -d "," > eval_files.txt
 

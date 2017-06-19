@@ -71,15 +71,13 @@ class tensorflow:
             cv2.putText(image,annotation,(10,20), font, 0.75,(255,255,255),1,cv2.LINE_AA)            
             cv2.imshow("Annotation", image)
             cv2.waitKey(wait_time)
-
-print(__name__)
         
 if __name__ == "__main__":
     sess=tf.Session()
     tf.saved_model.loader.load(sess,[tf.saved_model.tag_constants.SERVING], "C:/Users/Ben/Dropbox/GoogleCloud/hummingbird_model/")    
     tensorflow_instance=tensorflow()
-    photos_run=glob.glob("C:/Users/Ben/Dropbox/Thesis/Maquipucuna_SantaLucia/FlowerPhotos/*.jpg")
-    
+    #photos_run=glob.glob("C:/Users/Ben/Dropbox/Thesis/Maquipucuna_SantaLucia/FlowerPhotos/*.jpg")
+    photos_run=glob.glob("C:/Users/Ben/Dropbox/GoogleCloud/Negatives/*.jpg")
     for x in photos_run:
         pred=tensorflow_instance.predict(read_from="file",sess=sess,imagedir=x)
         tensorflow_instance.show(wait_time=0)

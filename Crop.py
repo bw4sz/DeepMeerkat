@@ -1,4 +1,5 @@
 import cv2
+import argparse
 
 # BBoxes must be in the format:
 # ( (topleft_x), (topleft_y) ), ( (bottomright_x), (bottomright_y) ) )
@@ -52,4 +53,10 @@ def Crop(img,title):
     
     cv2.destroyAllWindows()
     
+    print(roi)
     return(roi)    
+
+if __name__=="__main__":
+    
+    img=cv2.imread("G:/June2017/NF017/131214AB/734.jpg")
+    Crop(img,"image")

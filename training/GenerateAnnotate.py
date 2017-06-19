@@ -1,0 +1,43 @@
+import glob
+import cv2
+
+
+cv2.namedWindow("image")
+images=glob.glob("C:/Users/Ben/Dropbox/HummingbirdProject/Completed_Frames/**/*.jpg",recursive=True)
+position=93
+
+pfilename=list(range(1,10000))
+pfilename.reverse()
+nfilename=list(range(1,10000))
+nfilename.reverse()
+
+while(True):
+    #show images
+    print("=="*40)
+    print(position)
+    print(images[position])
+    img=cv2.imread(images[position])
+    cv2.imshow("image", img)    
+    k=cv2.waitKey(0)
+    if not k==255:
+        print(k)
+    #1key positive
+    if k==49:
+        fname="C:/Users/Ben/Dropbox/GoogleCloud/Positives/" + str(pfilename.pop())+".jpg"
+        cv2.imwrite(filename=fname,img=img)
+        position+=1
+        
+    #2key negative
+    if k==50:
+        fname="C:/Users/Ben/Dropbox/GoogleCloud/Negatives/" +str(nfilename.pop())+".jpg"
+        cv2.imwrite(filename=fname,img=img)
+        position+=1
+        
+    #9, go back
+    if k==57:
+        position+=-1
+        
+    #rightkey go forward    
+    if k==48:
+        position+=1
+        
