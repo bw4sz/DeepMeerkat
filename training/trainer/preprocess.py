@@ -70,7 +70,7 @@ import sys
 
 import apache_beam as beam
 from apache_beam.metrics import Metrics
-from apache_beam.utils.pipeline_options import PipelineOptions
+from apache_beam.pipeline import PipelineOptions
 from PIL import Image
 import tensorflow as tf
 

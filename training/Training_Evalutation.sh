@@ -6,6 +6,9 @@ gcloud compute ssh cloudml
 #Start docker instance
 sudo docker run -it --privileged -- gcr.io/api-project-773889352370/cloudmlengine 
 
+#make sure you have the right apache beam
+pip install apache-beam --upgrade
+
 #Startup script
 git clone https://github.com/bw4sz/DeepMeerkat.git
 cd DeepMeerkat/training
