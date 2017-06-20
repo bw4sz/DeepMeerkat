@@ -27,7 +27,7 @@ def process_args():
     parser.add_argument('--positives', help='Google cloud storage path for positive samples.',default="gs://api-project-773889352370-ml/Hummingbirds/Positives/")
     parser.add_argument('--negatives', help='Google cloud storage path for negatives samples.',default="gs://api-project-773889352370-ml/Hummingbirds/Negatives/")
     parser.add_argument('--prop', help='Proportion of training data',default=0.8,type=float)
-    parser.add_argument('--prop_out', help='Proportion of testing data to hold out of sample',default=0.5,type=float)    
+    parser.add_argument('--prop_out', help='Proportion of testing data to hold out of sample',default=0.1,type=float)    
     parser.add_argument('--debug', help='Debug dataset, only write a small portion to reduce run time',action="store_true")    
     
     args, _ = parser.parse_known_args()

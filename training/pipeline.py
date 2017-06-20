@@ -212,7 +212,7 @@ class FlowersE2E(object):
     """
     job_name = ('DeepMeerkat' +
                 datetime.datetime.now().strftime('%Y%m%d%H%M%S')  +
-                '-' + dataset_name)
+                '' + dataset_name)
 
     options = {
         'staging_location':

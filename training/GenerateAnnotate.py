@@ -3,7 +3,7 @@ import cv2
 
 
 cv2.namedWindow("image")
-images=glob.glob("C:/Users/Ben/Dropbox/HummingbirdProject/Completed_Frames/**/*.jpg",recursive=True)
+images=glob.glob("G:/Crops/**/*.jpg",recursive=True)
 position=93
 
 pfilename=list(range(1,10000))
@@ -15,7 +15,11 @@ while(True):
     #show images
     print("=="*40)
     print(position)
-    print(images[position])
+    try: 
+        print(images[position])
+    except:
+        print("Images complete")
+        break
     img=cv2.imread(images[position])
     cv2.imshow("image", img)    
     k=cv2.waitKey(0)
@@ -37,7 +41,7 @@ while(True):
     if k==57:
         position+=-1
         
-    #rightkey go forward    
+    #0 go forward    
     if k==48:
         position+=1
         
