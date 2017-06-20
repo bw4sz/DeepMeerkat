@@ -211,8 +211,7 @@ class FlowersE2E(object):
       trainer_uri: Path to the Flower's trainer package.
     """
     job_name = ('DeepMeerkat' +
-                datetime.datetime.now().strftime('%Y%m%d%H%M%S')  +
-                '' + dataset_name)
+                datetime.datetime.now().strftime('%Y%m%d%H%M%S') + dataset_name)
 
     options = {
         'staging_location':
