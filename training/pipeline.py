@@ -34,7 +34,7 @@ from tensorflow.python.framework import errors
 import trainer.preprocess as preprocess_lib
 
 # Model variables
-MODEL_NAME = 'DeepMeerkat'
+MODEL_NAME = 'flowers'
 TRAINER_NAME = 'trainer-0.1.tar.gz'
 METADATA_FILE_NAME = 'metadata.json'
 EXPORT_SUBDIRECTORY = 'model'
@@ -210,8 +210,9 @@ class FlowersE2E(object):
       dataflow_sdk_location: path to Dataflow SDK package.
       trainer_uri: Path to the Flower's trainer package.
     """
-    job_name = ('deepmeerkat' +
-                datetime.datetime.now().strftime('%Y%m%d%H%M%S') + dataset_name)
+    job_name = ('cloud-ml-sample-flowers-' +
+                datetime.datetime.now().strftime('%Y%m%d%H%M%S')  +
+                '-' + dataset_name)
 
     options = {
         'staging_location':
@@ -254,7 +255,7 @@ class FlowersE2E(object):
     ]
 
     if self.args.cloud:
-      job_name = 'DeepMeerkat' + datetime.datetime.now().strftime(
+      job_name = 'flowers_model' + datetime.datetime.now().strftime(
           '_%y%m%d_%H%M%S')
       command = [
           'gcloud', 'ml-engine', 'jobs', 'submit', 'training', job_name,
@@ -277,20 +278,20 @@ class FlowersE2E(object):
     subprocess.check_call(command)
 
   def deploy_model(self, model_path):
-    """Deploys the trained model version.
+    """Deploys the trained model.
 
     Args:
       model_path: Path to the trained model.
     """
 
-    #create_model_cmd = [
-    #    'gcloud', 'ml-engine', 'models', 'create', self.args.deploy_model_name,
-    #    '--regions', 'us-central1',
-    #    '--project', self.args.project,
-    #]
+    create_model_cmd = [
+        'gcloud', 'ml-engine', 'models', 'create', self.args.deploy_model_name,
+        '--regions', 'us-central1',
+        '--project', self.args.project,
+    ]
 
-    #print(create_model_cmd)
-    #subprocess.check_call(create_model_cmd)
+    print create_model_cmd
+    subprocess.check_call(create_model_cmd)
 
     submit = [
         'gcloud', 'ml-engine', 'versions', 'create',
@@ -302,13 +303,13 @@ class FlowersE2E(object):
     ]
     if not model_path.startswith('gs://'):
       submit.extend(['--staging-bucket', self.args.gcs_bucket])
-    print(submit)
+    print submit
     subprocess.check_call(submit)
 
     self.adaptive_wait()
 
-    print('Deployed %s version: %s' % (self.args.deploy_model_name,
-                                       self.args.deploy_model_version))
+    print 'Deployed %s version: %s' % (self.args.deploy_model_name,
+                                       self.args.deploy_model_version)
 
   def adaptive_wait(self):
     """Waits for a model to be fully deployed.
@@ -380,7 +381,7 @@ class FlowersE2E(object):
         train_prefix, eval_prefix = self.preprocess()
       self.train(train_prefix + '*', eval_prefix + '*')
       model_path = os.path.join(self.args.output_dir, EXPORT_SUBDIRECTORY)
-    #self.deploy_model(model_path)
+    self.deploy_model(model_path)
 
 
 def get_cloud_project():
