@@ -77,7 +77,7 @@ if __name__ == "__main__":
     tf.saved_model.loader.load(sess,[tf.saved_model.tag_constants.SERVING], "C:/Users/Ben/Dropbox/GoogleCloud/hummingbird_model/")    
     tensorflow_instance=tensorflow()
     #photos_run=glob.glob("C:/Users/Ben/Dropbox/Thesis/Maquipucuna_SantaLucia/FlowerPhotos/*.jpg")
-    photos_run=glob.glob("C:/Users/Ben/Dropbox/GoogleCloud/Negatives/*.jpg")
+    photos_run=glob.glob("G:/Crops_06212017/*.jpg")
     for x in photos_run:
         pred=tensorflow_instance.predict(read_from="file",sess=sess,imagedir=x)
         tensorflow_instance.show(wait_time=0)

@@ -6,7 +6,7 @@ import os
 import math
 from collections import defaultdict
 #Find csv
-csvs=glob.glob("C:/Users/Ben/Dropbox/HummingbirdProject/Completed_Frames/**/*.csv",recursive=True)
+csvs=glob.glob("G:/June2017/**/*.csv",recursive=True)
 
 def mult(p,x):
     return(int(p+p*x))
@@ -98,11 +98,11 @@ for f in csvs:
             current_image=img[p1:p2,p3:p4]
 
             #4. Resize Image
-            resized_image = cv2.resize(current_image, (227, 227))             
+            resized_image = cv2.resize(current_image, (299, 299))             
             #cv2.namedWindow("img")
             #cv2.imshow("img", resized_image)
             #k=cv2.waitKey(0)
             
             #Save image for scoring
-            cv2.imwrite("G:/Crops/"+str(crop_counter) + ".jpg",resized_image) 
+            cv2.imwrite("G:/Crops_06212017/"+str(crop_counter) + ".jpg",resized_image) 
             crop_counter+=1

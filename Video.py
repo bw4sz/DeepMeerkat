@@ -1,4 +1,5 @@
 import cv2
+import math
 from datetime import datetime, timedelta
 import os
 import numpy as np
@@ -7,6 +8,44 @@ import csv
 import time
 import Crop
 
+#general functions
+def mult(p,x):
+    return(int(p+p*x))
+
+def check_bounds(img,axis,p):
+    if p > img.shape[axis]:
+        p=img.shape[axis]
+    if p < 0:
+        p=0
+    return(p)
+
+def resize_box(img,bbox,m=math.sqrt(2)-1):
+
+    #expand box by multiplier m, limit to image edge
+
+    #max height
+    p1=mult(bbox.y+bbox.h,-m)
+    p1=check_bounds(img, 0, p1)
+
+    #min height
+    p2=mult(bbox.y,m)            
+    p2=check_bounds(img, 0, p2)            
+
+    #min width
+    p3=mult(bbox.x,-m)            
+    p3=check_bounds(img, 1, p3)            
+
+    #max width
+    p4=mult(bbox.x+bbox.w,m)                        
+    p4=check_bounds(img, 1, p4)            
+
+    #create a mask, in case its bigger than image            
+    cropped_image=img[p1:p2,p3:p4]
+
+    #Resize Image
+    resized_image = cv2.resize(cropped_image, (299, 299))  
+    return(resized_image)
+    
 class Video:
     def __init__(self,vid,args):
                 
@@ -57,7 +96,7 @@ class Video:
                        
     def analyze(self):
  
-        #load tensorflow model?
+        #load tensorflow model
         if self.args.tensorflow:
             import tensorflow as tf
             import predict
@@ -117,11 +156,21 @@ class Video:
                 if area * self.args.size < bounding_box.h * bounding_box.w:
                     remaining_bounding_box.append(bounding_box)
             
+            #next frame is no remaining bounding boxes
+            if len(remaining_bounding_box)==0:
+                continue
+            
             if self.args.tensorflow:
-                self.tensorflow_label=self.tensorflow_instance.predict(sess=sess,read_from="numpy",image_array=[self.original_image],numpy_name=self.frame_count)
+                
+                #Enlarge box and send it to tensorflow
+                clips=[]
+                for bounding_box in remaining_bounding_box:
+                    clips.append(self.original_image[bounding_box.y:bounding_box.y+bounding_box.h,bounding_box.x:bounding_box.x+bounding_box.w])
+                                
+                self.tensorflow_label=self.tensorflow_instance.predict(sess=sess,read_from="numpy",image_array=clips,numpy_name=self.frame_count)
             
                 #next frame if negative label
-                if self.tensorflow_label[self.frame_count]=="negative":
+                if not "positive" in self.tensorflow_label[self.frame_count] :
                     continue
                 
             #Write bounding box time event, depends on proper frame rate
@@ -134,9 +183,10 @@ class Video:
             
             if self.args.show:
                 for bounding_box in remaining_bounding_box:
-                    if self.args.draw: cv2.rectangle(self.original_image, (bounding_box.x, bounding_box.y), (bounding_box.x+bounding_box.w, bounding_box.y+bounding_box.h), (0,0,255), 2)
+                    if self.args.draw: 
+                        cv2.rectangle(self.original_image, (bounding_box.x, bounding_box.y), (bounding_box.x+bounding_box.w, bounding_box.y+bounding_box.h), (0,0,255), 2)
                     cv2.imshow("Motion_Event", self.original_image)
-                    cv2.waitKey(5)
+                    cv2.waitKey(0)
         cv2.destroyAllWindows()            
     
     def read_frame(self):
@@ -192,7 +242,7 @@ class Video:
                     x2,y2,w2,h2 = cv2.boundingRect(contours[j])
                     rect = Rect(x2, y2, w2, h2)
                     distance = parent_bounding_box.rect.distance_to_rect(rect)
-                    if distance < 80:
+                    if distance < 100:
                         parent_bounding_box.update_rect(self.extend_rectangle(parent_bounding_box.rect, rect))
                         parent_bounding_box.members.append(j)
         return bounding_boxes

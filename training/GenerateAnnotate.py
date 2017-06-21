@@ -3,7 +3,7 @@ import cv2
 
 
 cv2.namedWindow("image")
-images=glob.glob("G:/Crops/**/*.jpg",recursive=True)
+images=glob.glob("G:/Crops_06212017/**/*.jpg",recursive=True)
 position=93
 
 pfilename=list(range(1,10000))
