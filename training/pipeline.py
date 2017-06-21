@@ -34,7 +34,7 @@ from tensorflow.python.framework import errors
 import trainer.preprocess as preprocess_lib
 
 # Model variables
-MODEL_NAME = 'flowers'
+MODEL_NAME = 'DeepMeerkat'
 TRAINER_NAME = 'trainer-0.1.tar.gz'
 METADATA_FILE_NAME = 'metadata.json'
 EXPORT_SUBDIRECTORY = 'model'
@@ -255,7 +255,7 @@ class FlowersE2E(object):
     ]
 
     if self.args.cloud:
-      job_name = 'flowers_model' + datetime.datetime.now().strftime(
+      job_name = 'deepmeerkat' + datetime.datetime.now().strftime(
           '_%y%m%d_%H%M%S')
       command = [
           'gcloud', 'ml-engine', 'jobs', 'submit', 'training', job_name,
@@ -284,14 +284,14 @@ class FlowersE2E(object):
       model_path: Path to the trained model.
     """
 
-    create_model_cmd = [
-        'gcloud', 'ml-engine', 'models', 'create', self.args.deploy_model_name,
-        '--regions', 'us-central1',
-        '--project', self.args.project,
-    ]
+    #create_model_cmd = [
+    #    'gcloud', 'ml-engine', 'models', 'create', self.args.deploy_model_name,
+    #    '--regions', 'us-central1',
+    #    '--project', self.args.project,
+    #]
 
-    print create_model_cmd
-    subprocess.check_call(create_model_cmd)
+    #print create_model_cmd
+    #subprocess.check_call(create_model_cmd)
 
     submit = [
         'gcloud', 'ml-engine', 'versions', 'create',
