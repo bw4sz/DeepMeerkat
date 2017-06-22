@@ -1,15 +1,15 @@
 import glob
 import cv2
+import random
 
 
 cv2.namedWindow("image")
-images=glob.glob("G:/Crops_06212017/**/*.jpg",recursive=True)
-position=93
+images=glob.glob("G:/Crops/**/*.jpg",recursive=True)
+position=0
 
-pfilename=list(range(1,10000))
-pfilename.reverse()
-nfilename=list(range(1,10000))
-nfilename.reverse()
+pfilename=list(random.randint(0,1000000))
+
+nfilename=list(random.randint(0,1000000))
 
 while(True):
     #show images
