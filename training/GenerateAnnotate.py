@@ -7,9 +7,11 @@ cv2.namedWindow("image")
 images=glob.glob("G:/Crops/**/*.jpg",recursive=True)
 position=0
 
-pfilename=list(random.randint(0,1000000))
 
-nfilename=list(random.randint(0,1000000))
+pfilename=[random.randint(0,1000000) for r in range(len(images))] 
+
+
+nfilename=[random.randint(0,1000000) for r in range(len(images))] 
 
 while(True):
     #show images
