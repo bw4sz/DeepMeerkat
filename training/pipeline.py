@@ -210,7 +210,7 @@ class FlowersE2E(object):
       dataflow_sdk_location: path to Dataflow SDK package.
       trainer_uri: Path to the Flower's trainer package.
     """
-    job_name = ('cloud-ml-sample-flowers-' +
+    job_name = ('deepmeerkat' +
                 datetime.datetime.now().strftime('%Y%m%d%H%M%S')  +
                 '-' + dataset_name)
 

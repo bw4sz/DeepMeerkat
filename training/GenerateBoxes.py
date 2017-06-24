@@ -5,7 +5,6 @@ import glob
 import os
 import math
 from collections import defaultdict
-import heapq
 
 #Find csv
 csvs=glob.glob("C:/Users/Ben/Dropbox/HummingbirdProject/**/frames.csv",recursive=True)
