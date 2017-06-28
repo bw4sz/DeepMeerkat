@@ -13,6 +13,7 @@ from oauth2client.client import GoogleCredentials
 import random
 import csv
 import tempfile
+from urllib.parse import urlparse
 import argparse
 
 # Serice account credentials
@@ -66,7 +67,6 @@ class Organizer:
         print( "Found %d results" %(len( self.positives_files)))  
         
         #negatives
-        #positives
         negatives_folder_name=negatives.split("/")[3:]
         iterator=self.bucket.list_blobs(prefix="/".join(negatives_folder_name))        
         
