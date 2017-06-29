@@ -18,6 +18,8 @@ def run(argv=None):
                       help='Input file to process.')
   known_args, pipeline_args = parser.parse_known_args(argv)
   
+  p = beam.Pipeline(argv=pipeline_args)
+  
   _ = (p | 'Read input' >> known_args.input
        | 'Parse input' >> beam.Map(lambda line: csv.reader([line]).next())
        | 'Run MotionMeerkat' >> beam.ParDo(PredictDoFn()))
