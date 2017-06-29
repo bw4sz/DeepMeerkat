@@ -14,9 +14,6 @@ python prediction/run.py \
     --project $PROJECT \
     --staging_location $BUCKET/staging \
     --temp_location $BUCKET/temp \
-    --job_name $PROJECT-prediction-cs \
+    --job_name $PROJECT-deepmeerkat \
     --setup_file prediction/setup.py \
-    --model $BUCKET/model \
-    --source cs \
-    --input $BUCKET/input/images.txt \
-    --output $BUCKET/output/predict
+    --requirements_file prediction/requirements.txt \

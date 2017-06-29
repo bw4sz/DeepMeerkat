@@ -1,25 +1,9 @@
-# Copyright 2017 Google Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 import subprocess
 from distutils.command.build import build as _build
 import setuptools
 
-
-class build(_build):  # pylint: disable=invalid-name
+class build(_build): 
   sub_commands = _build.sub_commands + [('CustomCommands', None)]
-
 
 class CustomCommands(setuptools.Command):
 
@@ -30,14 +14,12 @@ class CustomCommands(setuptools.Command):
     pass
 
   def RunCustomCommand(self, command_list):
-    print 'Running command: %s' % command_list
+    print('Running command: %s' % command_list)
     p = subprocess.Popen(
         command_list,
         stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    # Can use communicate(input='y\n'.encode()) if the command run requires
-    # some confirmation.
     stdout_data, _ = p.communicate()
-    print 'Command output: %s' % stdout_data
+    print('Command output: %s' % stdout_data)
     if p.returncode != 0:
       raise RuntimeError(
           'Command %s failed: exit code: %s' % (command_list, p.returncode))
@@ -46,17 +28,29 @@ class CustomCommands(setuptools.Command):
     for command in CUSTOM_COMMANDS:
       self.RunCustomCommand(command)
 
+CUSTOM_COMMANDS = [
+  
+  #Get cmake and git
+  ['apt-get', 'install', '-y', 'cmake', 'git'],
+  ['git','clone', 'clone https://github.com/Itseez/opencv.git', '--depth', '1'],
+  ['git','clone', 'https://github.com/Itseez/opencv_contrib.git', '--depth', '1'],
+  ['cd', 'opencv'],
+  ['mkdir', 'build'],
+  ['cd', 'build'], 
+  ['cmake','..'],
+  ['make', '-j4'],
+  ['make', 'install'] 
+  ['ldconfig']]                   ]
 
-CUSTOM_COMMANDS = [[
-    'pip', 'install',
-    'https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-0.12.1-cp27-none-linux_x86_64.whl']]
-
-REQUIRED_PACKAGES = []
+#Install tensorflow
+#['pip', 'install','https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-0.12.1-cp27-none-linux_x86_64.whl'],
+  
+REQUIRED_PACKAGES = ['numpy']
 
 setuptools.setup(
-    name='tensorflow-module',
+    name='DeepMeerkat',
     version='0.0.1',
-    description='TensorFlow model prediction package.',
+    description='Running MotionMeerkat in the Cloud',
     install_requires=REQUIRED_PACKAGES,
     packages=setuptools.find_packages(),
     cmdclass={'build': build, 'CustomCommands': CustomCommands})
