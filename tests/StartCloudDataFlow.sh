@@ -1,6 +1,10 @@
 #! /bin/bash 
+gcloud compute ssh cloudml 
 
 sudo docker run -it --privileged -- gcr.io/api-project-773889352370/gcloudenv 
+
+#clone repo
+git clone https://github.com/bw4sz/DeepMeerkat.git
 
 PROJECT=$(gcloud.cmd config list project --format "value(core.project)")
 BUCKET=gs://$PROJECT-testing

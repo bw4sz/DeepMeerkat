@@ -11,7 +11,7 @@ import random
 import csv
 import tempfile
 import argparse
-from urllib.parse import urlparse
+from urlparse import urlparse
 
 # Serice account credentials
 #if on google cloud, can get credentials directly.
