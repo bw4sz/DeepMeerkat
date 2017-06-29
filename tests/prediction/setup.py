@@ -39,13 +39,12 @@ CUSTOM_COMMANDS = [
   ['cd', 'build'], 
   ['cmake','..'],
   ['make', '-j4'],
-  ['make', 'install'] 
-  ['ldconfig']]                   ]
+  ['make', 'install'], 
+  ['ldconfig']]      
 
 #Install tensorflow
-#['pip', 'install','https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-0.12.1-cp27-none-linux_x86_64.whl'],
   
-REQUIRED_PACKAGES = ['numpy']
+REQUIRED_PACKAGES = ['numpy','opencv-python','tensorflow']
 
 setuptools.setup(
     name='DeepMeerkat',
