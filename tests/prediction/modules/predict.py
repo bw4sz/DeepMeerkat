@@ -20,7 +20,9 @@ def run(argv=None):
   
   p = beam.Pipeline(argv=pipeline_args)
   
-  _ = (p | 'Read input' >> known_args.input| 'Parse input' >> beam.Map(lambda line: csv.reader([line]).next())| 'Run MotionMeerkat' >> beam.ParDo(PredictDoFn()))
+  vids = (p | 'Read input' >> known_args.input
+       | 'Parse input' >> beam.Map(lambda line: csv.reader([line]).next())
+       | 'Run MotionMeerkat' >> beam.ParDo(PredictDoFn()))
 
   logging.getLogger().setLevel(logging.INFO)
   p.run()
