@@ -55,7 +55,7 @@ class Organizer:
         #Write to temp then send to google cloud
         handle, fn = tempfile.mkstemp(suffix='.csv')
         
-        with open(handle,"w",newline='') as f:
+        with open(fn,"wb") as f:
             writer=csv.writer(f)
             for row in self.video_list:
                 writer.writerow([row])
