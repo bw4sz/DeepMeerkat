@@ -23,6 +23,6 @@ def run(argv=None):
   vids = (p | 'Read input' >> known_args.input
        | 'Parse input' >> beam.Map(lambda line: csv.reader([line]).next())
        | 'Run MotionMeerkat' >> beam.ParDo(PredictDoFn()))
-
+  
   logging.getLogger().setLevel(logging.INFO)
   p.run()
