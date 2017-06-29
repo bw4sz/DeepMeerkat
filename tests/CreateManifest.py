@@ -61,7 +61,7 @@ class Organizer:
                 writer.writerow([row])
             
         #write to google cloud
-        blob=self.bucket.blob("manifest.csv")
+        blob=self.bucket.blob("DataFlow/manifest.csv")
         blob.upload_from_filename(fn)
                 
 if __name__ == "__main__":

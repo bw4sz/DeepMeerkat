@@ -14,15 +14,11 @@ class PredictDoFn(beam.DoFn):
 
 def run(argv=None):
   parser = argparse.ArgumentParser()
-  parser.add_argument('--input', dest='input', required=True,
+  parser.add_argument('--input', dest='input', default="gs://api-project-773889352370-testing/Dataflow/manifest.csv",
                       help='Input file to process.')
-  parser.add_argument('--output', dest='output', required=True,
-                      help='Output file to write results to.')
-  parser.add_argument('--source', dest='source', default="gs://api-project-773889352370-testing/Dataflow/",
-                      help='Data source location.')
   known_args, pipeline_args = parser.parse_known_args(argv)
   
-  _ = (p | 'Read input' >> read_input_source
+  _ = (p | 'Read input' >> known_args.input
        | 'Parse input' >> beam.Map(lambda line: csv.reader([line]).next())
        | 'Run MotionMeerkat' >> beam.ParDo(PredictDoFn()))
 
