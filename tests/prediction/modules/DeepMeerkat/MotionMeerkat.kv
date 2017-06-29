@@ -1,0 +1,333 @@
+
+<MyScreenManager>:
+    MainScreen:
+    
+<MainScreen>:
+    name:'GUI'
+    BoxLayout:
+        orientation:'vertical'
+        BoxLayout:
+            BoxLayout:
+                orientation:'vertical'
+                spacing:-1
+                size_hint:(0.25,1)
+                Label:
+                    text:"MotionMeerkat V2.0.5"
+                    font_size:12
+                Button:
+                    text:"Help"
+                    font_size:10
+                    on_press: root.help_site()
+                Button:
+                    text:"Submit Issue"
+                    font_size:10
+                    on_press: root.help_issue()
+            TextInput:
+                id:fc
+                text:"Input File or Folder"
+                on_focus: root.checkfile(app.root.motionVid)
+                font_size:20
+                size_hint:(1,.5)
+                multiline:False
+            Button:
+                text:"Advanced settings"
+                on_press: root.gotoAdvanced(app.root)
+                size_hint:(0.3,0.5)
+        TextInput:
+            id:outd
+            text:"Output Location (C:/MotionMeerkat)"
+            on_text: app.root.motionVid.fileD=self.text
+            font_size:20
+            size_hint:(.645,.5)
+            pos_hint:{'center_x':0.485}
+            multiline:False
+        BoxLayout:
+            orientation:'horizontal'
+            spacing:10
+            size_hint:(1,0.5)
+            pos_hint:{'center_x':0.5}
+            Label:
+                text:"How much background variation [eg. wind, waves, debris] do you expect in your video?"
+                font_size:15
+                size_hint:(1,1)
+        BoxLayout:
+            spacing:10
+            size_hint:(1,.3)
+            pos_hint:{'center_x':0.5}
+            Label:
+                text:"No Movement"
+                font_size:15
+                size_hint:(.15,1)
+            Slider:
+                id:moglearn
+                min:0
+                max:5
+                value:3
+                on_value:app.root.motionVid.q1=self.value
+                step:1
+                size_hint:(0.7,1)    
+            Label:
+                text:"Extreme Movement"
+                font_size:15
+                size_hint:(.15,1)
+            Label:
+                text:str(int(moglearn.value))
+                size_hint:(0.1,1)
+        BoxLayout:
+            orientation:'horizontal'
+            spacing:10
+            size_hint:(1,0.5)
+            pos_hint:{'center_y':0.1}
+            Label:
+                text:"How quickly does your organism move?\n      Increasing returns fewer frames"
+                font_size:15
+                size_hint:(1,0.6)
+        BoxLayout:
+            orientation:'horizontal'
+            size_hint:(0.8,0.4)
+            pos_hint:{'center_x':0.47}
+            Image:
+                source:"images/shark.png"
+            Image:
+                source:"images/butterfly.png"       
+            Image:
+                source:"images/bird.png"
+        BoxLayout:
+            spacing:10
+            size_hint:(1,.6)
+            pos_hint:{'center_y':0.1}
+            Label:
+                text:"Slow"
+                font_size:15
+                size_hint:(.15,1)
+            Slider:
+                id:tollearn
+                min:0
+                max:5
+                value:3
+                step:1
+                size_hint:(0.7,1)
+                on_value: app.root.motionVid.q2=self.value
+            Label:
+                text:"Fast"
+                font_size:15
+                size_hint:(.15,1)
+            Label:
+                text:str(int(tollearn.value))
+                size_hint:(.1,1)
+        BoxLayout:
+            BoxLayout:
+                orientation:'vertical'
+                size_hint:(0.5,0.9)
+                pos_hint:{'top':1}
+                Label:
+                    text:"Min. object size (0-100% of frame)"
+                    font_size:13
+                TextInput:
+                    id:mstext
+                    font_size:20
+                    text:"0.1"
+                    size_hint:(0.3,1)
+                    multiline:False
+                    pos_hint:{'center_x':0.5}
+                    on_text: app.root.motionVid.minSIZE=float(self.text)/100
+            BoxLayout:
+                orientation:'vertical'
+                size_hint:(0.5,0.9)
+                pos_hint:{'top':1}
+                Label:
+                    text:"[b]Or [/b] Draw your object size on screen"
+                    font_size:13
+                    markup:True
+                CheckBox:
+                    on_active: root.on_check_draw(self.active,app.root.motionVid)
+            BoxLayout:
+                orientation:'vertical'
+                size_hint:(1,0.9)
+                pos_hint:{'top':1}
+                Label:
+                    text:"Crop area of motion detection"
+                    font_size:15
+                CheckBox:
+                    on_active: root.on_check_roi(self.active,app.root.motionVid)
+        Button: 
+            text:"Run"
+            font_size:40
+            size_hint:(1,0.6)
+            on_release:root.run_press(app.root)
+            
+<AdvancedScreen>
+    on_enter:app.root.motionVid.mode='advanced'
+    BoxLayout:
+        orientation:'vertical'
+        Button:
+            text: "Back"
+            size_hint:(0.2,.3)
+            pos_hint:{'top':0}
+            on_press:root.gotoMain(app.root)
+        BoxLayout:
+            Label:
+                text:"Motion Detection Method:"
+            ToggleButton:
+                text: "MOG"
+                group:"Submethod"
+                state:'down'
+                on_press:app.root.motionVid.subMethod='MOG'
+            ToggleButton:
+                text:"Acc"
+                group:"Submethod"
+                on_press:app.root.motionVid.subMethod='Acc'
+        BoxLayout:
+            Label:
+                text:"Adapt"
+            CheckBox:
+                active: True
+                on_active:app.root.motionVid.adapt=self.active
+        BoxLayout:
+            Label:
+                text: "Draw Motion Objects"
+            CheckBox:
+                active: False
+                on_active:app.root.motionVid.todraw=self.active
+
+        BoxLayout:
+            Label:
+                text: "Delay motion detection (minutes)"
+            TextInput:
+                text:str(0)
+                multiline:False
+                on_text:app.root.motionVid.burnin=float(self.text)
+                size_hint:(0.3,1)
+                pos_hint:{'center_x':0.5}
+                font_size:20
+        BoxLayout:
+            Label:
+                text: "Scan Video (frames)"
+            TextInput:
+                text:str(0)
+                multiline:False
+                on_text:app.root.motionVid.scan=int(self.text)
+                size_hint:(0.3,1)
+                font_size:20
+        BoxLayout:
+            Label:
+                text: "Remove singles (frames)"
+            TextInput:
+                text:str(0)
+                on_text: if self.text > float(0): self.remove_singles=True
+                multiline:False
+                on_text:app.root.motionVid.single_distance=float(self.text)
+                size_hint:(0.3,1)
+                font_size:20
+        BoxLayout:
+            Label:
+                text: "Output Format"
+            ToggleButton:
+                text:"Frames"
+                group:"Out"
+                on_press:app.root.motionVid.makeVid="frames"
+                state:'down'
+            ToggleButton:
+                text:"Video"
+                group:"Out"
+                on_press:app.root.motionVid.makeVid="video"
+            ToggleButton:
+                text:"Both"
+                group:"Out"
+                on_press:app.root.motionVid.makeVid="both"
+        Button:
+            text:"Run"
+            font_size:40
+            size_hint:(1,0.6)
+            on_release:root.run_press(app.root)
+
+<ProgressScreen>
+    id: P
+    on_pre_enter:root.assignname(app.root.motionVid)
+    on_enter: root.MotionM(app.root.motionVid)
+    on_waitflag: if self.waitflag==1: root.gotoresults(app.root)
+    on_errorflag: if self.errorflag==1: root.gotoErrorScreen(app.root)
+
+    BoxLayout:
+        orientation:'vertical'
+        BoxLayout:
+            size_hint:(1,1)
+            pos_hint:{'center_y':1}
+            orientation:'vertical'
+            Label:
+                text: "[b]Input File:[/b] " + str(root.video_id[-1])
+                markup: True
+                font_size:20
+            Label:
+                text: "[b]Output Directory:[/b] " + str(app.root.motionVid.fileD)
+                markup: True
+                font_size:20
+        BoxLayout:
+            size_hint:(0.9,1)
+            
+            Label:
+                text: 'Progress'
+                size_hint:(0.25,1)
+                font_size:20
+            ProgressBar:
+                id:pb
+                value: 0
+                size_hint:(0.8,1)
+                                          
+<ResultsScreen>
+    on_enter: root.plots(app.root.motionVid)
+
+    BoxLayout:
+        orientation:'vertical'
+        Button:
+            text: "Restart"
+            size_hint:(0.2,.3)
+            pos_hint:{'top':0}
+            on_press:root.gotoMain(app.root)
+        Label:
+            text: "[b]Input File:[/b] " + str(app.root.motionVid.inDEST)
+            markup: True
+            font_size:20
+        Label:
+            text: "[b]Output Directory:[/b] " + str(app.root.motionVid.fileD)
+            markup: True
+            font_size:20
+        Label:
+            text: "[b]Run time:[/b] " + str(round(app.root.motionVid.total_min,2)) + " min"
+            markup: True
+            font_size:20
+        Label:
+            text:str(app.root.motionVid.total_count) + " candidate motion frames " + "from " + str(app.root.motionVid.frame_count) + " images (" + str(round(float(app.root.motionVid.total_count)/app.root.motionVid.frame_count,3)*100) + "%)"
+            font_size:20
+        Button:
+            text: "More statistics and parameter information"
+            size_hint:(1,0.5)
+            on_press: root.openfile(app.root.motionVid)   
+
+<ErrorScreen>
+    on_enter:root.getMessage(app.root)
+    BoxLayout:
+        orientation:'vertical'
+        Button:
+            text:"Restart"
+            on_press:root.gotoMain(app.root)
+            size_hint:(0.25,0.4)
+        Label:
+            text: "Error occurred!"
+            font_size:20
+        TextInput:
+            id:"emessage'
+            text: root.em
+            size_hint:(1,2)
+        Button:
+            text: "Parameter Log"
+            size_hint:(1,0.5)
+            on_press: root.openfile(app.root.motionVid)           
+        Label:
+            text: "If you believe this is a bug, submit the parameter log,\na copy of your error, and a description of your video to the link below."            
+        Button:
+            text: "Send Error Report"
+            on_press: root.help_issue()
+            size_hint:(1,0.5)
+
+    

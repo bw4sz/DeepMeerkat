@@ -10,7 +10,7 @@ import DeepMeerkat
 class PredictDoFn(beam.DoFn):
   def process(self,element):
       DeepMeerkat.MotionMeerkat(element)
-    return None
+      return None
 
 def run(argv=None):
   parser = argparse.ArgumentParser()

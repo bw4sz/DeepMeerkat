@@ -1,0 +1,1 @@
+alias gcloud=gcloud.cmd
