@@ -1,4 +1,5 @@
 import cv2
+from urllib.parse import urlparse
 import math
 from datetime import datetime, timedelta
 import os
@@ -63,19 +64,34 @@ class Video:
         self.annotations={}
         
         #create output directory
-        normFP=os.path.normpath(self.args.input)
-        (filepath, filename)=os.path.split(normFP)
-        (shortname, extension) = os.path.splitext(filename)
-        (_,IDFL) = os.path.split(filepath) 
+        #if google cloud storage file
+        if self.args.input[0:3] =="gs:":
+            self.googlecloud=True
+            
+            credentials = GoogleCredentials.get_application_default()
+            storage_client = storage.Client()
+            self.parsed = urlparse(args.input_dir)
         
-        if self.args.batch:
-            self.file_destination=os.path.join(self.args.output,shortname)        
+            #parse gcp path
+            self.bucket = storage_client.get_bucket(self.parsed.hostname)    
+            
+            #Write to temp then send to google cloud
+            handle, self.file_destination = tempfile.mkstemp(suffix='.csv')
+                            
         else:
-            self.file_destination=os.path.join(self.args.output,IDFL)
-            self.file_destination=os.path.join(self.file_destination,shortname)        
-
-        if not os.path.exists(self.file_destination):
-            os.makedirs(self.file_destination)        
+            normFP=os.path.normpath(self.args.input)
+            (filepath, filename)=os.path.split(normFP)
+            (shortname, extension) = os.path.splitext(filename)
+            (_,IDFL) = os.path.split(filepath) 
+            
+            if self.args.batch:
+                self.file_destination=os.path.join(self.args.output,shortname)        
+            else:
+                self.file_destination=os.path.join(self.args.output,IDFL)
+                self.file_destination=os.path.join(self.file_destination,shortname)        
+    
+            if not os.path.exists(self.file_destination):
+                os.makedirs(self.file_destination)        
             
         #read video
         self.cap=cv2.VideoCapture(self.args.video)
@@ -307,6 +323,12 @@ class Video:
                 bboxes=self.annotations[x]
                 for bbox in bboxes: 
                     writer.writerow([x,bbox.x,bbox.y,bbox.h,bbox.w])
+                    
+        if self.googlecloud:
+            #write to google cloud
+            blob=self.bucket.blob("DataFlow/manifest.csv")
+            blob.upload_from_filename(fn)            
+            
                     
     def adapt(self):
         
