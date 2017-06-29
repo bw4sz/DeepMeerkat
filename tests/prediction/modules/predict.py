@@ -14,7 +14,7 @@ class PredictDoFn(beam.DoFn):
 
 def run(argv=None):
   parser = argparse.ArgumentParser()
-  parser.add_argument('--input', dest='input', default="gs://api-project-773889352370-testing/Dataflow/manifest.csv",
+  parser.add_argument('--input', dest='input', default="gs://api-project-773889352370-testing/DataFlow/manifest.csv",
                       help='Input file to process.')
   known_args, pipeline_args = parser.parse_known_args(argv)
   
