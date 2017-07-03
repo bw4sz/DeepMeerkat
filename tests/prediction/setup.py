@@ -43,7 +43,7 @@ CUSTOM_COMMANDS = [
   ['make', 'install'], 
   ['ldconfig']]      
   
-REQUIRED_PACKAGES = ['numpy','opencv-python']
+REQUIRED_PACKAGES = ['numpy']
 
 setuptools.setup(
     name='DeepMeerkat',
