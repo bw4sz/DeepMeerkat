@@ -37,7 +37,7 @@ CUSTOM_COMMANDS = [
   ['git','clone', 'https://github.com/Itseez/opencv_contrib.git', '--depth', '1'],
   ['mkdir', 'opencv/build'],
   ['cmake','-Hopencv',"-Bopencv/build"],
-  ['cd','opencv/build'],
+  ['cd','/root/DeepMeerkat/tests/prediction/opencv/build'],
   ['make', '-j4'],
   ['make', 'install'], 
   ['ldconfig']]      
