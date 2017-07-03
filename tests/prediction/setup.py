@@ -35,6 +35,7 @@ CUSTOM_COMMANDS = [
   ['apt-get', 'install', '-y', 'cmake', 'git'],
   ['git','clone', 'https://github.com/Itseez/opencv.git', '--depth', '1'],
   ['git','clone', 'https://github.com/Itseez/opencv_contrib.git', '--depth', '1'],
+  ['pwd'],
   ['cd', 'opencv'],
   ['mkdir', 'build'],
   ['cd', 'build'], 
