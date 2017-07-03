@@ -38,7 +38,7 @@ CUSTOM_COMMANDS = [
   ['mkdir', 'opencv/build'],
   ['cmake','-Hopencv',"-Bopencv/build"],
   ['make','-C', 'opencv/build','-j4'],
-  ['make', '-C','opencv/build' 'install'], 
+  ['make', '-C','opencv/build','install'], 
   ['ldconfig']]      
   
 REQUIRED_PACKAGES = ['numpy']
