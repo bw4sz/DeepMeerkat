@@ -120,7 +120,10 @@ class Video:
             tf.saved_model.loader.load(sess,[tf.saved_model.tag_constants.SERVING], self.args.path_to_model)                
             self.tensorflow_instance=predict.tensorflow()
         
-        if self.args.show: cv2.namedWindow("Motion_Event")            
+        if self.args.show: 
+            cv2.namedWindow("Motion_Event")
+            cv2.namedWindow("Background")            
+            
             
         while True:
 
@@ -139,6 +142,11 @@ class Video:
             
             #background subtraction
             self.background_apply()
+            
+            #view the background
+            bg=self.fgbg.getBackgroundImage()
+            cv2.imshow("Background", bg)
+            cv2.waitKey(1)            
             
             #skip the first frame after adding it to the background.
             if self.IS_FIRST_FRAME:
