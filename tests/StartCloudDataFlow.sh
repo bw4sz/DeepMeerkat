@@ -16,6 +16,9 @@ cp -r DeepMeerkat/ tests/prediction/modules/
 #generate manifest of objects for dataflow to process
 python tests/CreateManifest.py
 
+#still not getting the API patch
+pip install apache_beam[gcp]
+
 python tests/prediction/run.py \
     --runner DataflowRunner \
     --project $PROJECT \

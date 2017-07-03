@@ -31,6 +31,7 @@ class CustomCommands(setuptools.Command):
 CUSTOM_COMMANDS = [
   
   #Get cmake and git
+  ['apt-get', 'update', '-y'],  
   ['apt-get', 'install', '-y', 'cmake', 'git'],
   ['git','clone', 'clone https://github.com/Itseez/opencv.git', '--depth', '1'],
   ['git','clone', 'https://github.com/Itseez/opencv_contrib.git', '--depth', '1'],
@@ -41,10 +42,8 @@ CUSTOM_COMMANDS = [
   ['make', '-j4'],
   ['make', 'install'], 
   ['ldconfig']]      
-
-#Install tensorflow
   
-REQUIRED_PACKAGES = ['numpy','opencv-python','tensorflow']
+REQUIRED_PACKAGES = ['numpy','opencv-python']
 
 setuptools.setup(
     name='DeepMeerkat',
