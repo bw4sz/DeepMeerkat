@@ -9,7 +9,13 @@ RUN apt-get install -y git
 RUN apt-get update && apt-get install -y python-dev python-numpy libtbb2 libtbb-dev \
   libjpeg-dev libjasper-dev libdc1394-22-dev
 
-RUN apt-get install -y python-pip wget
+RUN apt-get install -y python-pip wget unzip
 RUN pip install --upgrade pip
 
 RUN pip install --upgrade google-cloud google-api-python-client apache_beam[gcp] google-cloud-dataflow
+
+RUN git clone https://github.com/bw4sz/pygco.git 
+
+RUN cd pygco && make download && make all && make test_wrapper
+
+RUN export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/root/pygco

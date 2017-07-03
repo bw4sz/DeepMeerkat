@@ -38,7 +38,7 @@ CUSTOM_COMMANDS = [
   ['mkdir', 'opencv/build'],
   ['cmake','-Hopencv',"-Bopencv/build"],
   ['cd','/root/DeepMeerkat/tests/prediction/opencv/build'],
-  ['make', '-j4'],
+  ['make','-C', 'opencv/build','-j4'],
   ['make', 'install'], 
   ['ldconfig']]      
   
