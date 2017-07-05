@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y python-dev python-numpy libtbb2 libtbb-
 RUN apt-get install -y python-pip wget unzip
 RUN pip install --upgrade pip
 
-RUN pip install --upgrade google-cloud google-api-python-client apache_beam[gcp] google-cloud-dataflow
+RUN pip install --upgrade google-cloud google-api-python-client apache_beam[gcp] google-cloud-dataflow scikit-image
 
 RUN git clone https://github.com/bw4sz/pygco.git 
 

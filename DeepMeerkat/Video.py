@@ -1,5 +1,5 @@
 import cv2
-from urllib.parse import urlparse
+from urlparse import urlparse
 import math
 from datetime import datetime, timedelta
 import os
@@ -143,7 +143,7 @@ class Video:
             #background subtraction
             self.background_apply()
             
-            #view the background
+            22 #view the background
             bg=self.fgbg.getBackgroundImage()
             cv2.imshow("Background", bg)
             cv2.waitKey(1)            
