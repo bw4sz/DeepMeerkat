@@ -15,8 +15,6 @@ class PredictDoFn(beam.DoFn):
     #Assign input from DataFlow/manifest
     MM.input=element
     MM.run()
-      
-      return None
 
 def run(argv=None):
   parser = argparse.ArgumentParser()
