@@ -3,12 +3,13 @@ import json
 import logging
 import os
 import csv
-
 import apache_beam as beam
-from DeepMeerkat import MotionMeerkat
   
 class PredictDoFn(beam.DoFn):
+  
   def process(self,element):
+    from DeepMeerkat import MotionMeerkat
+    
     MM=MotionMeerkat()    
     MM.process_args() 
     
