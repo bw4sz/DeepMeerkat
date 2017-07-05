@@ -5,11 +5,17 @@ import os
 import csv
 
 import apache_beam as beam
-import DeepMeerkat
+from DeepMeerkat import MotionMeerkat
   
 class PredictDoFn(beam.DoFn):
   def process(self,element):
-      DeepMeerkat.MotionMeerkat(element)
+    MM=MotionMeerkat()    
+    MM.process_args() 
+    
+    #Assign input from DataFlow/manifest
+    MM.input=element
+    MM.run()
+      
       return None
 
 def run(argv=None):
