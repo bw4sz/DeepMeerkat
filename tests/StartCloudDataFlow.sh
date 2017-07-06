@@ -25,4 +25,5 @@ python tests/prediction/run.py \
     --staging_location $BUCKET/staging \
     --temp_location $BUCKET/temp \
     --job_name $PROJECT-deepmeerkat \
-    --setup_file tests/prediction/setup.py
+    --setup_file tests/prediction/setup.py \
+    --requirements_file tests/prediction/requirements.txt
