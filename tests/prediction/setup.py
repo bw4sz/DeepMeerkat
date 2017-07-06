@@ -28,9 +28,9 @@ class CustomCommands(setuptools.Command):
     for command in CUSTOM_COMMANDS:
       self.RunCustomCommand(command)
 
-CUSTOM_COMMANDS = []      
+CUSTOM_COMMANDS = ["pip","install","opencv-python"]      
   
-REQUIRED_PACKAGES = ['numpy','opencv-python']
+REQUIRED_PACKAGES = ['numpy']
 
 setuptools.setup(
     name='DeepMeerkat',
