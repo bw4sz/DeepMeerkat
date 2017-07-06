@@ -27,8 +27,6 @@ class CustomCommands(setuptools.Command):
   def run(self):
     for command in CUSTOM_COMMANDS:
       self.RunCustomCommand(command)
-
-CUSTOM_COMMANDS = ["pip","install","opencv-python"]      
   
 REQUIRED_PACKAGES = ['numpy']
 
@@ -36,6 +34,4 @@ setuptools.setup(
     name='DeepMeerkat',
     version='0.0.1',
     description='Running MotionMeerkat in the Cloud',
-    install_requires=REQUIRED_PACKAGES,
-    packages=setuptools.find_packages(),
-    cmdclass={'build': build, 'CustomCommands': CustomCommands})
+    packages=setuptools.find_packages())
