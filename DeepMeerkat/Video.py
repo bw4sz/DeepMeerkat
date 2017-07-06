@@ -1,4 +1,5 @@
 import cv2
+import libbgs
 from urlparse import urlparse
 import math
 from datetime import datetime, timedelta
@@ -233,14 +234,17 @@ class Video:
     
     def create_background(self):
         
-        self.fgbg = cv2.createBackgroundSubtractorMOG2(detectShadows=False,varThreshold=float(self.args.mogvariance))
-        self.fgbg.setBackgroundRatio(0.95)
+        #self.fgbg = cv2.createBackgroundSubtractorMOG2(detectShadows=False,varThreshold=float(self.args.mogvariance))
+        #self.fgbg.setBackgroundRatio(0.95)
+        
+        self.fgbg= libbgs.SuBSENSE()
     
     #Frame Subtraction
     def background_apply(self):
         
         #Apply Subtraction
-        self.image = self.fgbg.apply(self.original_image,learningRate=self.args.moglearning)
+        #self.image = self.fgbg.apply(self.original_image,learningRate=self.args.moglearning)
+        self.image = self.fgbg.apply(self.original_image)
         
         #Erode to remove noise, dilate the areas to merge bounded objects
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(15,15))
