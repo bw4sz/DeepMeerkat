@@ -8,7 +8,7 @@ import apache_beam as beam
 class PredictDoFn(beam.DoFn):
   
   def process(self,element):
-    from DeepMeerkat import MotionMeerkat
+    from DeepMeerkat import *
     MM=MotionMeerkat.MotionMeerkat()    
     MM.process_args() 
     
