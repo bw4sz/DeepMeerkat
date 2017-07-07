@@ -125,7 +125,6 @@ class Video:
             cv2.namedWindow("Motion_Event")
             cv2.namedWindow("Background")            
             
-            
         while True:
 
             #read frame
@@ -305,7 +304,7 @@ class Video:
         
         #write parameter logs        
         self.output_args=self.file_destination + "/parameters.csv"
-        with open(self.output_args, 'w',newline="") as f:  
+        with open(self.output_args, 'wb') as f:  
             writer = csv.writer(f,)
             writer.writerows(self.args.__dict__.items())
             
@@ -328,7 +327,7 @@ class Video:
         
         #Write frame annotations
         self.output_annotations=self.file_destination + "/annotations.csv"
-        with open(self.output_annotations, 'w',newline="") as f:  
+        with open(self.output_annotations, 'wb') as f:  
             writer = csv.writer(f,)
             writer.writerow(["Frame","x","y","h","w"])
             for x in self.annotations.keys():   
