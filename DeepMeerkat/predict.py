@@ -1,4 +1,5 @@
-import tensorflow as tf
+if sys.version_info >= (3, 0):
+    import tensorflow as tf
 import os
 import glob
 import numpy as np

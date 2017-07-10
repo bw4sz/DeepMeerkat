@@ -1,6 +1,9 @@
 import cv2
-import libbgs
-from urlparse import urlparse
+import sys
+if sys.version_info >= (3, 0):
+    from urllib import urlparse
+else:
+    from urlparse import urlparse
 import math
 from datetime import datetime, timedelta
 import os
@@ -80,6 +83,8 @@ class Video:
             handle, self.file_destination = tempfile.mkdtemp()
                             
         else:
+            self.googlecloud=False
+            
             normFP=os.path.normpath(self.args.input)
             (filepath, filename)=os.path.split(normFP)
             (shortname, extension) = os.path.splitext(filename)
@@ -233,10 +238,10 @@ class Video:
     
     def create_background(self):
         
-        #self.fgbg = cv2.createBackgroundSubtractorMOG2(detectShadows=False,varThreshold=float(self.args.mogvariance))
-        #self.fgbg.setBackgroundRatio(0.95)
+        self.fgbg = cv2.createBackgroundSubtractorMOG2(detectShadows=False,varThreshold=float(self.args.mogvariance))
+        self.fgbg.setBackgroundRatio(0.95)
         
-        self.fgbg= libbgs.SuBSENSE()
+        #self.fgbg= libbgs.SuBSENSE()
     
     #Frame Subtraction
     def background_apply(self):

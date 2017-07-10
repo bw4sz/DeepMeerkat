@@ -25,7 +25,7 @@
             TextInput:
                 id:fc
                 text:"Input File or Folder"
-                on_focus: root.checkfile(app.root.motionVid)
+                on_focus: root.checkfile(app.root.MM)
                 font_size:20
                 size_hint:(1,.5)
                 multiline:False
@@ -36,7 +36,7 @@
         TextInput:
             id:outd
             text:"Output Location (C:/MotionMeerkat)"
-            on_text: app.root.motionVid.fileD=self.text
+            on_text: app.root.MM.output=self.text
             font_size:20
             size_hint:(.645,.5)
             pos_hint:{'center_x':0.485}
@@ -59,11 +59,11 @@
                 font_size:15
                 size_hint:(.15,1)
             Slider:
-                id:moglearn
+                id:moglearning
                 min:0
                 max:5
                 value:3
-                on_value:app.root.motionVid.q1=self.value
+                on_value:app.root.MM.q1=self.value
                 step:1
                 size_hint:(0.7,1)    
             Label:
@@ -71,7 +71,7 @@
                 font_size:15
                 size_hint:(.15,1)
             Label:
-                text:str(int(moglearn.value))
+                text:str(int(moglearning.value))
                 size_hint:(0.1,1)
         BoxLayout:
             orientation:'horizontal'
@@ -107,7 +107,7 @@
                 value:3
                 step:1
                 size_hint:(0.7,1)
-                on_value: app.root.motionVid.q2=self.value
+                on_value: app.root.MM.q2=self.value
             Label:
                 text:"Fast"
                 font_size:15
@@ -130,7 +130,7 @@
                     size_hint:(0.3,1)
                     multiline:False
                     pos_hint:{'center_x':0.5}
-                    on_text: app.root.motionVid.minSIZE=float(self.text)/100
+                    on_text: app.root.MM.minSIZE=float(self.text)/100
             BoxLayout:
                 orientation:'vertical'
                 size_hint:(0.5,0.9)
@@ -140,7 +140,7 @@
                     font_size:13
                     markup:True
                 CheckBox:
-                    on_active: root.on_check_draw(self.active,app.root.motionVid)
+                    on_active: root.on_check_draw(self.active,app.root.MM)
             BoxLayout:
                 orientation:'vertical'
                 size_hint:(1,0.9)
@@ -149,7 +149,7 @@
                     text:"Crop area of motion detection"
                     font_size:15
                 CheckBox:
-                    on_active: root.on_check_roi(self.active,app.root.motionVid)
+                    on_active: root.on_check_roi(self.active,app.root.MM)
         Button: 
             text:"Run"
             font_size:40
@@ -157,7 +157,7 @@
             on_release:root.run_press(app.root)
             
 <AdvancedScreen>
-    on_enter:app.root.motionVid.mode='advanced'
+    on_enter:app.root.MM.mode='advanced'
     BoxLayout:
         orientation:'vertical'
         Button:
@@ -167,74 +167,25 @@
             on_press:root.gotoMain(app.root)
         BoxLayout:
             Label:
-                text:"Motion Detection Method:"
-            ToggleButton:
-                text: "MOG"
-                group:"Submethod"
-                state:'down'
-                on_press:app.root.motionVid.subMethod='MOG'
-            ToggleButton:
-                text:"Acc"
-                group:"Submethod"
-                on_press:app.root.motionVid.subMethod='Acc'
-        BoxLayout:
-            Label:
                 text:"Adapt"
             CheckBox:
                 active: True
-                on_active:app.root.motionVid.adapt=self.active
+                on_active:app.root.MM.adapt=self.active
         BoxLayout:
             Label:
                 text: "Draw Motion Objects"
             CheckBox:
                 active: False
-                on_active:app.root.motionVid.todraw=self.active
-
-        BoxLayout:
-            Label:
-                text: "Delay motion detection (minutes)"
-            TextInput:
-                text:str(0)
-                multiline:False
-                on_text:app.root.motionVid.burnin=float(self.text)
-                size_hint:(0.3,1)
-                pos_hint:{'center_x':0.5}
-                font_size:20
+                on_active:app.root.MM.todraw=self.active
         BoxLayout:
             Label:
                 text: "Scan Video (frames)"
             TextInput:
                 text:str(0)
                 multiline:False
-                on_text:app.root.motionVid.scan=int(self.text)
+                on_text:app.root.MM.scan=int(self.text)
                 size_hint:(0.3,1)
                 font_size:20
-        BoxLayout:
-            Label:
-                text: "Remove singles (frames)"
-            TextInput:
-                text:str(0)
-                on_text: if self.text > float(0): self.remove_singles=True
-                multiline:False
-                on_text:app.root.motionVid.single_distance=float(self.text)
-                size_hint:(0.3,1)
-                font_size:20
-        BoxLayout:
-            Label:
-                text: "Output Format"
-            ToggleButton:
-                text:"Frames"
-                group:"Out"
-                on_press:app.root.motionVid.makeVid="frames"
-                state:'down'
-            ToggleButton:
-                text:"Video"
-                group:"Out"
-                on_press:app.root.motionVid.makeVid="video"
-            ToggleButton:
-                text:"Both"
-                group:"Out"
-                on_press:app.root.motionVid.makeVid="both"
         Button:
             text:"Run"
             font_size:40
@@ -243,8 +194,8 @@
 
 <ProgressScreen>
     id: P
-    on_pre_enter:root.assignname(app.root.motionVid)
-    on_enter: root.MotionM(app.root.motionVid)
+    on_pre_enter:root.assignname(app.root.MM)
+    on_enter: root.MotionM(app.root.MM)
     on_waitflag: if self.waitflag==1: root.gotoresults(app.root)
     on_errorflag: if self.errorflag==1: root.gotoErrorScreen(app.root)
 
@@ -259,7 +210,7 @@
                 markup: True
                 font_size:20
             Label:
-                text: "[b]Output Directory:[/b] " + str(app.root.motionVid.fileD)
+                text: "[b]Output Directory:[/b] " + str(app.root.MM.input)
                 markup: True
                 font_size:20
         BoxLayout:
@@ -275,7 +226,7 @@
                 size_hint:(0.8,1)
                                           
 <ResultsScreen>
-    on_enter: root.plots(app.root.motionVid)
+    on_enter: root.plots(app.root.MM)
 
     BoxLayout:
         orientation:'vertical'
@@ -285,24 +236,24 @@
             pos_hint:{'top':0}
             on_press:root.gotoMain(app.root)
         Label:
-            text: "[b]Input File:[/b] " + str(app.root.motionVid.inDEST)
+            text: "[b]Input File:[/b] " + str(app.root.MM.input)
             markup: True
             font_size:20
         Label:
-            text: "[b]Output Directory:[/b] " + str(app.root.motionVid.fileD)
+            text: "[b]Output Directory:[/b] " + str(app.root.MM.output)
             markup: True
             font_size:20
         Label:
-            text: "[b]Run time:[/b] " + str(round(app.root.motionVid.total_min,2)) + " min"
+            text: "[b]Run time:[/b] " + str(round(app.root.MM.total_min,2)) + " min"
             markup: True
             font_size:20
         Label:
-            text:str(app.root.motionVid.total_count) + " candidate motion frames " + "from " + str(app.root.motionVid.frame_count) + " images (" + str(round(float(app.root.motionVid.total_count)/app.root.motionVid.frame_count,3)*100) + "%)"
+            text:str(app.root.MM.total_count) + " candidate motion frames " + "from " + str(app.root.MM.frame_count) + " images (" + str(round(float(app.root.MM.total_count)/app.root.MM.frame_count,3)*100) + "%)"
             font_size:20
         Button:
             text: "More statistics and parameter information"
             size_hint:(1,0.5)
-            on_press: root.openfile(app.root.motionVid)   
+            on_press: root.openfile(app.root.MM)   
 
 <ErrorScreen>
     on_enter:root.getMessage(app.root)
@@ -322,7 +273,7 @@
         Button:
             text: "Parameter Log"
             size_hint:(1,0.5)
-            on_press: root.openfile(app.root.motionVid)           
+            on_press: root.openfile(app.root.MM)           
         Label:
             text: "If you believe this is a bug, submit the parameter log,\na copy of your error, and a description of your video to the link below."            
         Button:
