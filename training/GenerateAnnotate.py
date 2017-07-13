@@ -4,7 +4,7 @@ import random
 
 
 cv2.namedWindow("image")
-images=glob.glob("G:/Crops/**/*.jpg",recursive=True)
+images=glob.glob("G:/Crops/*.jpg")
 position=0
 
 

@@ -5,9 +5,33 @@ import glob
 import os
 import math
 from collections import defaultdict
+import time
+import fnmatch
+import os
+import platform
+import datetime
 
-#Find csv
-csvs=glob.glob("C:/Users/Ben/Dropbox/HummingbirdProject/**/frames.csv",recursive=True)
+def creation_date(path_to_file):
+    """
+    Try to get the date that a file was created, falling back to when it was
+    last modified if that isn't possible.
+    See http://stackoverflow.com/a/39501288/1709587 for explanation.
+    """
+    if platform.system() == 'Windows':
+        return os.path.getctime(path_to_file)
+    else:
+        stat = os.stat(path_to_file)
+        try:
+            return stat.st_birthtime
+        except AttributeError:
+            # We're probably on Linux. No easy way to get creation dates here,
+            # so we'll settle for when its content was last modified.
+            return stat.st_mtime
+
+csvs = []
+for root, dirnames, filenames in os.walk("C:/Users/Ben/Dropbox/HummingbirdProject/"):
+    for filename in fnmatch.filter(filenames, '*frames.csv'):
+        csvs.append(os.path.join(root, filename))
 
 def mult(p,x):
     return(int(p+p*x))
@@ -20,7 +44,25 @@ def check_bounds(img,axis,p):
     return(p)
 
 crop_counter=0
-for f in csvs:
+
+processed=[]
+with open("ProcessedFrames.csv") as f:
+    fread=csv.reader(f)
+    for line in fread:
+        processed.append(line[0])
+
+        
+#remove csv already done sort by date
+new_csvs=[]
+for csvfile in csvs:
+    #convert time
+    filedate=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(creation_date(csvfile)))
+    if filedate > '2017-06-21 00:00:00':
+        new_csvs.append(csvfile)
+
+print(len(new_csvs))
+
+for f in new_csvs:
     
     #Read in frames.csv
     frames=open(f)

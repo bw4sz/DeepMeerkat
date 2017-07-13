@@ -13,11 +13,15 @@ from oauth2client.client import GoogleCredentials
 import random
 import csv
 import tempfile
-from urllib.parse import urlparse
+import sys
+if sys.version_info >= (3, 0):
+    from urllib import urlparse
+else:
+    from urlparse import urlparse
 import argparse
 
 # Serice account credentials
-#needs to check where I am running, if on google cloud, can get credentials directly.
+#If on google cloud, can get credentials directly.
 try:
     credentials = GoogleCredentials.get_application_default()
 except:
@@ -119,12 +123,12 @@ class Organizer:
         #Write to temp then send to google cloud
         handle, fn = tempfile.mkstemp(suffix='.csv')
         
-        with open(handle,"w",newline='') as f:
+        with open(fn,"wb") as f:
             writer=csv.writer(f)
             for eachrow in  self.positives_training:
-                writer.writerow([eachrow,"positive"])
+                writer.writerow([str(eachrow),"positive"])
             for eachrow in  self.negatives_training:
-                writer.writerow([eachrow,"negative"])
+                writer.writerow([str(eachrow),"negative"])
         
         #write to google cloud
         blob=self.bucket.blob("Hummingbirds/trainingdata.csv")
@@ -135,12 +139,12 @@ class Organizer:
         #Write to temp then send to google cloud
         handle, fn = tempfile.mkstemp(suffix='.csv')
         
-        with open(handle,"w",newline='') as f:
+        with open(fn,"wb") as f:
             writer=csv.writer(f)
             for eachrow in  self.positives_testing:
-                writer.writerow([eachrow,"positive"])
+                writer.writerow([str(eachrow),"positive"])
             for eachrow in  self.negatives_testing:
-                writer.writerow([eachrow,"negative"])
+                writer.writerow([str(eachrow),"negative"])
         
         #write to google cloud
         blob=self.bucket.blob("Hummingbirds/testingdata.csv")
@@ -151,12 +155,12 @@ class Organizer:
         #Write to temp then send to google cloud
         handle, fn = tempfile.mkstemp(suffix='.csv')
         
-        with open(handle,"w",newline='') as f:
+        with open(fn,"wb") as f:
             writer=csv.writer(f)
             for eachrow in  self.positives_testing:
-                writer.writerow([eachrow,"positive"])
+                writer.writerow([str(eachrow),"positive"])
             for eachrow in  self.negatives_testing:
-                writer.writerow([eachrow,"negative"])
+                writer.writerow([str(eachrow),"negative"])
         
         #write to google cloud
         blob=self.bucket.blob("Hummingbirds/holdoutdata.csv")
@@ -164,7 +168,7 @@ class Organizer:
 
         #write dict file 
         handle, fn = tempfile.mkstemp(suffix='.txt')        
-        with open(handle,"w",newline="") as f:
+        with open(fn,"wb") as f:
             f.write("positive"+"\n")
             f.write("negative")
             f.close()
