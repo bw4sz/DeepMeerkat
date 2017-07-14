@@ -1,7 +1,7 @@
 import cv2
 import sys
 if sys.version_info >= (3, 0):
-    from urllib import urlparse
+    from urllib.parse import urlparse
 else:
     from urlparse import urlparse
 import math
@@ -12,6 +12,7 @@ from Geometry import *
 import csv
 import time
 import Crop
+import tensorflow as tf
 
 #general functions
 def mult(p,x):
@@ -197,10 +198,11 @@ class Video:
                     clips.append(self.original_image[bounding_box.y:bounding_box.y+bounding_box.h,bounding_box.x:bounding_box.x+bounding_box.w])
                                 
                 self.tensorflow_label=self.tensorflow_instance.predict(sess=sess,read_from="numpy",image_array=clips,numpy_name=self.frame_count)
-            
+                cv2.putText(self.original_image,self.tensorflow_label,(100,100),cv2.FONT_HERSHEY_SIMPLEX,2,(255,255,255),2)
+
                 #next frame if negative label
-                if not "positive" in self.tensorflow_label[self.frame_count] :
-                    continue
+                #if not "positive" in self.tensorflow_label[self.frame_count] :
+                #    continue
                 
             #Write bounding box time event, depends on proper frame rate
             sec = timedelta(seconds=int(self.frame_count/float(self.frame_rate)))             
@@ -240,9 +242,7 @@ class Video:
         
         self.fgbg = cv2.createBackgroundSubtractorMOG2(detectShadows=False,varThreshold=float(self.args.mogvariance))
         self.fgbg.setBackgroundRatio(0.95)
-        
-        #self.fgbg= libbgs.SuBSENSE()
-    
+           
     #Frame Subtraction
     def background_apply(self):
         

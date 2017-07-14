@@ -2,7 +2,7 @@ import argparse
 
 def CommandArgs():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input", help="path of single video",type=str,default='C:/Program Files (x86)/MotionMeerkat/PlotwatcherTest.tlv')
+    parser.add_argument("--input", help="path of single video",type=str,default='Hummingbird.avi')
     parser.add_argument("--output", help="output directory",default="C:/MotionMeerkat")
     parser.add_argument("--threshold", help="Threshold of movement",default=30,type=int)
     parser.add_argument("--draw", help="'Draw' or 'enter' object size",type=str,default='enter')
