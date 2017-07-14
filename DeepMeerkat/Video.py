@@ -72,7 +72,7 @@ class Video:
         self.MotionHistory=[]
         
         #Frame Padding
-        self.frame_padding=[]
+        self.padding_frames=[]
         
         #create output directory
         #if google cloud storage file
@@ -135,7 +135,7 @@ class Video:
         
         if self.args.show: 
             cv2.namedWindow("Motion_Event")
-            cv2.namedWindow("Background")            
+            #cv2.namedWindow("Background")            
             
         while True:
 
@@ -155,10 +155,10 @@ class Video:
             #background subtraction
             self.background_apply()
             
-            22 #view the background
-            bg=self.fgbg.getBackgroundImage()
-            cv2.imshow("Background", bg)
-            cv2.waitKey(1)            
+            #view the background
+            #bg=self.fgbg.getBackgroundImage()
+            #cv2.imshow("Background", bg)
+            #cv2.waitKey(1)            
             
             #skip the first frame after adding it to the background.
             if self.IS_FIRST_FRAME:
@@ -171,6 +171,7 @@ class Video:
             
             #Next frame if no contours
             if len(self.contours) == 0 :
+                self.end_sequence(Motion=False)
                 continue
               
             #bounding boxes
@@ -178,6 +179,7 @@ class Video:
             
             #Next frame if no bounding boxes
             if len(bounding_boxes) == 0 :
+                self.end_sequence(Motion=False)
                 continue
 
             #minimum box size
@@ -194,6 +196,7 @@ class Video:
             
             #next frame is no remaining bounding boxes
             if len(remaining_bounding_box)==0:
+                self.end_sequence(Motion=False)
                 continue
             
             if self.args.tensorflow:
@@ -223,7 +226,11 @@ class Video:
                     if self.args.draw: 
                         cv2.rectangle(self.original_image, (bounding_box.x, bounding_box.y), (bounding_box.x+bounding_box.w, bounding_box.y+bounding_box.h), (0,0,255), 2)
                     cv2.imshow("Motion_Event", self.original_image)
-                    cv2.waitKey(0)
+                    #cv2.waitKey(0)
+            
+            #Motion Frame! passed all filters.
+            self.end_sequence(Motion=True)
+            
         cv2.destroyAllWindows()            
     
     def read_frame(self):
@@ -265,18 +272,23 @@ class Video:
             self.contours = [contour for contour in self.contours if cv2.contourArea(contour) > 50]
     def end_sequence(self,Motion):        #When frame hits the end of processing
         #Capture Frame
-        if Motion:
-            self.motion_frames.append(self.original_image)
-        else:
+        if not Motion:
             self.padding_frames.append(self.original_image)
         
         #Write State
         self.MotionHistory.append(Motion)
         
-        #If Motion History is sufficient
-        if self.MotionHistory[-5:] == [True,True,False,False]:
-            path=self.write_clip()
-        
+        #Write Current frame and padding
+        if Motion:
+            #write frame
+            cv2.imwrite(self.file_destination + "/"+str(self.frame_count)+".jpg",self.original_image)
+            #write padding frames, if they don't exist
+            
+            for x in range(0,len(self.padding_frames)):
+                filenm=self.file_destination + "/"+str(self.frame_count-(x+1))+".jpg"
+                if not os.path.exists(filenm):
+                    cv2.imwrite(filenm,self.padding_frames[x])
+             
     def cluster_bounding_boxes(self, contours):
         bounding_boxes = []
         for i in range(len(contours)):
