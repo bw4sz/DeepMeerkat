@@ -68,6 +68,12 @@ class Video:
         #Annotations dictionary
         self.annotations={}
         
+        #MotionHistory
+        self.MotionHistory=[]
+        
+        #Frame Padding
+        self.frame_padding=[]
+        
         #create output directory
         #if google cloud storage file
         if self.args.input[0:3] =="gs:":
@@ -198,7 +204,7 @@ class Video:
                     clips.append(self.original_image[bounding_box.y:bounding_box.y+bounding_box.h,bounding_box.x:bounding_box.x+bounding_box.w])
                                 
                 self.tensorflow_label=self.tensorflow_instance.predict(sess=sess,read_from="numpy",image_array=clips,numpy_name=self.frame_count)
-                cv2.putText(self.original_image,self.tensorflow_label,(100,100),cv2.FONT_HERSHEY_SIMPLEX,2,(255,255,255),2)
+                cv2.putText(self.original_image,str(self.tensorflow_label[self.frame_count]),(100,100),cv2.FONT_HERSHEY_SIMPLEX,2,(255,255,255))
 
                 #next frame if negative label
                 #if not "positive" in self.tensorflow_label[self.frame_count] :
@@ -257,6 +263,19 @@ class Video:
     def find_contour(self):
             _,self.contours,hierarchy = cv2.findContours(self.image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE )
             self.contours = [contour for contour in self.contours if cv2.contourArea(contour) > 50]
+    def end_sequence(self,Motion):        #When frame hits the end of processing
+        #Capture Frame
+        if Motion:
+            self.motion_frames.append(self.original_image)
+        else:
+            self.padding_frames.append(self.original_image)
+        
+        #Write State
+        self.MotionHistory.append(Motion)
+        
+        #If Motion History is sufficient
+        if self.MotionHistory[-5:] == [True,True,False,False]:
+            path=self.write_clip()
         
     def cluster_bounding_boxes(self, contours):
         bounding_boxes = []
@@ -309,7 +328,7 @@ class Video:
         
         #write parameter logs        
         self.output_args=self.file_destination + "/parameters.csv"
-        with open(self.output_args, 'wb') as f:  
+        with open(self.output_args, 'w') as f:  
             writer = csv.writer(f,)
             writer.writerows(self.args.__dict__.items())
             
@@ -332,7 +351,7 @@ class Video:
         
         #Write frame annotations
         self.output_annotations=self.file_destination + "/annotations.csv"
-        with open(self.output_annotations, 'wb') as f:  
+        with open(self.output_annotations, 'w') as f:  
             writer = csv.writer(f,)
             writer.writerow(["Frame","x","y","h","w"])
             for x in self.annotations.keys():   

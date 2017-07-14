@@ -41,7 +41,7 @@ class tensorflow:
                 self.image_name.append(numpy_name)
 
         # Loads label file, strips off carriage return
-        self.label_lines = [line.rstrip() for line in tf.gfile.GFile("training/dict.txt")]
+        self.label_lines = [line.rstrip() for line in tf.gfile.GFile(os.path.abspath("../training/dict.txt"))]
         
         # Feed the image_data as input to the graph and get first prediction
         softmax_tensor = sess.graph.get_tensor_by_name('final_ops/softmax:0')
@@ -76,7 +76,9 @@ class tensorflow:
         
 if __name__ == "__main__":
     sess=tf.Session()
+    print("Loading tensorflow model. May take several minutes.")
     tf.saved_model.loader.load(sess,[tf.saved_model.tag_constants.SERVING], "C:/Users/Ben/Dropbox/GoogleCloud/hummingbird_model/")    
+    print("Model loaded")
     tensorflow_instance=tensorflow()
     #photos_run=glob.glob("C:/Users/Ben/Dropbox/Thesis/Maquipucuna_SantaLucia/FlowerPhotos/*.jpg")
     photos_run=glob.glob("G:/Crops_06212017/*.jpg")
