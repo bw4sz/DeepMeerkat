@@ -12,5 +12,5 @@ proj.directory-list = [{'dirloc': loc('..'),
                         'watch_for_changes': True}]
 proj.file-type = 'shared'
 proj.launch-config = {loc('MotionMeerkat.py'): ('project',
-        (u'--tensorflow --show',
+        (u'--show --input C:/Users/Ben/Desktop/MeerkatTest/130710AA.tlv\n',
          ''))}

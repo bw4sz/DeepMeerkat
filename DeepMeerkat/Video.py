@@ -15,6 +15,38 @@ import Crop
 import tensorflow as tf
 
 #general functions
+class FixedlenList(list):
+    '''
+subclass from list, providing all features list has
+the list size is fixed. overflow items will be discarded
+
+    '''
+    def __init__(self,l=0):
+        super(FixedlenList,self).__init__()
+        self.__length__=l #fixed length
+
+    def pop(self,index=-1):
+        super(FixedlenList, self).pop(index)
+
+    def remove(self,item):
+        self.__delitem__(item)
+
+    def __delitem__(self,item):
+        super(FixedlenList, self).__delitem__(item)
+        #self.__length__-=1	
+
+    def append(self,item):
+        if len(self) >= self.__length__:
+            super(FixedlenList, self).pop(0)
+        super(FixedlenList, self).append(item)		
+
+    def extend(self,aList):
+        super(FixedlenList, self).extend(aList)
+        self.__delslice__(0,len(self)-self.__length__)
+
+    def insert(self):
+        pass
+
 def mult(p,x):
     return(int(p+p*x))
 
@@ -72,9 +104,8 @@ class Video:
         self.MotionHistory=[]
         
         #Frame Padding
-        self.padding_frames=[]
+        self.padding_frames=FixedlenList(l=1)
         
-        #create output directory
         #if google cloud storage file
         if self.args.input[0:3] =="gs:":
             self.googlecloud=True
@@ -90,8 +121,9 @@ class Video:
             handle, self.file_destination = tempfile.mkdtemp()
                             
         else:
-            self.googlecloud=False
-            
+            self.googlecloud=False        
+
+            #create output directory
             normFP=os.path.normpath(self.args.input)
             (filepath, filename)=os.path.split(normFP)
             (shortname, extension) = os.path.splitext(filename)
@@ -203,6 +235,7 @@ class Video:
                 
                 #Enlarge box and send it to tensorflow
                 clips=[]
+                #TODO resize
                 for bounding_box in remaining_bounding_box:
                     clips.append(self.original_image[bounding_box.y:bounding_box.y+bounding_box.h,bounding_box.x:bounding_box.x+bounding_box.w])
                                 
@@ -212,12 +245,6 @@ class Video:
                 #next frame if negative label
                 #if not "positive" in self.tensorflow_label[self.frame_count] :
                 #    continue
-                
-            #Write bounding box time event, depends on proper frame rate
-            sec = timedelta(seconds=int(self.frame_count/float(self.frame_rate)))             
-            d = datetime(1,1,1) + sec                        
-            for box in remaining_bounding_box:
-                box.time = d
 
             self.annotations[self.frame_count] = remaining_bounding_box
             
@@ -226,7 +253,7 @@ class Video:
                     if self.args.draw: 
                         cv2.rectangle(self.original_image, (bounding_box.x, bounding_box.y), (bounding_box.x+bounding_box.w, bounding_box.y+bounding_box.h), (0,0,255), 2)
                     cv2.imshow("Motion_Event", self.original_image)
-                    #cv2.waitKey(0)
+                    cv2.waitKey(10)
             
             #Motion Frame! passed all filters.
             self.end_sequence(Motion=True)
@@ -260,16 +287,16 @@ class Video:
     def background_apply(self):
         
         #Apply Subtraction
-        #self.image = self.fgbg.apply(self.original_image,learningRate=self.args.moglearning)
-        self.image = self.fgbg.apply(self.original_image)
-        
+        self.image = self.fgbg.apply(self.original_image,learningRate=self.args.moglearning)
+    
         #Erode to remove noise, dilate the areas to merge bounded objects
-        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(15,15))
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(11,11))
         self.image= cv2.morphologyEx(self.image, cv2.MORPH_OPEN, kernel)
 
     def find_contour(self):
             _,self.contours,hierarchy = cv2.findContours(self.image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE )
             self.contours = [contour for contour in self.contours if cv2.contourArea(contour) > 50]
+    
     def end_sequence(self,Motion):        #When frame hits the end of processing
         #Capture Frame
         if not Motion:
@@ -305,7 +332,7 @@ class Video:
                     x2,y2,w2,h2 = cv2.boundingRect(contours[j])
                     rect = Rect(x2, y2, w2, h2)
                     distance = parent_bounding_box.rect.distance_to_rect(rect)
-                    if distance < 100:
+                    if distance < 2:
                         parent_bounding_box.update_rect(self.extend_rectangle(parent_bounding_box.rect, rect))
                         parent_bounding_box.members.append(j)
         return bounding_boxes
@@ -370,18 +397,17 @@ class Video:
                 bboxes=self.annotations[x]
                 for bbox in bboxes: 
                     writer.writerow([x,bbox.x,bbox.y,bbox.h,bbox.w])
-                    
-        if self.googlecloud:
-            #write bounding boxes to google cloud
-            
-            blob=self.bucket.blob(self.parsed.path[1:]+"/annotations.csv")
-            blob.upload_from_filename(self.output_annotations)            
 
-            #write parameter log to google cloud
-            blob=self.bucket.blob(self.parsed.path[1:]+"/parameters.csv")
-            blob.upload_from_filename(self.output_args)            
-            
-                    
+            if self.googlecloud:
+                #write bounding boxes to google cloud
+                
+                blob=self.bucket.blob(self.parsed.path[1:]+"/annotations.csv")
+                blob.upload_from_filename(self.output_annotations)            
+    
+                #write parameter log to google cloud
+                blob=self.bucket.blob(self.parsed.path[1:]+"/parameters.csv")
+                blob.upload_from_filename(self.output_args)                                                            
+
     def adapt(self):
         
             #If current frame is a multiple of the 1000 frames
