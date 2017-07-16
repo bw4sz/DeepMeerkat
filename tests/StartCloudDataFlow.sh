@@ -19,9 +19,6 @@ python tests/CreateManifest.py
 #still not getting the API patch
 pip install apache_beam[gcp]
 
-#get a copy of the opencv wheel
-
-
 python tests/prediction/run.py \
     --runner DataflowRunner \
     --project $PROJECT \
@@ -29,4 +26,4 @@ python tests/prediction/run.py \
     --temp_location $BUCKET/temp \
     --job_name $PROJECT-deepmeerkat \
     --setup_file tests/prediction/setup.py \
-    --extra_package 
+    --extra_package tests/opencv_python-3.2.0.7-cp27-cp27m-manylinux1_x86_64.whl

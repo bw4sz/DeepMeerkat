@@ -1,0 +1,14 @@
+setup.py
+DeepMeerkat.egg-info/PKG-INFO
+DeepMeerkat.egg-info/SOURCES.txt
+DeepMeerkat.egg-info/dependency_links.txt
+DeepMeerkat.egg-info/top_level.txt
+modules/__init__.py
+modules/predict.py
+modules/DeepMeerkat/CommandArgs.py
+modules/DeepMeerkat/Crop.py
+modules/DeepMeerkat/Geometry.py
+modules/DeepMeerkat/MotionMeerkat.py
+modules/DeepMeerkat/Video.py
+modules/DeepMeerkat/__init__.py
+modules/DeepMeerkat/predict.py

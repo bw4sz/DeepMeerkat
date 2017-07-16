@@ -4,11 +4,11 @@ import logging
 import os
 import csv
 import apache_beam as beam
-  
+from DeepMeerkat import *
+
 class PredictDoFn(beam.DoFn):
   
   def process(self,element):
-    from DeepMeerkat import *
     MM=MotionMeerkat.MotionMeerkat()    
     MM.process_args() 
     
@@ -16,7 +16,7 @@ class PredictDoFn(beam.DoFn):
     MM.input=element
     MM.run()
 
-def run(argv=None):
+def run():
   parser = argparse.ArgumentParser()
   parser.add_argument('--input', dest='input', default="gs://api-project-773889352370-testing/DataFlow/manifest.csv",
                       help='Input file to process.')
