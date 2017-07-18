@@ -7,7 +7,7 @@ gcloud compute instances create cloudml
     --boot-disk-size "40"
     --service-account "773889352370-compute@developer.gserviceaccount.com"
     --scopes "https://www.googleapis.com/auth/cloud-platform" 
-    --start-from-metadata StartCloudDataFlow.sh
+    --start-from-metadata Training.sh
     
 #kill instance when you are done.
-gcloud compute instances delete cloudml
+gcloud -q compute instances delete cloudml

@@ -12,7 +12,7 @@ from Geometry import *
 import csv
 import time
 import Crop
-import tensorflow as tf
+import predict
 
 #general functions
 class FixedlenList(list):
@@ -61,13 +61,13 @@ def resize_box(img,bbox,m=math.sqrt(2)-1):
 
     #expand box by multiplier m, limit to image edge
 
-    #max height
-    p1=mult(bbox.y+bbox.h,-m)
-    p1=check_bounds(img, 0, p1)
-
     #min height
-    p2=mult(bbox.y,m)            
-    p2=check_bounds(img, 0, p2)            
+    p1=mult(bbox.y,-m)            
+    p1=check_bounds(img, 0, p1)            
+
+    #max height
+    p2=mult(bbox.y+bbox.h,m)
+    p2=check_bounds(img, 0, p2)
 
     #min width
     p3=mult(bbox.x,-m)            
@@ -83,16 +83,18 @@ def resize_box(img,bbox,m=math.sqrt(2)-1):
     #Resize Image
     resized_image = cv2.resize(cropped_image, (299, 299))  
     return(resized_image)
-    
+
+
 class Video:
-    def __init__(self,vid,args):
+    def __init__(self,vid,args,tensorflow_session=None):
                 
         #start time
         self.start_time=time.time()
         
-        #store args from MotionMeerkat
+        #store args from MotionMeerkat.py
         self.args=args
         self.args.video=vid
+        self.tensorflow_session=tensorflow_session
         
         #set descriptors
         self.frame_count=0
@@ -104,7 +106,7 @@ class Video:
         self.MotionHistory=[]
         
         #Frame Padding
-        self.padding_frames=FixedlenList(l=1)
+        self.padding_frames=FixedlenList(l=2)
         
         #if google cloud storage file
         if self.args.input[0:3] =="gs:":
@@ -124,17 +126,15 @@ class Video:
             self.googlecloud=False        
 
             #create output directory
-            normFP=os.path.normpath(self.args.input)
+            
+            normFP=os.path.normpath(vid)
             (filepath, filename)=os.path.split(normFP)
             (shortname, extension) = os.path.splitext(filename)
             (_,IDFL) = os.path.split(filepath) 
             
-            if self.args.batch:
-                self.file_destination=os.path.join(self.args.output,shortname)        
-            else:
-                self.file_destination=os.path.join(self.args.output,IDFL)
-                self.file_destination=os.path.join(self.file_destination,shortname)        
-    
+            self.file_destination=os.path.join(self.args.output,IDFL)                
+            self.file_destination=os.path.join(self.file_destination,shortname)               
+
             if not os.path.exists(self.file_destination):
                 os.makedirs(self.file_destination)        
             
@@ -154,22 +154,17 @@ class Video:
         
         #Detector almost always returns first frame
         self.IS_FIRST_FRAME = True
-                       
     def analyze(self):
- 
-        #load tensorflow model
-        if self.args.tensorflow:
-            import tensorflow as tf
-            import predict
-            sess=tf.Session()
-            tf.saved_model.loader.load(sess,[tf.saved_model.tag_constants.SERVING], self.args.path_to_model)                
-            self.tensorflow_instance=predict.tensorflow()
-        
+         
         if self.args.show: 
+            print(self.args.show)
             cv2.namedWindow("Motion_Event")
             #cv2.namedWindow("Background")            
             
         while True:
+            
+            #Reset padding frames, for debugging.
+            WritePadding=False
 
             #read frame
             ret,self.original_image=self.read_frame()
@@ -235,16 +230,16 @@ class Video:
                 
                 #Enlarge box and send it to tensorflow
                 clips=[]
-                #TODO resize
+                
                 for bounding_box in remaining_bounding_box:
-                    clips.append(self.original_image[bounding_box.y:bounding_box.y+bounding_box.h,bounding_box.x:bounding_box.x+bounding_box.w])
-                                
-                self.tensorflow_label=self.tensorflow_instance.predict(sess=sess,read_from="numpy",image_array=clips,numpy_name=self.frame_count)
-                cv2.putText(self.original_image,str(self.tensorflow_label[self.frame_count]),(100,100),cv2.FONT_HERSHEY_SIMPLEX,2,(255,255,255))
+                    #Clip and increase box size.
+                    clips.append(resize_box(self.original_image, bounding_box))            
+                self.tensorflow_label=predict.TensorflowPredict(sess=self.tensorflow_session,read_from="numpy",image_array=clips,numpy_name=self.frame_count,label_lines=self.args.label_lines)
+                cv2.putText(self.original_image,str(self.tensorflow_label[self.frame_count]),(50,50),cv2.FONT_HERSHEY_SIMPLEX,2,(255,255,255),2)
 
                 #next frame if negative label
-                #if not "positive" in self.tensorflow_label[self.frame_count] :
-                #    continue
+                if "positive" in str(self.tensorflow_label[self.frame_count]):
+                    WritePadding=True
 
             self.annotations[self.frame_count] = remaining_bounding_box
             
@@ -256,7 +251,7 @@ class Video:
                     cv2.waitKey(10)
             
             #Motion Frame! passed all filters.
-            self.end_sequence(Motion=True)
+            self.end_sequence(Motion=True,WritePadding=WritePadding)
             
         cv2.destroyAllWindows()            
     
@@ -297,7 +292,7 @@ class Video:
             _,self.contours,hierarchy = cv2.findContours(self.image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE )
             self.contours = [contour for contour in self.contours if cv2.contourArea(contour) > 50]
     
-    def end_sequence(self,Motion):        #When frame hits the end of processing
+    def end_sequence(self,Motion,WritePadding=False):        #When frame hits the end of processing
         #Capture Frame
         if not Motion:
             self.padding_frames.append(self.original_image)
@@ -309,12 +304,13 @@ class Video:
         if Motion:
             #write frame
             cv2.imwrite(self.file_destination + "/"+str(self.frame_count)+".jpg",self.original_image)
-            #write padding frames, if they don't exist
             
-            for x in range(0,len(self.padding_frames)):
-                filenm=self.file_destination + "/"+str(self.frame_count-(x+1))+".jpg"
-                if not os.path.exists(filenm):
-                    cv2.imwrite(filenm,self.padding_frames[x])
+            #write padding frames, if they don't exist
+            if WritePadding:
+                for x in range(0,len(self.padding_frames)):
+                    filenm=self.file_destination + "/"+str(self.frame_count-(x+1))+".jpg"
+                    if not os.path.exists(filenm):
+                        cv2.imwrite(filenm,self.padding_frames[x])
              
     def cluster_bounding_boxes(self, contours):
         bounding_boxes = []
@@ -332,7 +328,7 @@ class Video:
                     x2,y2,w2,h2 = cv2.boundingRect(contours[j])
                     rect = Rect(x2, y2, w2, h2)
                     distance = parent_bounding_box.rect.distance_to_rect(rect)
-                    if distance < 2:
+                    if distance < 50:
                         parent_bounding_box.update_rect(self.extend_rectangle(parent_bounding_box.rect, rect))
                         parent_bounding_box.members.append(j)
         return bounding_boxes
@@ -367,7 +363,7 @@ class Video:
         
         #write parameter logs        
         self.output_args=self.file_destination + "/parameters.csv"
-        with open(self.output_args, 'w') as f:  
+        with open(self.output_args, 'w',newline="") as f:  
             writer = csv.writer(f,)
             writer.writerows(self.args.__dict__.items())
             
@@ -390,7 +386,7 @@ class Video:
         
         #Write frame annotations
         self.output_annotations=self.file_destination + "/annotations.csv"
-        with open(self.output_annotations, 'w') as f:  
+        with open(self.output_annotations, 'w',newline="") as f:  
             writer = csv.writer(f,)
             writer.writerow(["Frame","x","y","h","w"])
             for x in self.annotations.keys():   
@@ -419,8 +415,8 @@ class Video:
                     self.args.mogvariance+=5
     
                     #add a ceiling
-                    if self.args.mogvariance > 120: 
-                        self.args.mogvariance = 120
+                    if self.args.mogvariance > 60: 
+                        self.args.mogvariance = 60
                     print("Adapting to video conditions: increasing MOG variance tolerance to %d" % self.args.mogvariance)
         
             

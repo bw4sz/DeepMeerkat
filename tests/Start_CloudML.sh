@@ -10,4 +10,4 @@ gcloud compute instances create cloudml
     --start-from-metadata StartCloudDataFlow.sh
     
 #kill instance when you are done.
-gcloud compute instances delete cloudml
+gcloud -q compute instances delete cloudml
