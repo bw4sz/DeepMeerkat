@@ -5,9 +5,7 @@ import glob
 import numpy as np
 import argparse
 import cv2
-from memory_profiler import profile
 
-@profile
 def TensorflowPredict(read_from,sess,image_array=None,imagedir=None,numpy_name=None,wait_time=10,label_lines=None):
     
     #frames to be analyzed

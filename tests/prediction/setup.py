@@ -27,7 +27,18 @@ class CustomCommands(setuptools.Command):
   def run(self):
     for command in CUSTOM_COMMANDS:
       self.RunCustomCommand(command)
+CUSTOM_COMMANDS = [
   
+  #Get cmake and git
+  ['apt-get', 'update', '-y'],  
+  ['apt-get', 'install', '-y', 'cmake', 'git'],
+  ['git','clone', 'https://github.com/Itseez/opencv.git', '--depth', '1'],
+  ['mkdir', 'opencv/build'],
+  ['cmake','-Hopencv',"-Bopencv/build"],
+  ['make','-C', 'opencv/build','-j4'],
+  ['make', '-C','opencv/build','install'], 
+  ['ldconfig']]  
+
 REQUIRED_PACKAGES = ['numpy']
 
 setuptools.setup(

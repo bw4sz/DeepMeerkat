@@ -11,8 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Flowers classification model.
-"""
 
 import argparse
 import logging
@@ -85,7 +83,7 @@ def create_model():
       type=str,
       default=DEFAULT_INCEPTION_CHECKPOINT)
   args, task_args = parser.parse_known_args()
-  override_if_not_in_args('--max_steps', '2000', task_args)
+  override_if_not_in_args('--max_steps', '1000', task_args)
   override_if_not_in_args('--batch_size', '100', task_args)
   override_if_not_in_args('--eval_set_size', '370', task_args)
   override_if_not_in_args('--eval_interval_secs', '2', task_args)

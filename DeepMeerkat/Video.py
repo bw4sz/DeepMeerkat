@@ -183,7 +183,7 @@ class Video:
             self.background_apply()
             
             #view the background
-            #bg=self.fgbg.getBackgroundImage()
+            bg_image=self.fgbg.getBackgroundImage()
             #cv2.imshow("Background", bg)
             #cv2.waitKey(1)            
             
@@ -251,7 +251,39 @@ class Video:
                     cv2.waitKey(10)
             
             #Motion Frame! passed all filters.
-            self.end_sequence(Motion=True,WritePadding=WritePadding)
+            if self.args.training:
+                
+                #Convert background image to YCR color space
+                bg_image = cv2.cvtColor(bg_image, cv2.COLOR_BGR2YCR_CB)                
+                _,_,bg_image_luma =cv2.split(bg_image)
+                kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(3,3))
+                
+                for index,bounding_box in enumerate(remaining_bounding_box):
+                    
+                    #Clip and increase box size.
+                    clip_original=resize_box(self.original_image, bounding_box)
+                    bg_clip_luma=resize_box(bg_image_luma, bounding_box)
+                    
+                    #Convert color space, difference in luma and normalize
+                    clip = cv2.cvtColor(clip_original, cv2.COLOR_BGR2YCR_CB)
+                    _,_,clip_luma =cv2.split(clip)
+                
+                    clipdiff=cv2.absdiff(bg_clip_luma,clip_luma)
+                    #mean centering
+                    clipdiff=(clipdiff - clipdiff.mean())/clipdiff.std()
+                    #stretched
+                    clipdiff=cv2.normalize(clipdiff,clipdiff,255,0,cv2.NORM_MINMAX)
+                     
+                    #noise reduction
+                    self.image= cv2.morphologyEx(clipdiff, cv2.MORPH_OPEN, kernel)
+
+                    
+                    #write clip diff and original, easier to see
+                    cv2.imwrite(self.file_destination + "/"+str(self.frame_count)+ "_" + str(index) + "_diff.jpg",clipdiff)
+                    cv2.imwrite(self.file_destination + "/"+str(self.frame_count)+ "_" + str(index) + ".jpg",clip_original)
+                    
+            else:
+                self.end_sequence(Motion=True,WritePadding=WritePadding)
             
         cv2.destroyAllWindows()            
     
@@ -285,7 +317,7 @@ class Video:
         self.image = self.fgbg.apply(self.original_image,learningRate=self.args.moglearning)
     
         #Erode to remove noise, dilate the areas to merge bounded objects
-        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(11,11))
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(9,9))
         self.image= cv2.morphologyEx(self.image, cv2.MORPH_OPEN, kernel)
 
     def find_contour(self):

@@ -2,6 +2,7 @@ import argparse
 
 def CommandArgs():
     parser = argparse.ArgumentParser()
+    parser.add_argument("--training", help="generate test clips",action="store_true")    
     parser.add_argument("--input", help="path of single video",type=str,default='Hummingbird.avi')
     parser.add_argument("--output", help="output directory",default="C:/MotionMeerkat")
     parser.add_argument("--draw", help="'Draw' or 'enter' object size",type=str,default='enter')
