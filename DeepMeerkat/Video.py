@@ -106,7 +106,7 @@ class Video:
         self.MotionHistory=[]
         
         #Frame Padding
-        self.padding_frames=FixedlenList(l=2)
+        self.padding_frames=FixedlenList(l=self.args.buffer)
         
         #if google cloud storage file
         if self.args.input[0:3] =="gs:":
@@ -167,7 +167,7 @@ class Video:
             WritePadding=False
 
             #read frame
-            ret,self.original_image=self.read_frame()
+            ret,self.read_image=self.read_frame()
             
             if not ret:
                 #end time
@@ -176,22 +176,29 @@ class Video:
             
             self.frame_count+=1
             
+            #skip the first frame after adding it to the background.
+            if self.IS_FIRST_FRAME:
+
+                #minimum box size and aspect ratio
+                width = np.size(self.read_image, 1)
+                height = np.size(self.read_image, 0)
+                self.image_area = width * height
+                self.aspect_ratio=width/height
+            
+                #optional resize
+                target_area=(self.image_area/2)
+                self.new_h=math.sqrt(target_area/self.aspect_ratio)
+                self.new_w=self.new_h * self.aspect_ratio
+                
+                print("Skipping first frame")
+                self.IS_FIRST_FRAME=False
+                continue
+            
             #adapt settings of mogvariance to keep from running away
             self.adapt()
             
             #background subtraction
             self.background_apply()
-            
-            #view the background
-            #bg_image=self.fgbg.getBackgroundImage()
-            #cv2.imshow("Background", bg)
-            #cv2.waitKey(1)            
-            
-            #skip the first frame after adding it to the background.
-            if self.IS_FIRST_FRAME:
-                print("Skipping first frame")
-                self.IS_FIRST_FRAME=False
-                continue
             
             #contour analysis
             self.countours=self.find_contour()
@@ -208,17 +215,12 @@ class Video:
             if len(bounding_boxes) == 0 :
                 self.end_sequence(Motion=False)
                 continue
-
-            #minimum box size
-            width = np.size(self.original_image, 1)
-            height = np.size(self.original_image, 0)
-            area = width * height
             
             #remove if smaller than min size
             remaining_bounding_box=[]
             
             for bounding_box in bounding_boxes:
-                if area * self.args.size < bounding_box.h * bounding_box.w:
+                if self.image_area * self.args.size < bounding_box.h * bounding_box.w:
                     remaining_bounding_box.append(bounding_box)
             
             #next frame is no remaining bounding boxes
@@ -233,9 +235,9 @@ class Video:
                 
                 for bounding_box in remaining_bounding_box:
                     #Clip and increase box size.
-                    clips.append(resize_box(self.original_image, bounding_box))            
+                    clips.append(resize_box(self.read_image, bounding_box))            
                 self.tensorflow_label=predict.TensorflowPredict(sess=self.tensorflow_session,read_from="numpy",image_array=clips,numpy_name=self.frame_count,label_lines=self.args.label_lines)
-                cv2.putText(self.original_image,str(self.tensorflow_label[self.frame_count]),(50,50),cv2.FONT_HERSHEY_SIMPLEX,2,(255,255,255),2)
+                cv2.putText(self.read_image,str(self.tensorflow_label[self.frame_count]),(50,50),cv2.FONT_HERSHEY_SIMPLEX,2,(255,255,255),2)
 
                 #next frame if negative label
                 if "positive" in str(self.tensorflow_label[self.frame_count]):
@@ -246,8 +248,8 @@ class Video:
             if self.args.show:
                 for bounding_box in remaining_bounding_box:
                     if self.args.draw: 
-                        cv2.rectangle(self.original_image, (bounding_box.x, bounding_box.y), (bounding_box.x+bounding_box.w, bounding_box.y+bounding_box.h), (0,0,255), 2)
-                    cv2.imshow("Motion_Event", self.original_image)
+                        cv2.rectangle(self.read_image, (bounding_box.x, bounding_box.y), (bounding_box.x+bounding_box.w, bounding_box.y+bounding_box.h), (0,0,255), 2)
+                    cv2.imshow("Motion_Event", self.read_image)
                     cv2.waitKey(10)
             
             #Motion Frame! passed all filters.
@@ -271,20 +273,24 @@ class Video:
     def read_frame(self):
         
         #read frame
-        ret,image=self.cap.read()
+        ret,self.original_image=self.cap.read()
         
         if not ret:
-            return((ret,image))
+            return((ret,self.original_image))
         
         #set crop settings if first frame
         if self.IS_FIRST_FRAME:
             if self.args.crop:
-                self.roi=Crop.Crop(image,"Crop")            
+                self.roi=Crop.Crop(self.original_image,"Crop")            
+            return((ret,self.original_image))
         if self.args.crop:
-            cropped_image=image[self.roi[1]:self.roi[3], self.roi[0]:self.roi[2]]
-            return((ret,cropped_image))
+            image=self.original_image[self.roi[1]:self.roi[3], self.roi[0]:self.roi[2]]
         else:
-            return((ret,image))
+            image=self.original_image
+        
+        #resize
+        image=cv2.resize(image,(int(self.new_w),int(self.new_h)))
+        return((ret,image))
     
     def create_background(self):
         
@@ -295,10 +301,10 @@ class Video:
     def background_apply(self):
         
         #Apply Subtraction
-        self.image = self.fgbg.apply(self.original_image,learningRate=self.args.moglearning)
+        self.image = self.fgbg.apply(self.read_image,learningRate=self.args.moglearning)
     
         #Erode to remove noise, dilate the areas to merge bounded objects
-        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(11,11))
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(9,9))
         self.image= cv2.morphologyEx(self.image, cv2.MORPH_OPEN, kernel)
 
     def find_contour(self):
@@ -315,8 +321,21 @@ class Video:
         
         #Write Current frame and padding
         if Motion:
-            #write frame
+            #write current frame
             cv2.imwrite(self.file_destination + "/"+str(self.frame_count)+".jpg",self.original_image)
+            
+            #write following buffer frames
+            for x in range(self.args.buffer):
+                #read frame, check if its the last frame in video
+                ret,self.read_image=self.read_frame()                
+                if not ret: 
+                    self.end_time=time.time()
+                    break
+                #add to frame count and apply
+                self.frame_count+=1
+                self.background_apply()                                                            
+                #write frame
+                cv2.imwrite(self.file_destination + "/"+str(self.frame_count)+".jpg",self.original_image)                
             
             #write padding frames, if they don't exist
             if WritePadding:
