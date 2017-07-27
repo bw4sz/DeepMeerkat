@@ -20,10 +20,10 @@ python tests/CreateManifest.py
 pip install apache_beam[gcp]
 
 python tests/prediction/run.py \
-    --runner DataflowRunner \
+    --runner DirectRunner \
     --project $PROJECT \
     --staging_location $BUCKET/staging \
     --temp_location $BUCKET/temp \
     --job_name $PROJECT-deepmeerkat \
     --setup_file tests/prediction/setup.py \
-    --extra_package tests/opencv_python-3.2.0.7-cp27-cp27m-manylinux1_x86_64.whl
+    --maxNumWorkers 1
