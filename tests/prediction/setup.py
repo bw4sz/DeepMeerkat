@@ -35,7 +35,7 @@ CUSTOM_COMMANDS = [
   ['apt-get', 'install', '-y', 'cmake', 'git'],
   ['git','clone', 'https://github.com/Itseez/opencv.git', '--depth', '1'],
   ['mkdir', 'opencv/build'],
-  ['cmake','-Hopencv',"-Bopencv/build", "-D","WITH_FFMPEG=ON"],
+  ['cmake','-Hopencv',"-Bopencv/build", "-DWITH_FFMPEG=ON"],
   ['make','-C', 'opencv/build','-j4'],
   ['make', '-C','opencv/build','install'], 
   ['ldconfig']
