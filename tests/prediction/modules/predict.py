@@ -9,7 +9,7 @@ from DeepMeerkat import MotionMeerkat
 class PredictDoFn(beam.DoFn):
   
   def process(self,element):
-    MM=MotionMeerkat()    
+    MM=MotionMeerkat.MotionMeerkat()    
     MM.process_args() 
     
     #Assign input from DataFlow/manifest
