@@ -39,9 +39,11 @@ class Organizer:
         self.bucket = storage_client.get_bucket(self.parsed.hostname)    
         vids=self.bucket.list_blobs(prefix=self.parsed.path[1:])
         
+        #first position is always itself
+        
         #video list
         self.video_list=[]
-        for vid in vids:
+        for vid in vids[1:]:
             self.video_list.append("gs://" + self.bucket.name +"/"+ str(vid.name))
                 
         #if no ceiling, process all arguments
