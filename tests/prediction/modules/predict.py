@@ -4,7 +4,7 @@ import logging
 import os
 import csv
 import apache_beam as beam
-from DeepMeerkat import *
+from DeepMeerkat import MotionMeerkat
 
 class PredictDoFn(beam.DoFn):
   
