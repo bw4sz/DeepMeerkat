@@ -91,7 +91,7 @@ class Video:
         #start time
         self.start_time=time.time()
         
-        #store args from MotionMeerkat.py
+        #store args from DeepMeerkat.py
         self.args=args
         self.args.video=vid
         self.tensorflow_session=tensorflow_session
@@ -237,7 +237,7 @@ class Video:
                     #Clip and increase box size.
                     clips.append(resize_box(self.read_image, bounding_box))            
                 self.tensorflow_label=predict.TensorflowPredict(sess=self.tensorflow_session,read_from="numpy",image_array=clips,numpy_name=self.frame_count,label_lines=self.args.label_lines)
-                cv2.putText(self.read_image,str(self.tensorflow_label[self.frame_count]),(50,50),cv2.FONT_HERSHEY_SIMPLEX,2,(255,255,255),2)
+                cv2.putText(self.original_image,str(self.tensorflow_label[self.frame_count]),(50,50),cv2.FONT_HERSHEY_SIMPLEX,2,(255,255,255),2)
 
                 #next frame if negative label
                 if "positive" in str(self.tensorflow_label[self.frame_count]):
@@ -349,14 +349,7 @@ class Video:
                 fname=self.file_destination + "/"+str(self.frame_count)+".jpg"
                 if not os.path.exists(fname):
                     cv2.imwrite(fname,self.original_image)                
-            
-            #write padding frames, if they don't exist
-            if WritePadding:
-                for x in range(0,len(self.padding_frames)):
-                    filenm=self.file_destination + "/"+str(self.frame_count-(x+1))+".jpg"
-                    if not os.path.exists(filenm):
-                        cv2.imwrite(filenm,self.padding_frames[x])
-             
+                         
     def cluster_bounding_boxes(self, contours):
         bounding_boxes = []
         for i in range(len(contours)):

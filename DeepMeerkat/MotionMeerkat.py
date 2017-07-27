@@ -5,9 +5,9 @@ import Video
 import CommandArgs
 import glob
 
-class MotionMeerkat:
+class DeepMeerkat:
     def __init__(self):
-        print("Welcome to MotionMeerkat")
+        print("Welcome to DeepMeerkat")
     
     def process_args(self):
         self.args=CommandArgs.CommandArgs()
@@ -59,8 +59,8 @@ class MotionMeerkat:
             self.args.mogvariance=mogvariance
         
 if __name__ == "__main__":
-    MM=MotionMeerkat()  
-    MM.process_args() 
-    MM.run()
+    DM=DeepMeerkat()  
+    DM.process_args() 
+    DM.run()
     
     
