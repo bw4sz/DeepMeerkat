@@ -26,6 +26,6 @@ python run_clouddataflow.py \
     --staging_location $BUCKET/staging \
     --temp_location $BUCKET/temp \
     --job_name $PROJECT-deepmeerkat \
-    --setup_file tests/prediction/setup.py \
+    --setup_file setup.py \
     --maxNumWorkers 1 \
-    --path_to_model ="model/"
+    --path_to_model "model/"

@@ -11,11 +11,10 @@ class PredictDoFn(beam.DoFn):
   
   def process(self,element):
     DM=DeepMeerkat.DeepMeerkat()  
-    
     #replace input with element
     #Assign input from DataFlow/manifest    
-    DM.process_args(video=element)     
-    
+    DM.process_args(video=element)   
+    print(element)    
     DM.run()
 
 def run():
