@@ -32,14 +32,15 @@ CUSTOM_COMMANDS = [
   
   #Get cmake and git
   ['apt-get', 'update', '-y'],  
-  ['apt-get', 'install', '-y' ,'cmake', 'git','libgtk2.0-dev','pkg-config','libavcodec-dev','libavformat-dev','libswscale-dev'],
+  ['apt-get', 'install', '-y' ,'cmake',"unzip",'git','libgtk2.0-dev','pkg-config','libavcodec-dev','libavformat-dev','libswscale-dev'],
   ['git','clone', 'https://github.com/Itseez/opencv.git', '--depth', '1'],
   ['mkdir', 'opencv/build'],
   ['cmake','-Hopencv',"-Bopencv/build", "-DWITH_FFMPEG=ON"],
   ['make','-C', 'opencv/build','-j4'],
   ['make', '-C','opencv/build','install'], 
   ['ldconfig'],
-  ['wget','-O' '~/DeepMeerkat/',"https://www.dropbox.com/sh/kaereoq7uyotwc3/AACT4AHByY59ZH3Biq-ooKFKa?dl=1"]
+  ['curl',"-L","https://www.dropbox.com/sh/kaereoq7uyotwc3/AACT4AHByY59ZH3Biq-ooKFKa?dl=1",">","model.zip"]
+  ['unzip','model.zip','-d','/DeepMeerkat/model']
 
 ]  
 

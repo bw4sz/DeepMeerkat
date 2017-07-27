@@ -19,11 +19,13 @@ python tests/CreateManifest.py
 #still not getting the API patch
 pip install apache_beam[gcp]
 
-python tests/prediction/run_clouddataflow.py \
+#testing without tensorflow
+python run_clouddataflow.py \
     --runner DirectRunner \
     --project $PROJECT \
     --staging_location $BUCKET/staging \
     --temp_location $BUCKET/temp \
     --job_name $PROJECT-deepmeerkat \
     --setup_file tests/prediction/setup.py \
-    --maxNumWorkers 1
+    --maxNumWorkers 1 \
+    --path_to_model ="model/"
