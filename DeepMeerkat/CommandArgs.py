@@ -18,5 +18,6 @@ def CommandArgs():
     parser.add_argument("--tensorflow", help="Process model with a tensorflow image trained on google cloud machine learning engine",action='store_false')	
     parser.add_argument("--path_to_model", help="Path to model/ directory",default="C:/Users/Ben/Dropbox/GoogleCloud/DeepMeerkat_20170725_025943/model/")								    
     args=parser.parse_known_args()
+    print(args)
     return(args)
     
