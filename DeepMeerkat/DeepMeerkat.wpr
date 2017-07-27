@@ -14,6 +14,12 @@ proj.file-type = 'shared'
 proj.launch-config = {loc('CommandArgs.py'): ('project',
         (u'--buffer 1\n',
          '')),
+                      loc('DeepMeerkat.py'): ('project',
+        (u'--buffer 2 --tensorflow',
+         '')),
                       loc('MotionMeerkat.py'): ('project',
         (u'--buffer 2',
+         '')),
+                      loc('Video.py'): ('project',
+        (u'--input C:/Users/Ben/Desktop/MeerkatTest/130710AA.TLV',
          ''))}
