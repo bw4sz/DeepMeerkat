@@ -23,7 +23,7 @@ def run():
                       help='Input file to process.')
   known_args, pipeline_args = parser.parse_known_args()
   
-  print(known_args)
+  print(known_args.input)
   
   print(pipeline_args)
   
