@@ -23,6 +23,10 @@ def run():
                       help='Input file to process.')
   known_args, pipeline_args = parser.parse_known_args()
   
+  print(known_args)
+  
+  print(piperline_args)
+  
   p = beam.Pipeline(argv=pipeline_args)
   
   vids = (p|'Read input' >> beam.io.ReadFromText(known_args.input)
