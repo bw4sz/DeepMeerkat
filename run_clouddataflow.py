@@ -10,23 +10,19 @@ from DeepMeerkat import DeepMeerkat
 class PredictDoFn(beam.DoFn):
   
   def process(self,element):
-    MM=DeepMeerkat.DeepMeerkat()    
-    MM.process_args() 
+    DM=DeepMeerkat.DeepMeerkat()    
+    DM.process_args() 
     
     #Assign input from DataFlow/manifest
-    MM.input=element
-    MM.run()
+    DM.queue=[element]
+    DM.run()
 
 def run():
   parser = argparse.ArgumentParser()
   parser.add_argument('--input', dest='input', default="gs://api-project-773889352370-testing/DataFlow/manifest.csv",
                       help='Input file to process.')
   known_args, pipeline_args = parser.parse_known_args()
-  
-  print(known_args.input)
-  
-  print(pipeline_args)
-  
+    
   p = beam.Pipeline(argv=pipeline_args)
   
   vids = (p|'Read input' >> beam.io.ReadFromText(known_args.input)
