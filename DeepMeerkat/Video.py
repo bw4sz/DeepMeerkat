@@ -401,46 +401,89 @@ class Video:
         
         #write parameter logs        
         self.output_args=self.file_destination + "/parameters.csv"
-        with open(self.output_args, 'w',newline="") as f:  
-            writer = csv.writer(f,)
-            writer.writerows(self.args.__dict__.items())
+        if sys.version_info >= (3, 0):        
+            with open(self.output_args, 'w',newline="") as f:
+                writer = csv.writer(f,)
+                writer.writerows(self.args.__dict__.items())
             
-            #Total time
-            self.total_min=round((self.end_time-self.start_time)/60,3)
-            writer.writerow(["Minutes",self.total_min])
+                #Total time
+                self.total_min=round((self.end_time-self.start_time)/60,3)
+                writer.writerow(["Minutes",self.total_min])
             
-            #Frames in file
-            writer.writerow(["Total Frames",self.frame_count])
+                #Frames in file
+                writer.writerow(["Total Frames",self.frame_count])
             
-            #Frames returned to file
-            writer.writerow(["Motion Events",len(self.annotations)])
+                #Frames returned to file
+                writer.writerow(["Motion Events",len(self.annotations)])
             
-            #Hit rate
-            len(self.annotations)
-            writer.writerow(["Return rate",float(len(self.annotations)/self.frame_count)])
+                #Hit rate
+                len(self.annotations)
+                writer.writerow(["Return rate",float(len(self.annotations)/self.frame_count)])
             
-            #Frames per second
-            writer.writerow(["Frame processing rate",round(float(self.frame_count)/(self.total_min*60),2)])
+                #Frames per second
+                writer.writerow(["Frame processing rate",round(float(self.frame_count)/(self.total_min*60),2)])                
+        else:    
+            with open(self.output_args, 'wb') as f:
+                writer = csv.writer(f,)
+                writer.writerows(self.args.__dict__.items())
+                
+                #Total time
+                self.total_min=round((self.end_time-self.start_time)/60,3)
+                writer.writerow(["Minutes",self.total_min])
+                
+                #Frames in file
+                writer.writerow(["Total Frames",self.frame_count])
+                
+                #Frames returned to file
+                writer.writerow(["Motion Events",len(self.annotations)])
+                
+                #Hit rate
+                len(self.annotations)
+                writer.writerow(["Return rate",float(len(self.annotations)/self.frame_count)])
+                
+                #Frames per second
+                writer.writerow(["Frame processing rate",round(float(self.frame_count)/(self.total_min*60),2)])
         
         #Write frame annotations
         self.output_annotations=self.file_destination + "/annotations.csv"
-        with open(self.output_annotations, 'w',newline="") as f:  
-            writer = csv.writer(f,)
-            writer.writerow(["Frame","x","y","h","w"])
-            for x in self.annotations.keys():   
-                bboxes=self.annotations[x]
-                for bbox in bboxes: 
-                    writer.writerow([x,bbox.x,bbox.y,bbox.h,bbox.w])
-
-            if self.googlecloud:
-                #write bounding boxes to google cloud
-                
-                blob=self.bucket.blob(self.parsed.path[1:]+"/annotations.csv")
-                blob.upload_from_filename(self.output_annotations)            
+        if sys.version_info >= (3, 0):        
+            with open(self.output_annotations, 'w',newline="") as f:
+                writer = csv.writer(f,)
+                writer.writerow(["Frame","x","y","h","w"])
+                for x in self.annotations.keys():   
+                    bboxes=self.annotations[x]
+                    for bbox in bboxes: 
+                        writer.writerow([x,bbox.x,bbox.y,bbox.h,bbox.w])
     
-                #write parameter log to google cloud
-                blob=self.bucket.blob(self.parsed.path[1:]+"/parameters.csv")
-                blob.upload_from_filename(self.output_args)                                                            
+                if self.googlecloud:
+                    #write bounding boxes to google cloud
+                    
+                    blob=self.bucket.blob(self.parsed.path[1:]+"/annotations.csv")
+                    blob.upload_from_filename(self.output_annotations)            
+        
+                    #write parameter log to google cloud
+                    blob=self.bucket.blob(self.parsed.path[1:]+"/parameters.csv")
+                    blob.upload_from_filename(self.output_args)                                                            
+                
+        else:    
+            with open(self.output_annotations, 'wb') as f:
+
+                writer = csv.writer(f,)
+                writer.writerow(["Frame","x","y","h","w"])
+                for x in self.annotations.keys():   
+                    bboxes=self.annotations[x]
+                    for bbox in bboxes: 
+                        writer.writerow([x,bbox.x,bbox.y,bbox.h,bbox.w])
+    
+                if self.googlecloud:
+                    #write bounding boxes to google cloud
+                    
+                    blob=self.bucket.blob(self.parsed.path[1:]+"/annotations.csv")
+                    blob.upload_from_filename(self.output_annotations)            
+        
+                    #write parameter log to google cloud
+                    blob=self.bucket.blob(self.parsed.path[1:]+"/parameters.csv")
+                    blob.upload_from_filename(self.output_args)                                                            
 
     def adapt(self):
         
