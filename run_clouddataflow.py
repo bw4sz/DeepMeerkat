@@ -13,8 +13,11 @@ class PredictDoFn(beam.DoFn):
     DM=DeepMeerkat.DeepMeerkat()    
     DM.process_args() 
     
+    print("I'm inside")
     #Assign input from DataFlow/manifest
     DM.queue=[element]
+    print("I'm outside")
+    
     DM.run()
 
 def run():
@@ -27,7 +30,7 @@ def run():
   
   vids = (p|'Read input' >> beam.io.ReadFromText(known_args.input)
        | 'Parse input' >> beam.Map(lambda line: csv.reader([line]).next())
-       | 'Run MotionMeerkat' >> beam.ParDo(PredictDoFn()))
+       | 'Run DeepMeerkat' >> beam.ParDo(PredictDoFn()))
   
   logging.getLogger().setLevel(logging.INFO)
   p.run()
