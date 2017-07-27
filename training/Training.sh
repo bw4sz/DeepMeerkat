@@ -11,7 +11,7 @@ git clone https://github.com/bw4sz/DeepMeerkat.git
 cd DeepMeerkat/training
 
 #make sure all requirements are upgraded
-pip install -r requirements.txt
+#pip install -r requirements.txt
 
 declare -r PROJECT=$(gcloud config list project --format "value(core.project)")
 declare -r BUCKET="gs://${PROJECT}-ml"

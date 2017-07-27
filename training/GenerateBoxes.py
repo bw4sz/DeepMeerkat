@@ -44,20 +44,13 @@ def check_bounds(img,axis,p):
     return(p)
 
 crop_counter=0
-
-processed=[]
-with open("ProcessedFrames.csv") as f:
-    fread=csv.reader(f)
-    for line in fread:
-        processed.append(line[0])
-
         
 #remove csv already done sort by date
 new_csvs=[]
 for csvfile in csvs:
     #convert time
     filedate=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(creation_date(csvfile)))
-    if filedate > '2017-06-21 00:00:00':
+    if filedate > '2017-07-13 00:00:00':
         new_csvs.append(csvfile)
 
 print(len(new_csvs))
