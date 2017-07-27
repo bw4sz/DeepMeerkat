@@ -25,7 +25,7 @@ def run():
   
   print(known_args)
   
-  print(piperline_args)
+  print(pipeline_args)
   
   p = beam.Pipeline(argv=pipeline_args)
   
