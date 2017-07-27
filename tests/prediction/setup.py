@@ -32,7 +32,7 @@ CUSTOM_COMMANDS = [
   
   #Get cmake and git
   ['apt-get', 'update', '-y'],  
-  ['apt-get', 'install', '-y', 'cmake', 'git','ffmpeg'],
+  ['apt-get', 'install', '-y', 'cmake', 'git'],
   ['git','clone', 'https://github.com/Itseez/opencv.git', '--depth', '1'],
   ['mkdir', 'opencv/build'],
   ['cmake','-Hopencv',"-Bopencv/build", "-D","WITH_FFMPEG=ON"],

@@ -326,7 +326,15 @@ class Video:
             if not os.path.exists(fname):
                 cv2.imwrite(fname,self.original_image)                
             
-            #write following buffer frames
+                #write padding frames, if they don't exist
+                if WritePadding:
+                    for x in range(0,len(self.padding_frames)):
+                        filenm=self.file_destination + "/"+str(self.frame_count-(x+1))+".jpg"
+                        if not os.path.exists(filenm):
+                            cv2.imwrite(filenm,self.padding_frames[x])
+
+            
+            #write post motion frames
             for x in range(self.args.buffer):
                 #read frame, check if its the last frame in video
                 ret,self.read_image=self.read_frame()                
