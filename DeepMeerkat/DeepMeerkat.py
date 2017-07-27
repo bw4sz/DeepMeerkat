@@ -49,8 +49,7 @@ class DeepMeerkat:
             
             #get dictionary
             # Loads label file, strips off carriage return
-
-            self.args.label_lines = [line.rstrip() for line in tf.gfile.GFile(self.args.path_to_model + "/dict.txt"))]
+            self.args.label_lines = [line.rstrip() for line in tf.gfile.GFile(self.args.path_to_model + "/dict.txt")]
         else:
             sess=None
             
