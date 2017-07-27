@@ -9,12 +9,16 @@ class DeepMeerkat:
     def __init__(self):
         print("Welcome to DeepMeerkat")
     
-    def process_args(self):
+    def process_args(self,video=None):
         self.args=CommandArgs.CommandArgs()
         
         #get all videos in queue
         self.queue= []
         
+        #if run as a function a video can be passed as a function
+        if video:
+            self.queue.append(video)
+            
         #Create Pool of Videos
         if not os.path.isfile(self.args.input):
             for (root, dirs, files) in os.walk(self.args.input):

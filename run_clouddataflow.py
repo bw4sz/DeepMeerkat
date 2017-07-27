@@ -10,13 +10,13 @@ from DeepMeerkat import DeepMeerkat
 class PredictDoFn(beam.DoFn):
   
   def process(self,element):
-    DM=DeepMeerkat.DeepMeerkat()    
+    DM=DeepMeerkat.DeepMeerkat()  
+    
+    #replace input with element
     DM.process_args() 
     
-    print("I'm inside")
     #Assign input from DataFlow/manifest
     DM.queue=[element]
-    print("I'm outside")
     
     DM.run()
 
