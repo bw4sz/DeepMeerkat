@@ -322,7 +322,9 @@ class Video:
         #Write Current frame and padding
         if Motion:
             #write current frame
-            cv2.imwrite(self.file_destination + "/"+str(self.frame_count)+".jpg",self.original_image)
+            fname=self.file_destination + "/"+str(self.frame_count)+".jpg"
+            if not os.path.exists(fname):
+                cv2.imwrite(fname,self.original_image)                
             
             #write following buffer frames
             for x in range(self.args.buffer):
@@ -334,8 +336,11 @@ class Video:
                 #add to frame count and apply
                 self.frame_count+=1
                 self.background_apply()                                                            
+                
                 #write frame
-                cv2.imwrite(self.file_destination + "/"+str(self.frame_count)+".jpg",self.original_image)                
+                fname=self.file_destination + "/"+str(self.frame_count)+".jpg"
+                if not os.path.exists(fname):
+                    cv2.imwrite(fname,self.original_image)                
             
             #write padding frames, if they don't exist
             if WritePadding:
