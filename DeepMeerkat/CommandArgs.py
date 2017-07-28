@@ -16,7 +16,7 @@ def CommandArgs():
     parser.add_argument("--todraw", help="Draw boxes to highlight motion'?",action="store_true")
     parser.add_argument("--show", help="Show frames as you process",action='store_true')
     parser.add_argument("--tensorflow", help="Process model with a tensorflow image trained on google cloud machine learning engine",action='store_false')	
-    parser.add_argument("--path_to_model", help="Path to model/ directory",default="C:/Users/Ben/Dropbox/GoogleCloud/DeepMeerkat_20170725_025943/model/")								    
+    parser.add_argument("--path_to_model", help="Path to model/ directory",default="C:/Users/Ben/Dropbox/GoogleCloud/DeepMeerkat_20170728_141014/model/")								    
     args,_=parser.parse_known_args()
     print(args)
     return(args)
