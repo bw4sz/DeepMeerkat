@@ -248,7 +248,14 @@ class Video:
             if self.args.show:
                 for bounding_box in remaining_bounding_box:
                     if self.args.draw: 
-                        cv2.rectangle(self.read_image, (bounding_box.x, bounding_box.y), (bounding_box.x+bounding_box.w, bounding_box.y+bounding_box.h), (0,0,255), 2)
+                        
+                        #TODO transform bounding box to original size
+                        bounding_box.x
+                        bounding_box.y
+                        bounding_box.w
+                        bounding_box.h
+                        
+                        cv2.rectangle(self.original_image, (bounding_box.x, bounding_box.y), (bounding_box.x+bounding_box.w, bounding_box.y+bounding_box.h), (0,0,255), 2)
                     cv2.imshow("Motion_Event", self.read_image)
                     cv2.waitKey(10)
             

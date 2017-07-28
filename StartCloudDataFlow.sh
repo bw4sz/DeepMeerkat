@@ -10,11 +10,8 @@ cd DeepMeerkat
 PROJECT=$(gcloud config list project --format "value(core.project)")
 BUCKET=gs://$PROJECT-testing
 
-#copy most recent DeepMeerkat in version control from main directory
-cp -r DeepMeerkat/ tests/prediction/modules/
-
 #generate manifest of objects for dataflow to process
-python tests/CreateManifest.py
+python CreateManifest.py
 
 #still not getting the API patch
 pip install apache_beam[gcp]
