@@ -3,8 +3,8 @@ import sys
 import cv2
 import traceback
 
-#MotionMeerkat
-import MotionMeerkat
+#DeepMeerkat
+import DeepMeerkat
 import CommandArgs
 
 #Entry Point
@@ -17,7 +17,7 @@ if __name__ == "__main__":
      if len(sys.argv)>= 2:
           
           print("Entering Command Line")
-          MM=MotionMeerkat.MotionMeerkat()  
+          MM=DeepMeerkat.DeepMeerkat()  
           MM.process_args() 
           MM.run()
                     
@@ -60,10 +60,10 @@ if __name__ == "__main__":
           class MainScreen(Screen):
                
                def help_site(instance):
-                    webbrowser.open("https://github.com/bw4sz/OpenCV_HummingbirdsMotion/wiki")
+                    webbrowser.open("https://github.com/bw4sz/DeepMeerkat/wiki")
                   
                def help_issue(instance):
-                    webbrowser.open("https://github.com/bw4sz/OpenCV_HummingbirdsMotion/issues")
+                    webbrowser.open("https://github.com/bw4sz/DeepMeerkat/issues")
                
                def on_check_roi(self, value,MM):
                     if value:
@@ -89,7 +89,7 @@ if __name__ == "__main__":
                          self.ids.fc.background_color=(1,0,0,1)
                     
                     #send text to motion object
-                    MM.inDEST=self.ids.fc.text
+                    MM.input=self.ids.fc.text
                          
                def run_press(self,root):
                     root.getProgress()
@@ -153,7 +153,7 @@ if __name__ == "__main__":
                     screenmanage.current='GUI'   
                     
                def openfile(self,MM):
-                    startfile(MM.file_destination + "/" + "Parameters_Results.log")
+                    startfile(MM.output + "/" + "Parameters_Results.log")
           
           class ErrorScreen(Screen):
                em=StringProperty()
@@ -170,13 +170,13 @@ if __name__ == "__main__":
                     screenmanage.current='GUI'      
                     
                def openfile(self,MM):
-                    startfile(MM.file_destination + "/" + "Parameters_Results.log")
+                    startfile(MM.output + "/" + "Parameters_Results.log")
                
           class MyScreenManager(ScreenManager):
               
                try:
                     #Create motion instance class
-                    MM=MotionMeerkat.MotionMeerkat()
+                    MM=DeepMeerkat.DeepMeerkat()
                except Exception as e:
                     traceback.print_exc()
                     if len(sys.argv)<= 2:          
@@ -190,9 +190,9 @@ if __name__ == "__main__":
                     self.transition.direction='left'          
                     self.current='P'
           
-          class MotionMeerkatApp(App):
+          class DeepMeerkatApp(App):
                def build(self):
                     return MyScreenManager()
           #run app  
-          MotionMeerkatApp().run()
+          DeepMeerkatApp().run()
           cv2.destroyAllWindows()     
