@@ -230,29 +230,51 @@ class Video:
             
             #Gather clips and compute hog features
             #Enlarge box and send it to tensorflow
-            clips=[]
             bg_image=self.fgbg.getBackgroundImage()
             
             for bounding_box in remaining_bounding_box:
                 #Clip and increase box size.
-                current=resize_box(self.read_image, bounding_box)
+                current=resize_box(self.read_image, bounding_box,m=0)                                              
                 
-                #add to clip list for tensorflow
-                clips.append(current)
-                
-                background=resize_box(bg_image, bounding_box)
+                #compute HOG
                 hog = cv2.HOGDescriptor()
                 h_current = hog.compute(current)
+                
+                #Background HOG
+                background=resize_box(bg_image, bounding_box,m=0) 
                 
                 hog = cv2.HOGDescriptor()
                 h_background = hog.compute(background)
                 
                 #compare current and background hog feature
-                L2distance=np.linalg.norm(h_current-h_background)
+                HOG_dist=np.linalg.norm(h_current-h_background)
+                
+                #Calculate histogram for all colors
+                H1 = cv2.calcHist([current], [0, 1, 2], None, [16, 16, 16],
+                                        [0, 256, 0, 256, 0, 256])
+                H1 = cv2.normalize(H1,H1).flatten()
+                
+                H2 = cv2.calcHist([background], [0, 1, 2], None, [16, 16, 16],
+                                              [0, 256, 0, 256, 0, 256])
+                H2 = cv2.normalize(H2,H2).flatten()                
+                hist_dist =cv2.compareHist(H1, H2, method=cv2.HISTCMP_CHISQR)
+                
+                #if no difference
+                if hist_dist==0:
+                    self.end_sequence(Motion=False)
+                    continue
+                    
                 #just label for now
-                cv2.putText(self.original_image,str(L2distance),(500,100),cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,255),2)             
+                #label histogram distance
+                cv2.putText(self.original_image,str(round(hist_dist,3)),(100,100),cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,255),2)             
+                cv2.putText(self.original_image,str(round(HOG_dist,3)),(100,200),cv2.FONT_HERSHEY_SIMPLEX,1,(0,0,0),2)                             
                         
+                #label hogdistance
             if self.args.tensorflow:
+                clips=[]                
+                for bounding_box in remaining_bounding_box:
+                    clips.append(current)
+                            
                 self.tensorflow_label=predict.TensorflowPredict(sess=self.tensorflow_session,read_from="numpy",image_array=clips,numpy_name=self.frame_count,label_lines=self.args.label_lines)                
                 cv2.putText(self.original_image,str(self.tensorflow_label[self.frame_count]),(50,50),cv2.FONT_HERSHEY_SIMPLEX,2,(255,255,255),2)
 
@@ -262,19 +284,20 @@ class Video:
 
             self.annotations[self.frame_count] = remaining_bounding_box
             
-            if self.args.show:
+            if self.args.draw_box:             
                 for bounding_box in remaining_bounding_box:
-                    if self.args.draw: 
                         
-                        #TODO transform bounding box to original size
-                        bounding_box.x
-                        bounding_box.y
-                        bounding_box.w
-                        bounding_box.h
+                        #TODO transform bounding box to original size?
+                        boxx=int(bounding_box.x * (float(width)/self.new_w))
+                        boxy=int(bounding_box.y * (float(height)/self.new_h))
+                        boxw=int(bounding_box.w * (float(width)/self.new_w))
+                        boxh=int(bounding_box.y * (float(height)/self.new_h))
                         
-                        cv2.rectangle(self.original_image, (bounding_box.x, bounding_box.y), (bounding_box.x+bounding_box.w, bounding_box.y+bounding_box.h), (0,0,255), 2)
-                    cv2.imshow("Motion_Event", self.read_image)
-                    cv2.waitKey(10)
+                        cv2.rectangle(self.original_image, (boxx, boxy), 
+                                      (boxx+boxw, boxy+boxh), (0,0,255), 2)
+            if self.args.show:
+                cv2.imshow("Motion_Event", self.original_image)
+                cv2.waitKey(10)
             
             #Motion Frame! passed all filters.
             if self.args.training:
@@ -356,8 +379,7 @@ class Video:
                         filenm=self.file_destination + "/"+str(self.frame_count-(x+1))+".jpg"
                         if not os.path.exists(filenm):
                             cv2.imwrite(filenm,self.padding_frames[x])
-
-            
+                            
             #write post motion frames
             for x in range(self.args.buffer):
                 #read frame, check if its the last frame in video
