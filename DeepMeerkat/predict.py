@@ -5,6 +5,7 @@ import glob
 import numpy as np
 import argparse
 import cv2
+from collections import defaultdict
 
 def TensorflowPredict(read_from,sess,image_array=None,imagedir=None,numpy_name=None,wait_time=10,label_lines=None):
     
@@ -40,7 +41,7 @@ def TensorflowPredict(read_from,sess,image_array=None,imagedir=None,numpy_name=N
     predictions = sess.run(softmax_tensor, {'Placeholder:0': tfimages})
     
     #output results
-    results_frame={}
+    results_frame=defaultdict(list)
     
     for x in range(0,len(predictions)):
         # Sort to show labels of first prediction in order of confidence
@@ -49,8 +50,8 @@ def TensorflowPredict(read_from,sess,image_array=None,imagedir=None,numpy_name=N
         for node_id in top_k:
             human_string = label_lines[node_id]
             score = predictions[x][node_id]
-            print('%s (score = %.4f)' % (human_string, score))
-        results_frame[image_name[x]]=label_lines[top_k[0]]
+            print('%s (score = %.3f)' % (human_string, score))
+        results_frame[image_name[x]].append(label_lines[top_k[0]])
             
     return(results_frame)
 def show(wait_time):

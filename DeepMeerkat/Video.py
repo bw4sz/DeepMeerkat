@@ -14,6 +14,7 @@ import time
 import Crop
 import predict
 
+
 #general functions
 class FixedlenList(list):
     '''
@@ -229,7 +230,6 @@ class Video:
                 continue
             
             #Gather clips and compute hog features
-            #Enlarge box and send it to tensorflow
             bg_image=self.fgbg.getBackgroundImage()
             
             for bounding_box in remaining_bounding_box:
@@ -273,7 +273,13 @@ class Video:
             if self.args.tensorflow:
                 clips=[]                
                 for bounding_box in remaining_bounding_box:
-                    clips.append(current)
+                    x1=int(bounding_box.x * (float(width)/self.new_w))
+                    y1=int(bounding_box.y * (float(height)/self.new_h))
+                    w1=int(bounding_box.w * (float(width)/self.new_w))
+                    h1=int(bounding_box.h * (float(height)/self.new_h)) 
+                    
+                    newbox=self.BoundingBox(Rect(x1, y1, w1, h1))
+                    clips.append(resize_box(self.original_image,newbox))
                             
                 self.tensorflow_label=predict.TensorflowPredict(sess=self.tensorflow_session,read_from="numpy",image_array=clips,numpy_name=self.frame_count,label_lines=self.args.label_lines)                
                 cv2.putText(self.original_image,str(self.tensorflow_label[self.frame_count]),(50,50),cv2.FONT_HERSHEY_SIMPLEX,2,(255,255,255),2)
@@ -285,19 +291,19 @@ class Video:
             self.annotations[self.frame_count] = remaining_bounding_box
             
             if self.args.draw_box:             
+                print("Draw box")
                 for bounding_box in remaining_bounding_box:
-                        
-                        #TODO transform bounding box to original size?
-                        boxx=int(bounding_box.x * (float(width)/self.new_w))
-                        boxy=int(bounding_box.y * (float(height)/self.new_h))
-                        boxw=int(bounding_box.w * (float(width)/self.new_w))
-                        boxh=int(bounding_box.y * (float(height)/self.new_h))
-                        
-                        cv2.rectangle(self.original_image, (boxx, boxy), 
-                                      (boxx+boxw, boxy+boxh), (0,0,255), 2)
+                    
+                    boxx=int(bounding_box.x * (float(width)/self.new_w))
+                    boxy=int(bounding_box.y * (float(height)/self.new_h))
+                    boxw=int(bounding_box.w * (float(width)/self.new_w))
+                    boxh=int(bounding_box.h * (float(height)/self.new_h))
+                    
+                    cv2.rectangle(self.original_image, (boxx, boxy), 
+                                  (boxx+boxw, boxy+boxh), (0,0,255), 2)
             if self.args.show:
                 cv2.imshow("Motion_Event", self.original_image)
-                cv2.waitKey(10)
+                cv2.waitKey(0)
             
             #Motion Frame! passed all filters.
             if self.args.training:
@@ -309,8 +315,7 @@ class Video:
                     clip_original=resize_box(self.original_image, bounding_box)
                      
                     #write clip diff and original, easier to see
-                    cv2.imwrite(self.file_destination + "/"+str(self.frame_count)+ "_" + str(index) + "_diff.jpg",clip)
-                    cv2.imwrite(self.file_destination + "/"+str(self.frame_count)+ "_" + str(index) + ".jpg",clip_original)
+                    cv2.imwrite(self.file_destination + "/"+str(self.frame_count)+ "_" + str(index) + "_train.jpg",clip)
                     
             else:
                 self.end_sequence(Motion=True,WritePadding=WritePadding)
@@ -370,15 +375,14 @@ class Video:
         if Motion:
             #write current frame
             fname=self.file_destination + "/"+str(self.frame_count)+".jpg"
-            if not os.path.exists(fname):
-                cv2.imwrite(fname,self.original_image)                
+            cv2.imwrite(fname,self.original_image)                
             
-                #write padding frames, if they don't exist
-                if WritePadding:
-                    for x in range(0,len(self.padding_frames)):
-                        filenm=self.file_destination + "/"+str(self.frame_count-(x+1))+".jpg"
-                        if not os.path.exists(filenm):
-                            cv2.imwrite(filenm,self.padding_frames[x])
+            #write padding frames, if they don't exist
+            if WritePadding:
+                for x in range(0,len(self.padding_frames)):
+                    filenm=self.file_destination + "/"+str(self.frame_count-(x+1))+".jpg"
+                    if not os.path.exists(filenm):
+                        cv2.imwrite(filenm,self.padding_frames[x])
                             
             #write post motion frames
             for x in range(self.args.buffer):
