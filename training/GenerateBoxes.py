@@ -50,7 +50,7 @@ new_csvs=[]
 for csvfile in csvs:
     #convert time
     filedate=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(creation_date(csvfile)))
-    if filedate > '2017-07-24 00:00:00':
+    if filedate > '2017-07-30 00:00:00':
         new_csvs.append(csvfile)
 
 print(len(new_csvs))

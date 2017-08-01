@@ -14,7 +14,6 @@ import time
 import Crop
 import predict
 
-
 #general functions
 class FixedlenList(list):
     '''
@@ -85,7 +84,6 @@ def resize_box(img,bbox,m=math.sqrt(2)-1):
     resized_image = cv2.resize(cropped_image, (299, 299))  
     return(resized_image)
 
-
 class Video:
     def __init__(self,vid,args,tensorflow_session=None):
                 
@@ -153,8 +151,30 @@ class Video:
         #background subtraction
         self.background_instance=self.create_background() 
         
+        #Bag of visual words global model
+        self.BOW=cv2.BOWKMeansTrainer(128)
+        
+        #image comparison matcher
+        self.matcher =  cv2.BFMatcher(cv2.NORM_L2)
+        
+        #HOG descriptor
+        winSize = (64,64)
+        blockSize = (16,16)
+        blockStride = (8,8)
+        cellSize = (8,8)
+        nbins = 9
+        derivAperture = 1
+        winSigma = 4.
+        histogramNormType = 0
+        L2HysThreshold = 2.0000000000000001e-01
+        gammaCorrection = 0
+        nlevels = 32
+        self.calc_HOG = cv2.HOGDescriptor(winSize,blockSize,blockStride,cellSize,nbins,derivAperture,winSigma,
+                                histogramNormType,L2HysThreshold,gammaCorrection,nlevels)               
+        
         #Detector almost always returns first frame
         self.IS_FIRST_FRAME = True
+        
     def analyze(self):
          
         if self.args.show: 
@@ -201,6 +221,9 @@ class Video:
             #background subtraction
             self.background_apply()
             
+            #Gather clips and compute hog features for new background
+            self.bg_image=self.fgbg.getBackgroundImage()
+                        
             #contour analysis
             self.countours=self.find_contour()
             
@@ -229,35 +252,16 @@ class Video:
                 self.end_sequence(Motion=False)
                 continue
             
-            #Gather clips and compute hog features
-            bg_image=self.fgbg.getBackgroundImage()
-            
+            #For each clip, compare to same crop within background model                       
             for bounding_box in remaining_bounding_box:
                 #Clip and increase box size.
                 current=resize_box(self.read_image, bounding_box,m=0)                                              
                 
-                #compute HOG
-                hog = cv2.HOGDescriptor()
-                h_current = hog.compute(current)
+                #Resize and Clip Background
+                background=resize_box(self.bg_image, bounding_box,m=0) 
                 
-                #Background HOG
-                background=resize_box(bg_image, bounding_box,m=0) 
-                
-                hog = cv2.HOGDescriptor()
-                h_background = hog.compute(background)
-                
-                #compare current and background hog feature
-                HOG_dist=np.linalg.norm(h_current-h_background)
-                
-                #Calculate histogram for all colors
-                H1 = cv2.calcHist([current], [0, 1, 2], None, [16, 16, 16],
-                                        [0, 256, 0, 256, 0, 256])
-                H1 = cv2.normalize(H1,H1).flatten()
-                
-                H2 = cv2.calcHist([background], [0, 1, 2], None, [16, 16, 16],
-                                              [0, 256, 0, 256, 0, 256])
-                H2 = cv2.normalize(H2,H2).flatten()                
-                hist_dist =cv2.compareHist(H1, H2, method=cv2.HISTCMP_CHISQR)
+                #compare color histograms
+                hist_dist = self.compareColorHist(current, background)
                 
                 #if no difference
                 if hist_dist==0:
@@ -267,9 +271,11 @@ class Video:
                 #just label for now
                 #label histogram distance
                 cv2.putText(self.original_image,str(round(hist_dist,3)),(100,100),cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,255),2)             
-                cv2.putText(self.original_image,str(round(HOG_dist,3)),(100,200),cv2.FONT_HERSHEY_SIMPLEX,1,(0,0,0),2)                             
-                        
-                #label hogdistance
+                
+                #compute bag of words histogram
+                BOW_distance=self.compareBOW(current,background)
+                cv2.putText(self.original_image,str(round(BOW_distance,3)),(100,200),cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,255),2)             
+                
             if self.args.tensorflow:
                 clips=[]                
                 for bounding_box in remaining_bounding_box:
@@ -358,21 +364,72 @@ class Video:
         #Erode to remove noise, dilate the areas to merge bounded objects
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(9,9))
         self.image= cv2.morphologyEx(self.image, cv2.MORPH_OPEN, kernel)
+    
+    def compareColorHist(self,current,background):
+        #Calculate clip histogram for all colors
+        H1 = cv2.calcHist([current], [0, 1, 2], None, [16, 16, 16],
+                                      [0, 256, 0, 256, 0, 256])
+        H1 = cv2.normalize(H1,H1).flatten()
+    
+        H2 = cv2.calcHist([background], [0, 1, 2], None, [16, 16, 16],
+                                      [0, 256, 0, 256, 0, 256])
+        H2 = cv2.normalize(H2,H2).flatten()      
+        dist=cv2.compareHist(H1, H2, method=cv2.HISTCMP_CHISQR)
+        return dist
+        
+    def compareBOW(self,current,background):
+        
+        #cluster background model
+        print("Cluster new background model") 
+        
+        self.background_vocab=self.BOW.cluster()
+        
+        #recreate extractor
+        print("Generate new extractor")
+        self.extract_bow = cv2.BOWImgDescriptorExtractor(self.calc_HOG, self.matcher)
+        
+        print("Assign vocabulary")
+        self.extract_bow.setVocabulary(self.background_vocab)
+        
+        #current image historgram from grayscale clips
+        print("Extract current HOG feature")
+        current_gray=cv2.cvtColor(current, cv2.COLOR_BGR2GRAY)
+        current_BOWhist=self.extract_bow.compute(current_gray)
+        
+        print("Extract background HOG feature")
+        current_background=cv2.cvtColor(current, cv2.COLOR_BGR2GRAY)        
+        background_BOWhist=self.extract_bow.compute(background)
+        
+        print("Compare Background and Foreground Masks")
+        BOW_dist =cv2.compareHist(current_BOWhist, background_BOWhist, method=cv2.HISTCMP_CHISQR)
+        return BOW_dist
+        
+    def updateBOW(self):
 
+        #add SIFT to background model
+        print("Add to background model")
+        background_grey=cv2.cvtColor(self.bg_image, cv2.COLOR_BGR2GRAY)
+
+        self.BOW.add(self.calc_HOG.compute())    
+        
     def find_contour(self):
             _,self.contours,hierarchy = cv2.findContours(self.image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE )
             self.contours = [contour for contour in self.contours if cv2.contourArea(contour) > 50]
     
     def end_sequence(self,Motion,WritePadding=False):        #When frame hits the end of processing
-        #Capture Frame
-        if not Motion:
-            self.padding_frames.append(self.original_image)
         
-        #Write State
+        #write history
         self.MotionHistory.append(Motion)
         
-        #Write Current frame and padding
-        if Motion:
+        if not Motion:
+            #Capture Frame
+            self.padding_frames.append(self.original_image)
+            
+            #update BOW model
+            self.updateBOW()
+                        
+        else:
+        
             #write current frame
             fname=self.file_destination + "/"+str(self.frame_count)+".jpg"
             cv2.imwrite(fname,self.original_image)                
@@ -455,7 +512,7 @@ class Video:
             with open(self.output_args, 'w',newline="") as f:
                 writer = csv.writer(f,)
                 writer.writerows(self.args.__dict__.items())
-            
+                
                 #Total time
                 self.total_min=round((self.end_time-self.start_time)/60,3)
                 writer.writerow(["Minutes",self.total_min])
