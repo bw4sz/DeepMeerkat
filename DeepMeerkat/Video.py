@@ -124,8 +124,7 @@ class Video:
         else:
             self.googlecloud=False        
 
-            #create output directory
-            
+            #create output directory    
             normFP=os.path.normpath(vid)
             (filepath, filename)=os.path.split(normFP)
             (shortname, extension) = os.path.splitext(filename)
@@ -150,28 +149,7 @@ class Video:
 
         #background subtraction
         self.background_instance=self.create_background() 
-        
-        #Bag of visual words global model
-        self.BOW=cv2.BOWKMeansTrainer(128)
-        
-        #image comparison matcher
-        self.matcher =  cv2.BFMatcher(cv2.NORM_L2)
-        
-        #HOG descriptor
-        winSize = (64,64)
-        blockSize = (16,16)
-        blockStride = (8,8)
-        cellSize = (8,8)
-        nbins = 9
-        derivAperture = 1
-        winSigma = 4.
-        histogramNormType = 0
-        L2HysThreshold = 2.0000000000000001e-01
-        gammaCorrection = 0
-        nlevels = 32
-        self.calc_HOG = cv2.HOGDescriptor(winSize,blockSize,blockStride,cellSize,nbins,derivAperture,winSigma,
-                                histogramNormType,L2HysThreshold,gammaCorrection,nlevels)               
-        
+                
         #Detector almost always returns first frame
         self.IS_FIRST_FRAME = True
         
@@ -250,31 +228,7 @@ class Video:
             #next frame is no remaining bounding boxes
             if len(remaining_bounding_box)==0:
                 self.end_sequence(Motion=False)
-                continue
-            
-            #For each clip, compare to same crop within background model                       
-            for bounding_box in remaining_bounding_box:
-                #Clip and increase box size.
-                current=resize_box(self.read_image, bounding_box,m=0)                                              
-                
-                #Resize and Clip Background
-                background=resize_box(self.bg_image, bounding_box,m=0) 
-                
-                #compare color histograms
-                hist_dist = self.compareColorHist(current, background)
-                
-                #if no difference
-                if hist_dist==0:
-                    self.end_sequence(Motion=False)
-                    continue
-                    
-                #just label for now
-                #label histogram distance
-                cv2.putText(self.original_image,str(round(hist_dist,3)),(100,100),cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,255),2)             
-                
-                #compute bag of words histogram
-                BOW_distance=self.compareBOW(current,background)
-                cv2.putText(self.original_image,str(round(BOW_distance,3)),(100,200),cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,255),2)             
+                continue            
                 
             if self.args.tensorflow:
                 clips=[]                
@@ -376,42 +330,7 @@ class Video:
         H2 = cv2.normalize(H2,H2).flatten()      
         dist=cv2.compareHist(H1, H2, method=cv2.HISTCMP_CHISQR)
         return dist
-        
-    def compareBOW(self,current,background):
-        
-        #cluster background model
-        print("Cluster new background model") 
-        
-        self.background_vocab=self.BOW.cluster()
-        
-        #recreate extractor
-        print("Generate new extractor")
-        self.extract_bow = cv2.BOWImgDescriptorExtractor(self.calc_HOG, self.matcher)
-        
-        print("Assign vocabulary")
-        self.extract_bow.setVocabulary(self.background_vocab)
-        
-        #current image historgram from grayscale clips
-        print("Extract current HOG feature")
-        current_gray=cv2.cvtColor(current, cv2.COLOR_BGR2GRAY)
-        current_BOWhist=self.extract_bow.compute(current_gray)
-        
-        print("Extract background HOG feature")
-        current_background=cv2.cvtColor(current, cv2.COLOR_BGR2GRAY)        
-        background_BOWhist=self.extract_bow.compute(background)
-        
-        print("Compare Background and Foreground Masks")
-        BOW_dist =cv2.compareHist(current_BOWhist, background_BOWhist, method=cv2.HISTCMP_CHISQR)
-        return BOW_dist
-        
-    def updateBOW(self):
-
-        #add SIFT to background model
-        print("Add to background model")
-        background_grey=cv2.cvtColor(self.bg_image, cv2.COLOR_BGR2GRAY)
-
-        self.BOW.add(self.calc_HOG.compute())    
-        
+                
     def find_contour(self):
             _,self.contours,hierarchy = cv2.findContours(self.image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE )
             self.contours = [contour for contour in self.contours if cv2.contourArea(contour) > 50]
@@ -424,9 +343,6 @@ class Video:
         if not Motion:
             #Capture Frame
             self.padding_frames.append(self.original_image)
-            
-            #update BOW model
-            self.updateBOW()
                         
         else:
         
