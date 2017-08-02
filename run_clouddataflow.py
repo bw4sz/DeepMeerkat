@@ -15,6 +15,7 @@ class PredictDoFn(beam.DoFn):
     #Assign input from DataFlow/manifest    
     #DM.process_args(video=element[0])   
     DM.process_args()
+    print(os.getcwd()
     print(element)    
     DM.run()
 

@@ -1,26 +1,5 @@
 #!/bin/bash 
 
-################    
-#Mount directory
-################
-
-#make empty directory for mount
-mkdir /mnt/gcs-bucket
-
-#give it permissions
-chmod a+w /mnt/gcs-bucket
-
-#GCSFUSE
-gcsfuse --implicit-dirs api-project-773889352370-ml ~/mnt/gcs-bucket
-
-##########################
-#Evaluation data
-##########################
-
-#extract eval frames to predict
-cat /mnt/gcs-bucket/Hummingbirds/testingdata.csv  | cut -f 1 -d "," > eval_files.txt
-#!/bin/bash 
-
 #ssh if needed
 gcloud compute ssh cloudml 
 
@@ -40,6 +19,25 @@ declare -r MODEL_NAME="DeepMeerkat"
 declare -r JOB_ID="${MODEL_NAME}_$(date +%Y%m%d_%H%M%S)"
 declare -r GCS_PATH="${BUCKET}/${MODEL_NAME}/${JOB_ID}"
 
+################    
+#Mount directory
+################
+
+#make empty directory for mount
+mkdir /mnt/gcs-bucket
+
+#give it permissions
+chmod a+w /mnt/gcs-bucket
+
+#GCSFUSE
+gcsfuse --implicit-dirs api-project-773889352370-ml ~/mnt/gcs-bucket
+
+##########################
+#Evaluation data
+##########################
+
+#extract eval frames to predict
+cat /mnt/gcs-bucket/Hummingbirds/testingdata.csv  | cut -f 1 -d "," > eval_files.txt
 #fix local mount path
 sed "s|gs://api-project-773889352370-ml/|/mnt/gcs-bucket/|g" eval_files.txt  > jpgs.txt
 

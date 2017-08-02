@@ -7,7 +7,7 @@ import argparse
 import cv2
 from collections import defaultdict
 
-def TensorflowPredict(read_from,sess,image_array=None,imagedir=None,numpy_name=None,wait_time=10,label_lines=None):
+def TensorflowPredict(read_from,sess,image_array=None,imagedir=None,numpy_name="image",wait_time=10,label_lines=None):
     
     #frames to be analyzed
     tfimages=[]     
@@ -54,23 +54,18 @@ def TensorflowPredict(read_from,sess,image_array=None,imagedir=None,numpy_name=N
         results_frame[image_name[x]].append(label_lines[top_k[0]])
             
     return(results_frame)
-def show(wait_time):
-    
-    font = cv2.FONT_HERSHEY_SIMPLEX        
-    for x in image_name:
-        image=cv2.imread(x)
-        annotation=results_frame[x]
-        cv2.putText(image,annotation,(10,20), font, 0.75,(255,255,255),1,cv2.LINE_AA)            
-        cv2.imshow("Annotation", image)
-        cv2.waitKey(wait_time)
-        
+            
 if __name__ == "__main__":
     sess=tf.Session()
     print("Loading tensorflow model. May take several minutes.")
-    tf.saved_model.loader.load(sess,[tf.saved_model.tag_constants.SERVING], "C:/Users/Ben/Dropbox/GoogleCloud/hummingbird_model/")    
+    tf.saved_model.loader.load(sess,[tf.saved_model.tag_constants.SERVING], "C:/Users/Ben/Dropbox/GoogleCloud/DeepMeerkat_20170801_172956/model/")    
     print("Model loaded")
-    #photos_run=glob.glob("C:/Users/Ben/Dropbox/Thesis/Maquipucuna_SantaLucia/FlowerPhotos/*.jpg")
-    photos_run=glob.glob("G:/Crops_06212017/*.jpg")
+    photos_run=glob.glob("C:/Users/Ben/Dropbox/Thesis/Maquipucuna_SantaLucia/FlowerPhotos/*.jpg")
+    #photos_run=glob.glob("G:/Crops/*.jpg")
     for x in photos_run:
-        pred=TensorflowPredict(read_from="file",sess=sess,imagedir=x)
-        show(wait_time=0)
+        image=cv2.imread(x)
+        pred=TensorflowPredict(read_from="numpy",sess=sess,image_array=[image],label_lines=["Positive","Negative"])
+        font = cv2.FONT_HERSHEY_COMPLEX         
+        cv2.putText(image,str(pred["image"]),(10,20), font, 1,(255,255,255),1)            
+        cv2.imshow("Annotation", image)
+        cv2.waitKey(0)
