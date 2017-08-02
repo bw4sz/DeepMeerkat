@@ -39,7 +39,7 @@ CUSTOM_COMMANDS = [
   ['make','-C', 'opencv/build','-j4'],
   ['make', '-C','opencv/build','install'], 
   ['ldconfig'],
-  ['curl',"-L","'https://www.dropbox.com/sh/kaereoq7uyotwc3/AACT4AHByY59ZH3Biq-ooKFKa?dl=1'",">","model.zip"],
+  ['curl',"-L","'https://www.dropbox.com/sh/s34q9m7lkyfz12t/AADj8LdHd16dEssbKZCF-Ihma?dl=1' > model.zip"],
   ['unzip','-o','model.zip','-d','/DeepMeerkat/model']
 
 ]  

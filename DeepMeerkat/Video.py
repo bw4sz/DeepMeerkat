@@ -267,16 +267,14 @@ class Video:
             
             #Motion Frame! passed all filters.
             if self.args.training:
-                                
-                for index,bounding_box in enumerate(remaining_bounding_box):
-                    
-                    #Clip and increase box size.
-                    clip=resize_box(self.image, bounding_box)
-                    clip_original=resize_box(self.original_image, bounding_box)
-                     
-                    #write clip diff and original, easier to see
-                    cv2.imwrite(self.file_destination + "/"+str(self.frame_count)+ "_" + str(index) + "_train.jpg",clip)
-                    
+                #mean subtracted image
+    
+                for bounding_box in remaining_bounding_box:
+                    msde_iamge=self.MSDE(self.read_frame,self.bg_image,bounding_box)                                    
+
+                    #write clip diff and original, easier to score
+                    cv2.imwrite(self.file_destination + "/"+str(self.frame_count)+ "_" + str(index) + "_train.jpg",msde_image)
+                    cv2.imwrite(self.file_destination + "/"+str(self.frame_count)+ "_" + str(index) + ".jpg",self.read_frame)
             else:
                 self.end_sequence(Motion=True,WritePadding=WritePadding)
             
@@ -507,7 +505,37 @@ class Video:
                     #write parameter log to google cloud
                     blob=self.bucket.blob(self.parsed.path[1:]+"/parameters.csv")
                     blob.upload_from_filename(self.output_args)                                                            
+    def MSDE(self,current,background,bounding_box):
 
+        #resize box, pass the new frame
+        x1=int(bounding_box.x * (float(width)/self.new_w))
+        y1=int(bounding_box.y * (float(height)/self.new_h))
+        w1=int(bounding_box.w * (float(width)/self.new_w))
+        h1=int(bounding_box.h * (float(height)/self.new_h)) 
+    
+        newbox=self.BoundingBox(Rect(x1, y1, w1, h1))
+        current=resize_box(self.original_image,newbox)
+        background=resize_box(self.original_image,newbox)
+    
+        #convert to luminance
+        current_gray=cv2.cvtColor(current, cv2.COLOR_BGR2GRAY)                    
+        current_background=cv2.cvtColor(current, cv2.COLOR_BGR2GRAY)                    
+    
+        #absolute diff
+        current_diff=cv2.absdiff(current,current_background)
+        
+        #substract mean
+        mean,_ = cv2.meanStdDev(current_diff)
+        mean_diff=current_diff - mean
+        
+        #set all negative values to 0
+        mean_diff[numpy.where(mean_diff<0)] = 0
+        
+        #strech to 255
+        msde_image=cv2.normalize(mean_diff, mean_diff,alpha=0,beta=255,norm_type=cv2.NORM_MINMAX)
+        
+        return msde_image
+    
     def adapt(self):
         
             #If current frame is a multiple of the 1000 frames
