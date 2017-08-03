@@ -152,6 +152,7 @@ class Video:
                 
         #Detector almost always returns first frame
         self.IS_FIRST_FRAME = True
+        print("Complete Init")
         
     def analyze(self):
          
