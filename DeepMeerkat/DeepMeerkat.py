@@ -55,6 +55,7 @@ class DeepMeerkat:
             
         #run each video, use created tensorflow instance.
         for vid in self.queue:
+            print("Processing: " + str(vid))
             video_instance=Video.Video(vid,self.args,tensorflow_session=sess)
             video_instance.analyze()
             video_instance.write()

@@ -179,13 +179,13 @@ class Video:
             if self.IS_FIRST_FRAME:
 
                 #minimum box size and aspect ratio
-                width = np.size(self.read_image, 1)
-                height = np.size(self.read_image, 0)
-                self.image_area = width * height
-                self.aspect_ratio=width/height
+                self.width = np.size(self.read_image, 1)
+                self.height = np.size(self.read_image, 0)
+                self.image_area = self.width * self.height
+                self.aspect_ratio=self.width/self.height
             
                 #optional resize
-                target_area=(self.image_area/2)
+                target_area=(self.image_area/self.args.resize)
                 self.new_h=math.sqrt(target_area/self.aspect_ratio)
                 self.new_w=self.new_h * self.aspect_ratio
                 
@@ -229,14 +229,20 @@ class Video:
             if len(remaining_bounding_box)==0:
                 self.end_sequence(Motion=False)
                 continue            
+            
+            #check color historgram
+            if self.args.check_color:
+                for bounding_box in remaining_bounding_box:
+                    color_diff=self.compareColorHist(self.read_image,self.bg_image,bounding_box)
+                    cv2.putText(self.original_image,str(round(color_diff,4)),(100,100),cv2.FONT_HERSHEY_SIMPLEX,2,(0,255,255),2)
                 
             if self.args.tensorflow:
                 clips=[]                
                 for bounding_box in remaining_bounding_box:
-                    x1=int(bounding_box.x * (float(width)/self.new_w))
-                    y1=int(bounding_box.y * (float(height)/self.new_h))
-                    w1=int(bounding_box.w * (float(width)/self.new_w))
-                    h1=int(bounding_box.h * (float(height)/self.new_h)) 
+                    x1=int(bounding_box.x * (float(self.width)/self.new_w))
+                    y1=int(bounding_box.y * (float(self.height)/self.new_h))
+                    w1=int(bounding_box.w * (float(self.width)/self.new_w))
+                    h1=int(bounding_box.h * (float(self.height)/self.new_h)) 
                     
                     newbox=self.BoundingBox(Rect(x1, y1, w1, h1))
                     clips.append(resize_box(self.original_image,newbox))
@@ -254,10 +260,10 @@ class Video:
                 print("Draw box")
                 for bounding_box in remaining_bounding_box:
                     
-                    boxx=int(bounding_box.x * (float(width)/self.new_w))
-                    boxy=int(bounding_box.y * (float(height)/self.new_h))
-                    boxw=int(bounding_box.w * (float(width)/self.new_w))
-                    boxh=int(bounding_box.h * (float(height)/self.new_h))
+                    boxx=int(bounding_box.x * (float(self.width)/self.new_w))
+                    boxy=int(bounding_box.y * (float(self.height)/self.new_h))
+                    boxw=int(bounding_box.w * (float(self.width)/self.new_w))
+                    boxh=int(bounding_box.h * (float(self.self.height)/self.new_h))
                     
                     cv2.rectangle(self.original_image, (boxx, boxy), 
                                   (boxx+boxw, boxy+boxh), (0,0,255), 2)
@@ -267,14 +273,14 @@ class Video:
             
             #Motion Frame! passed all filters.
             if self.args.training:
+                
                 #mean subtracted image
-    
-                for bounding_box in remaining_bounding_box:
-                    msde_iamge=self.MSDE(self.read_frame,self.bg_image,bounding_box)                                    
+                for index,bounding_box in enumerate(remaining_bounding_box):
+                    current,msde_image=self.MSDE(self.read_image,self.bg_image,bounding_box)                                    
 
                     #write clip diff and original, easier to score
                     cv2.imwrite(self.file_destination + "/"+str(self.frame_count)+ "_" + str(index) + "_train.jpg",msde_image)
-                    cv2.imwrite(self.file_destination + "/"+str(self.frame_count)+ "_" + str(index) + ".jpg",self.read_frame)
+                    cv2.imwrite(self.file_destination + "/"+str(self.frame_count)+ "_" + str(index) + ".jpg",current)
             else:
                 self.end_sequence(Motion=True,WritePadding=WritePadding)
             
@@ -298,8 +304,9 @@ class Video:
         else:
             image=self.original_image
         
-        #resize
-        image=cv2.resize(image,(int(self.new_w),int(self.new_h)))
+        #Optional resize input image
+        if not self.args.resize ==1:
+            image=cv2.resize(image,(int(self.new_w),int(self.new_h)))
         return((ret,image))
     
     def create_background(self):
@@ -317,7 +324,18 @@ class Video:
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(9,9))
         self.image= cv2.morphologyEx(self.image, cv2.MORPH_OPEN, kernel)
     
-    def compareColorHist(self,current,background):
+    def compareColorHist(self,current_frame,background_frame,bounding_box):
+        
+        #resize box, pass the new frame
+        x1=int(bounding_box.x * (float(self.width)/self.new_w))
+        y1=int(bounding_box.y * (float(self.height)/self.new_h))
+        w1=int(bounding_box.w * (float(self.width)/self.new_w))
+        h1=int(bounding_box.h * (float(self.height)/self.new_h)) 
+    
+        newbox=self.BoundingBox(Rect(x1, y1, w1, h1))
+        current=resize_box(current_frame,newbox,m=4)
+        background=resize_box(background_frame,newbox,m=4)
+        
         #Calculate clip histogram for all colors
         H1 = cv2.calcHist([current], [0, 1, 2], None, [16, 16, 16],
                                       [0, 256, 0, 256, 0, 256])
@@ -508,33 +526,33 @@ class Video:
     def MSDE(self,current,background,bounding_box):
 
         #resize box, pass the new frame
-        x1=int(bounding_box.x * (float(width)/self.new_w))
-        y1=int(bounding_box.y * (float(height)/self.new_h))
-        w1=int(bounding_box.w * (float(width)/self.new_w))
-        h1=int(bounding_box.h * (float(height)/self.new_h)) 
+        x1=int(bounding_box.x * (float(self.width)/self.new_w))
+        y1=int(bounding_box.y * (float(self.height)/self.new_h))
+        w1=int(bounding_box.w * (float(self.width)/self.new_w))
+        h1=int(bounding_box.h * (float(self.height)/self.new_h)) 
     
         newbox=self.BoundingBox(Rect(x1, y1, w1, h1))
         current=resize_box(self.original_image,newbox)
-        background=resize_box(self.original_image,newbox)
+        background=resize_box(self.bg_image,newbox)
     
         #convert to luminance
         current_gray=cv2.cvtColor(current, cv2.COLOR_BGR2GRAY)                    
-        current_background=cv2.cvtColor(current, cv2.COLOR_BGR2GRAY)                    
+        background_grey=cv2.cvtColor(background, cv2.COLOR_BGR2GRAY)                    
     
         #absolute diff
-        current_diff=cv2.absdiff(current,current_background)
+        current_diff=cv2.absdiff(current_gray,background_grey)
         
         #substract mean
         mean,_ = cv2.meanStdDev(current_diff)
         mean_diff=current_diff - mean
         
         #set all negative values to 0
-        mean_diff[numpy.where(mean_diff<0)] = 0
+        mean_diff[np.where(mean_diff<0)] = 0
         
         #strech to 255
         msde_image=cv2.normalize(mean_diff, mean_diff,alpha=0,beta=255,norm_type=cv2.NORM_MINMAX)
         
-        return msde_image
+        return [current,msde_image]
     
     def adapt(self):
         
