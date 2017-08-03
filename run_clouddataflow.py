@@ -8,6 +8,7 @@ import apache_beam as beam
 from DeepMeerkat import DeepMeerkat
 from oauth2client.client import GoogleCredentials
 from urlparse import urlparse
+from google.cloud import storage
 
 class PredictDoFn(beam.DoFn):
   
