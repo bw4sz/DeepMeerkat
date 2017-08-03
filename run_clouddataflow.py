@@ -23,7 +23,7 @@ class PredictDoFn(beam.DoFn):
     storage_client=storage.Client()
     bucket = storage_client.get_bucket(parsed.hostname)
     
-    blob=bucket.Blob(element[0])
+    blob=Blob(element[0],bucket)
     local_path="/tmp/"+self.name
     
     with open(local_path, 'wb') as file_obj:
