@@ -44,7 +44,7 @@ CUSTOM_COMMANDS = [
 
 ]  
 
-REQUIRED_PACKAGES = ['numpy','tensorflow']
+REQUIRED_PACKAGES = ['numpy','tensorflow',"urlparse"]
 
 setuptools.setup(
     name='DeepMeerkat',

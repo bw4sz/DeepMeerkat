@@ -6,14 +6,29 @@ import os
 import csv
 import apache_beam as beam
 from DeepMeerkat import DeepMeerkat
+from oauth2client.client import GoogleCredentials
+from urlparse import urlparse
 
 class PredictDoFn(beam.DoFn):
   
   def process(self,element):
     DM=DeepMeerkat.DeepMeerkat()  
-    #replace input with element
-    #Assign input from DataFlow/manifest    
-    DM.process_args(video=element[0])   
+
+    #download element locally
+    credentials = GoogleCredentials.get_application_default()
+    parsed = urlparse(element[0])
+  
+    #parse gcp path
+    bucket = storage_client.get_bucket(parsed.hostname)
+    
+    blob=bucket.Blob(element[0])
+    local_path="/tmp/"+self.name
+    
+    with open(local_path, 'wb') as file_obj:
+      blob.download_to_file(file_obj)
+    
+    #Assign input from DataFlow/manifest
+    DM.process_args(video=local_path)   
     print(os.getcwd())
     print(element)    
     DM.run()
