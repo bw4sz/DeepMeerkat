@@ -24,7 +24,7 @@ class PredictDoFn(beam.DoFn):
     bucket = storage_client.get_bucket(parsed.hostname)
     
     blob=storage.Blob(element[0],bucket)
-    local_path="/tmp/"+self.name
+    local_path="/tmp/"+parsed.name
     
     with open(local_path, 'wb') as file_obj:
       blob.download_to_file(file_obj)
