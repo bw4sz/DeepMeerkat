@@ -13,8 +13,7 @@ class PredictDoFn(beam.DoFn):
     DM=DeepMeerkat.DeepMeerkat()  
     #replace input with element
     #Assign input from DataFlow/manifest    
-    #DM.process_args(video=element[0])   
-    DM.process_args(video="DeepMeerkat/Hummingbird.avi")
+    DM.process_args(video=element[0])   
     print(os.getcwd())
     print(element)    
     DM.run()

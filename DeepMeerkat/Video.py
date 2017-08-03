@@ -166,11 +166,7 @@ class Video:
             WritePadding=False
 
             #read frame
-            ret,self.read_image=self.read_frame()
-            
-            print("Read Frame")
-            print(ret)
-            print(self.read_image)
+            ret,self.read_image=self.read_frame()            
             
             if not ret:
                 #end time
