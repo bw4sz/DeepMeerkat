@@ -20,6 +20,7 @@ class PredictDoFn(beam.DoFn):
     parsed = urlparse(element[0])
   
     #parse gcp path
+    storage_client=storage.Client()
     bucket = storage_client.get_bucket(parsed.hostname)
     
     blob=bucket.Blob(element[0])
