@@ -27,6 +27,7 @@ class PredictDoFn(beam.DoFn):
     bucket = storage_client.get_bucket(parsed.hostname)
     
     blob=storage.Blob(parsed.path,bucket)
+    blob.exists()
     local_path="/tmp/" + "video.avi"
     
     with open(local_path, 'wb') as file_obj:
