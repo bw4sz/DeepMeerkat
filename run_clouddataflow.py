@@ -15,6 +15,9 @@ class PredictDoFn(beam.DoFn):
   def process(self,element):
     DM=DeepMeerkat.DeepMeerkat()  
 
+    print(os.getcwd())
+    print(element)    
+    
     #download element locally
     credentials = GoogleCredentials.get_application_default()
     parsed = urlparse(element[0])
@@ -24,15 +27,14 @@ class PredictDoFn(beam.DoFn):
     bucket = storage_client.get_bucket(parsed.hostname)
     
     blob=storage.Blob(element[0],bucket)
-    local_path="/tmp/"+parsed.path
+    local_path="/tmp/" + "video.avi"
     
     with open(local_path, 'wb') as file_obj:
       blob.download_to_file(file_obj)
     
     #Assign input from DataFlow/manifest
     DM.process_args(video=local_path)   
-    print(os.getcwd())
-    print(element)    
+    DM.args.output="Frames"
     DM.run()
 
 def run():
