@@ -36,6 +36,8 @@ class PredictDoFn(beam.DoFn):
     #Assign input from DataFlow/manifest
     DM.process_args(video=local_path)   
     DM.args.output="Frames"
+    
+    #Run DeepMeerkat
     DM.run()
     
     #upload back to GCS
@@ -49,7 +51,7 @@ class PredictDoFn(beam.DoFn):
     for frame in found_frames:
       #create GCS path
       path="DeepMeerkat/" + element[0] + "/" + frame.split("/")[-1]
-      blob=Blob(path,bucket)
+      blob=storage.Blob(path,bucket)
       blob.upload_from_filename(frame)
 
 def run():

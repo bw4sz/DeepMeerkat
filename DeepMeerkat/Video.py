@@ -106,36 +106,19 @@ class Video:
         
         #Frame Padding
         self.padding_frames=FixedlenList(l=self.args.buffer)
-        
-        #if google cloud storage file
-        if self.args.input[0:3] =="gs:":
-            self.googlecloud=True
-            
-            credentials = GoogleCredentials.get_application_default()
-            storage_client = storage.Client()
-            self.parsed = urlparse(args.input_dir)
-        
-            #parse gcp path
-            self.bucket = storage_client.get_bucket(self.parsed.hostname)    
-            
-            #Write to temp then send to google cloud
-            handle, self.file_destination = tempfile.mkdtemp()
-                            
-        else:
-            self.googlecloud=False        
 
-            #create output directory    
-            normFP=os.path.normpath(vid)
-            (filepath, filename)=os.path.split(normFP)
-            (shortname, extension) = os.path.splitext(filename)
-            (_,IDFL) = os.path.split(filepath) 
-            
-            self.file_destination=os.path.join(self.args.output,IDFL)                
-            self.file_destination=os.path.join(self.file_destination,shortname)               
+        #create output directory    
+        normFP=os.path.normpath(vid)
+        (filepath, filename)=os.path.split(normFP)
+        (shortname, extension) = os.path.splitext(filename)
+        (_,IDFL) = os.path.split(filepath) 
+        
+        self.file_destination=os.path.join(self.args.output,IDFL)                
+        self.file_destination=os.path.join(self.file_destination,shortname)               
 
-            if not os.path.exists(self.file_destination):
-                os.makedirs(self.file_destination)        
-            
+        if not os.path.exists(self.file_destination):
+            os.makedirs(self.file_destination)        
+        
         #read video
         self.cap=cv2.VideoCapture(self.args.video)
         
@@ -229,13 +212,7 @@ class Video:
             if len(remaining_bounding_box)==0:
                 self.end_sequence(Motion=False)
                 continue            
-            
-            #check color historgram
-            if self.args.check_color:
-                for bounding_box in remaining_bounding_box:
-                    color_diff=self.compareColorHist(self.read_image,self.bg_image,bounding_box)
-                    cv2.putText(self.original_image,str(round(color_diff,4)),(100,100),cv2.FONT_HERSHEY_SIMPLEX,2,(0,255,255),2)
-                
+                            
             if self.args.tensorflow:
                 clips=[]                
                 for bounding_box in remaining_bounding_box:
@@ -323,29 +300,6 @@ class Video:
         #Erode to remove noise, dilate the areas to merge bounded objects
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(9,9))
         self.image= cv2.morphologyEx(self.image, cv2.MORPH_OPEN, kernel)
-    
-    def compareColorHist(self,current_frame,background_frame,bounding_box):
-        
-        #resize box, pass the new frame
-        x1=int(bounding_box.x * (float(self.width)/self.new_w))
-        y1=int(bounding_box.y * (float(self.height)/self.new_h))
-        w1=int(bounding_box.w * (float(self.width)/self.new_w))
-        h1=int(bounding_box.h * (float(self.height)/self.new_h)) 
-    
-        newbox=self.BoundingBox(Rect(x1, y1, w1, h1))
-        current=resize_box(current_frame,newbox,m=4)
-        background=resize_box(background_frame,newbox,m=4)
-        
-        #Calculate clip histogram for all colors
-        H1 = cv2.calcHist([current], [0, 1, 2], None, [16, 16, 16],
-                                      [0, 256, 0, 256, 0, 256])
-        H1 = cv2.normalize(H1,H1).flatten()
-    
-        H2 = cv2.calcHist([background], [0, 1, 2], None, [16, 16, 16],
-                                      [0, 256, 0, 256, 0, 256])
-        H2 = cv2.normalize(H2,H2).flatten()      
-        dist=cv2.compareHist(H1, H2, method=cv2.HISTCMP_CHISQR)
-        return dist
                 
     def find_contour(self):
             _,self.contours,hierarchy = cv2.findContours(self.image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE )
@@ -492,18 +446,7 @@ class Video:
                 for x in self.annotations.keys():   
                     bboxes=self.annotations[x]
                     for bbox in bboxes: 
-                        writer.writerow([x,bbox.x,bbox.y,bbox.h,bbox.w])
-    
-                if self.googlecloud:
-                    #write bounding boxes to google cloud
-                    
-                    blob=self.bucket.blob(self.parsed.path[1:]+"/annotations.csv")
-                    blob.upload_from_filename(self.output_annotations)            
-        
-                    #write parameter log to google cloud
-                    blob=self.bucket.blob(self.parsed.path[1:]+"/parameters.csv")
-                    blob.upload_from_filename(self.output_args)                                                            
-                
+                        writer.writerow([x,bbox.x,bbox.y,bbox.h,bbox.w])                
         else:    
             with open(self.output_annotations, 'wb') as f:
 
