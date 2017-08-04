@@ -9,6 +9,7 @@ from DeepMeerkat import DeepMeerkat
 from oauth2client.client import GoogleCredentials
 from urlparse import urlparse
 from google.cloud import storage
+import glob
 
 class PredictDoFn(beam.DoFn):
   
@@ -27,7 +28,8 @@ class PredictDoFn(beam.DoFn):
     bucket = storage_client.get_bucket(parsed.hostname)
     blob=storage.Blob(parsed.path[1:],bucket)
     print(blob.exists())
-    local_path="/tmp/" + "video.avi"
+    local_path="/tmp/" + parsed.path.split("/")[-1]
+    
     with open(local_path, 'wb') as file_obj:
       blob.download_to_file(file_obj)
     
@@ -35,6 +37,20 @@ class PredictDoFn(beam.DoFn):
     DM.process_args(video=local_path)   
     DM.args.output="Frames"
     DM.run()
+    
+    #upload back to GCS
+    found_frames=[]
+    for (root, dirs, files) in os.walk("Frames/"):
+      for files in files:
+        fileupper=files.upper()
+        if fileupper.endswith((".JPG")):
+          found_frames.append(os.path.join(root, files))                                                
+    
+    for frame in found_frames:
+      #create GCS path
+      path="DeepMeerkat/" + element[0] + "/" + frame.split("/")[-1]
+      blob=Blob(path,bucket)
+      blob.upload_from_filename(frame)
 
 def run():
   parser = argparse.ArgumentParser()
