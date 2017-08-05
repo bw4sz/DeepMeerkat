@@ -457,7 +457,7 @@ class Video:
                     for bbox in bboxes: 
                         writer.writerow([x,bbox.x,bbox.y,bbox.h,bbox.w])
     
-    def MSDE(self,current,background,bounding_box):
+    def MSDE(self,bounding_box):
 
         #resize box, pass the new frame
         x1=int(bounding_box.x * (float(self.width)/self.new_w))

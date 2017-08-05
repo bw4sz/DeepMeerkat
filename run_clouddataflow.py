@@ -27,7 +27,8 @@ class PredictDoFn(beam.DoFn):
     storage_client=storage.Client()
     bucket = storage_client.get_bucket(parsed.hostname)
     blob=storage.Blob(parsed.path[1:],bucket)
-    print(blob.exists())
+
+    #store local path
     local_path="/tmp/" + parsed.path.split("/")[-1]
     
     with open(local_path, 'wb') as file_obj:
@@ -49,8 +50,9 @@ class PredictDoFn(beam.DoFn):
           found_frames.append(os.path.join(root, files))                                                
     
     for frame in found_frames:
+      
       #create GCS path
-      path="DeepMeerkat/" + element[0] + "/" + frame.split("/")[-1]
+      path="DeepMeerkat/" + parsed.path.split("/")[-1] + "/" + frame.split("/")[-1]
       blob=storage.Blob(path,bucket)
       blob.upload_from_filename(frame)
 
