@@ -457,15 +457,6 @@ class Video:
                     for bbox in bboxes: 
                         writer.writerow([x,bbox.x,bbox.y,bbox.h,bbox.w])
     
-                if self.googlecloud:
-                    #write bounding boxes to google cloud
-                    
-                    blob=self.bucket.blob(self.parsed.path[1:]+"/annotations.csv")
-                    blob.upload_from_filename(self.output_annotations)            
-        
-                    #write parameter log to google cloud
-                    blob=self.bucket.blob(self.parsed.path[1:]+"/parameters.csv")
-                    blob.upload_from_filename(self.output_args)                                                            
     def MSDE(self,current,background,bounding_box):
 
         #resize box, pass the new frame
