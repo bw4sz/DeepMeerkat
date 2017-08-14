@@ -1,7 +1,7 @@
-#! /bin/bash 
-gcloud compute ssh cloudml 
+#! /bin/bash
+gcloud compute ssh cloudml
 
-sudo docker run -it --privileged -- gcr.io/api-project-773889352370/gcloudenv 
+sudo docker run -it --privileged -- gcr.io/api-project-773889352370/gcloudenv
 
 #clone repo
 git clone https://github.com/bw4sz/DeepMeerkat.git
@@ -16,9 +16,13 @@ python CreateManifest.py
 #still not getting the API patch
 pip install apache_beam[gcp]
 
+#get newest model
+curl -L https://www.dropbox.com/sh/s34q9m7lkyfz12t/AADj8LdHd16dEssbKZCF-Ihma?dl=1 > model.zip
+unzip -o model.zip -d /DeepMeerkat/model
+
 #testing without tensorflow
 python run_clouddataflow.py \
-    --runner DirectRunner \
+    --runner CloudRunner \
     --project $PROJECT \
     --staging_location $BUCKET/staging \
     --temp_location $BUCKET/temp \
@@ -26,3 +30,5 @@ python run_clouddataflow.py \
     --setup_file setup.py \
     --maxNumWorkers 1 \
     --path_to_model "model/"
+    --tensorflow
+    --training
