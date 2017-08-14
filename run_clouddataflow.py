@@ -5,13 +5,13 @@ import logging
 import os
 import csv
 import apache_beam as beam
-from oauth2client.client import GoogleCredentials
 from urlparse import urlparse
 from google.cloud import storage
 import glob
 
+from DeepMeerkat import DeepMeerkat
+
 class PredictDoFn(beam.DoFn):
-  from DeepMeerkat import DeepMeerkat
 
   def process(self,element):
     DM=DeepMeerkat.DeepMeerkat()
@@ -19,8 +19,10 @@ class PredictDoFn(beam.DoFn):
     print(os.getcwd())
     print(element)
 
+    #set credentials
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = known_args.authtoken
+
     #download element locally
-    credentials = GoogleCredentials.get_application_default()
     parsed = urlparse(element[0])
 
     #parse gcp path
@@ -59,6 +61,8 @@ class PredictDoFn(beam.DoFn):
 def run():
   parser = argparse.ArgumentParser()
   parser.add_argument('--input', dest='input', default="gs://api-project-773889352370-testing/DataFlow/manifest.csv",
+                      help='Input file to process.')
+  parser.add_argument('--authtoken', dest='input', default="/Users/ben/Dropbox/Google/MeerkatReader-9fbf10d1e30c.json",
                       help='Input file to process.')
   known_args, pipeline_args = parser.parse_known_args()
 
