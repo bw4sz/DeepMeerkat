@@ -10,7 +10,8 @@ import fnmatch
 import os
 import platform
 import datetime
-
+import random
+        
 def MSDE(frame,bg_image,bounding_box):
 
     current=resize_box(frame,bounding_box)
@@ -35,6 +36,34 @@ def MSDE(frame,bg_image,bounding_box):
     
     return [current,msde_image]
 
+def resize_box(img,bbox,m=math.sqrt(2)-1):
+
+    #expand box by multiplier m, limit to image edge
+
+    #min height
+    #min height
+    p1=mult(bbox[1][1],-m)
+    p1=check_bounds(img, 0, p1)
+
+    #max height
+    p2=mult(bbox[0][1],m)            
+    p2=check_bounds(img, 0, p2)            
+
+    #min width
+    p3=mult(bbox[0][0],-m)            
+    p3=check_bounds(img, 1, p3)            
+
+    #max width
+    p4=mult(bbox[1][0],m)                        
+    p4=check_bounds(img, 1, p4)            
+
+    #create a mask, in case its bigger than image            
+    cropped_image=img[p1:p2,p3:p4]
+
+    #Resize Image
+    resized_image = cv2.resize(cropped_image, (299, 299))  
+    return(resized_image)
+
 def creation_date(path_to_file):
     """
     Try to get the date that a file was created, falling back to when it was
@@ -52,11 +81,6 @@ def creation_date(path_to_file):
             # so we'll settle for when its content was last modified.
             return stat.st_mtime
 
-csvs = []
-for root, dirnames, filenames in os.walk("C:/Users/Ben/Dropbox/HummingbirdProject/"):
-    for filename in fnmatch.filter(filenames, '*frames.csv'):
-        csvs.append(os.path.join(root, filename))
-
 def mult(p,x):
     return(int(p+p*x))
 
@@ -67,7 +91,14 @@ def check_bounds(img,axis,p):
         p=0
     return(p)
 
-crop_counter=0
+
+
+#####Main Entry####
+
+csvs = []
+for root, dirnames, filenames in os.walk("/Users/Ben/Dropbox/HummingbirdProject/"):
+    for filename in fnmatch.filter(filenames, '*Frames.csv'):
+        csvs.append(os.path.join(root, filename))
         
 #remove csv already done sort by date
 new_csvs=[]
@@ -77,10 +108,53 @@ for csvfile in csvs:
     if filedate > '2017-07-30 00:00:00':
         new_csvs.append(csvfile)
 
-print(len(new_csvs))
+print("CSV files to process:  +  %d" % len(new_csvs))
+
+label={}
+
 
 for f in new_csvs:
     
+    ####Set background images###
+    
+    #get images in folder
+    jpgs=glob.glob(os.path.split(f)[0] + "/*.jpg")
+    
+    #sanity check
+    if len(jpgs) < 5:
+        continue
+    
+    #show image and get foreground or background
+    #hit f for foreground, b for background
+    labels={}
+    for jpg in jpgs:
+        img=cv2.imread(jpg)
+        cv2.imshow("image",img)
+        labels[jpg]=cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    
+    ###Create background image####
+    '''
+    On my OSX keyboard 102 == 'f' and '98' == 'b'
+    '''
+
+    bg_sequence=[]
+    for path,key in labels.items():
+        if key ==98:
+            image=cv2.imread(path)
+            bg_sequence.append(image)
+    
+    Y = np.vstack((x.ravel() for x in bg_sequence))
+    Z = np.median(Y,axis = 0)
+    bg_model = np.uint8(Z.reshape(image.shape))    
+    
+    cv2.namedWindow("background",cv2.WINDOW_FULLSCREEN)
+    cv2.imshow("background",bg_model)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+###Save bounding boxes###
+            
     #Read in frames.csv
     frames=open(f)
     frame_file=csv.reader(frames)
@@ -88,90 +162,37 @@ for f in new_csvs:
     #skip header
     next(frame_file,None)
     
-    ##get the largest box for each image
-    image_areas=defaultdict(list)
-    
-    for row in frame_file:
-        if isinstance(eval(row[2]),float):
-            continue
-        bbox=eval(row[2])
-        area=(bbox[0][1]-bbox[1][1])*(bbox[1][0]-bbox[0][0])
-        image_areas[row[1]].append([frame_file.line_num,area])
-    
-    #get top 2 boxes 
-    biggest=[]
-    for key, value in image_areas.items():
-        if len(value)==0:
-            continue
-        
-        #get areas
-        a=[x[1] for x in value]
-        if len(a) > 1:
-            #find indices
-            top2=np.argpartition(a,-2)[-2:]
-            for ind in top2:
-                biggest.append(value[ind][0])
-        else:
-            biggest.append(value[0][0])
-
-    frames.close()
-
-    second_file=open(f)
-    frame_file=csv.reader(second_file)
-
-    #skip header
-    next(frame_file,None)
-    
-    #just proccess those line numbers
-    #start at first data row
-    
+    #2) Assign Bounding Box and Labels
     for row in frame_file:
         
         print(frame_file.line_num)
-        if frame_file.line_num in biggest:
-    
-            #read in image
-            fname=os.path.split(f)[0] + "/" +row[1]+".jpg"
-            img=cv2.imread(fname)
-            if img is None:
-                print(fname + " does not exist")
-                continue
-            
-            #score if background or foreground?
-            
-            #for image get the largest box
-            
-            #get bounding coordinates
-            bbox=eval(row[2])
-                        
-            #expand box by multiplier m, limit to image edge
-            m=(math.sqrt(2)-1)/2
-            
-            #min height
-            p1=mult(bbox[1][1],-m)
-            p1=check_bounds(img, 0, p1)
-            
-            #max height
-            p2=mult(bbox[0][1],m)            
-            p2=check_bounds(img, 0, p2)            
-    
-            #min width
-            p3=mult(bbox[0][0],-m)            
-            p3=check_bounds(img, 1, p3)            
-            
-            #max width
-            p4=mult(bbox[1][0],m)                        
-            p4=check_bounds(img, 1, p4)            
+
+        #read in image
+        fname=os.path.split(f)[0] + "/" +row[1]+".jpg"
+        img=cv2.imread(fname)
+        if img is None:
+            print(fname + " does not exist")
+            continue
         
-            #create a mask, in case its bigger than image            
-            current_image=img[p1:p2,p3:p4]
-    
-            #4. Resize Image
-            resized_image = cv2.resize(current_image, (299, 299))             
-            #cv2.namedWindow("img")
-            #cv2.imshow("img", resized_image)
-            #k=cv2.waitKey(0)
-            
-            #Save image for scoring
-            cv2.imwrite("G:/Crops/"+str(crop_counter) + ".jpg",resized_image) 
-            crop_counter+=1
+        ##assign bounding box
+        bbox=eval(row[2])
+        
+        #Background subtraction
+        clip,subtract=MSDE(img, bg_model, bbox)
+        cv2.imshow("subtraction",subtract)
+        cv2.waitKey(0)
+        
+        #create random file number
+        h=random.randint(0,1000000)
+        #if foreground, save
+        if labels[fname] == "f":
+            cv2.imwrite("/User/Ben/Dropbox/GoogleCloud/Positives/"+str(h)+"_original.jpg",clip)                
+            cv2.imwrite("/User/Ben/Dropbox/GoogleCloud/Positives/"+str(h)+".jpg",subtract)
+        else:
+            cv2.imwrite("/User/Ben/Dropbox/GoogleCloud/Negatives/"+str(h)+"_original.jpg",clip)                                
+            cv2.imwrite("/User/Ben/Dropbox/GoogleCloud/Negatives/"+str(h)+".jpg",subtract)
+                
+                
+        
+        
+        
