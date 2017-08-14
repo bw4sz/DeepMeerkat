@@ -22,13 +22,13 @@ unzip -o model.zip -d /DeepMeerkat/model
 
 #testing without tensorflow
 python run_clouddataflow.py \
-    --runner CloudRunner \
+    --runner DataflowRunner \
     --project $PROJECT \
     --staging_location $BUCKET/staging \
     --temp_location $BUCKET/temp \
     --job_name $PROJECT-deepmeerkat \
     --setup_file setup.py \
-    --maxNumWorkers 1 \
+    --maxNumWorkers 2 \
     --path_to_model "model/"
     --tensorflow
     --training

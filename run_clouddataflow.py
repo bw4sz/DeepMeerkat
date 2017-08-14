@@ -5,24 +5,24 @@ import logging
 import os
 import csv
 import apache_beam as beam
-from DeepMeerkat import DeepMeerkat
 from oauth2client.client import GoogleCredentials
 from urlparse import urlparse
 from google.cloud import storage
 import glob
 
 class PredictDoFn(beam.DoFn):
-  
+  from DeepMeerkat import DeepMeerkat
+
   def process(self,element):
-    DM=DeepMeerkat.DeepMeerkat()  
+    DM=DeepMeerkat.DeepMeerkat()
 
     print(os.getcwd())
-    print(element)    
-    
+    print(element)
+
     #download element locally
     credentials = GoogleCredentials.get_application_default()
     parsed = urlparse(element[0])
-  
+
     #parse gcp path
     storage_client=storage.Client()
     bucket = storage_client.get_bucket(parsed.hostname)
@@ -30,27 +30,27 @@ class PredictDoFn(beam.DoFn):
 
     #store local path
     local_path="/tmp/" + parsed.path.split("/")[-1]
-    
+
     with open(local_path, 'wb') as file_obj:
       blob.download_to_file(file_obj)
-    
+
     #Assign input from DataFlow/manifest
-    DM.process_args(video=local_path)   
+    DM.process_args(video=local_path)
     DM.args.output="Frames"
-    
+
     #Run DeepMeerkat
     DM.run()
-    
+
     #upload back to GCS
     found_frames=[]
     for (root, dirs, files) in os.walk("Frames/"):
       for files in files:
         fileupper=files.upper()
         if fileupper.endswith((".JPG")):
-          found_frames.append(os.path.join(root, files))                                                
-    
+          found_frames.append(os.path.join(root, files))
+
     for frame in found_frames:
-      
+
       #create GCS path
       path="DeepMeerkat/" + parsed.path.split("/")[-1] + "/" + frame.split("/")[-1]
       blob=storage.Blob(path,bucket)
@@ -61,16 +61,16 @@ def run():
   parser.add_argument('--input', dest='input', default="gs://api-project-773889352370-testing/DataFlow/manifest.csv",
                       help='Input file to process.')
   known_args, pipeline_args = parser.parse_known_args()
-    
+
   p = beam.Pipeline(argv=pipeline_args)
-  
+
   vids = (p|'Read input' >> beam.io.ReadFromText(known_args.input)
        | 'Parse input' >> beam.Map(lambda line: csv.reader([line]).next())
        | 'Run DeepMeerkat' >> beam.ParDo(PredictDoFn()))
-  
+
   logging.getLogger().setLevel(logging.INFO)
   p.run()
-  
+
 if __name__ == '__main__':
   logging.getLogger().setLevel(logging.INFO)
   run()
