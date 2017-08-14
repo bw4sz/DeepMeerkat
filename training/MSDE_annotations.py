@@ -185,12 +185,14 @@ for f in new_csvs:
         #create random file number
         h=random.randint(0,1000000)
         #if foreground, save
-        if labels[fname] == "f":
-            cv2.imwrite("/User/Ben/Dropbox/GoogleCloud/Positives/"+str(h)+"_original.jpg",clip)                
-            cv2.imwrite("/User/Ben/Dropbox/GoogleCloud/Positives/"+str(h)+".jpg",subtract)
+        
+        
+        if labels[fname] ==102:
+            cv2.imwrite("/Users/Ben/Dropbox/GoogleCloud/Positives/"+str(h)+"_original.jpg",clip)                
+            cv2.imwrite("/Users/Ben/Dropbox/GoogleCloud/Positives/"+str(h)+".jpg",subtract)
         else:
-            cv2.imwrite("/User/Ben/Dropbox/GoogleCloud/Negatives/"+str(h)+"_original.jpg",clip)                                
-            cv2.imwrite("/User/Ben/Dropbox/GoogleCloud/Negatives/"+str(h)+".jpg",subtract)
+            cv2.imwrite("/Users/Ben/Dropbox/GoogleCloud/Negatives/"+str(h)+"_original.jpg",clip)                                
+            cv2.imwrite("/Users/Ben/Dropbox/GoogleCloud/Negatives/"+str(h)+".jpg",subtract)
                 
                 
         
