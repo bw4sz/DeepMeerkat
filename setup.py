@@ -2,7 +2,7 @@ import subprocess
 from distutils.command.build import build as _build
 import setuptools
 
-class build(_build): 
+class build(_build):
   sub_commands = _build.sub_commands + [('CustomCommands', None)]
 
 class CustomCommands(setuptools.Command):
@@ -29,19 +29,19 @@ class CustomCommands(setuptools.Command):
       self.RunCustomCommand(command)
 
 CUSTOM_COMMANDS = [
-  
+
   #Get cmake and git
-  ['apt-get', 'update', '-y'],  
+  ['apt-get', 'update', '-y'],
   ['apt-get', 'install', '-y' ,'cmake',"unzip",'git','libgtk2.0-dev','pkg-config','libavcodec-dev','libavformat-dev','libswscale-dev'],
-  ['curl',"-L","https://www.dropbox.com/sh/s34q9m7lkyfz12t/AADj8LdHd16dEssbKZCF-Ihma?dl=1 > model.zip"],
+  ['curl',"-L","https://www.dropbox.com/sh/s34q9m7lkyfz12t/AADj8LdHd16dEssbKZCF-Ihma?dl=1", "> model.zip"],
   ['unzip','-o','model.zip','-d','/DeepMeerkat/model'],
   ['git','clone', 'https://github.com/Itseez/opencv.git', '--depth', '1'],
   ['mkdir', 'opencv/build'],
   ['cmake','-Hopencv',"-Bopencv/build", "-DWITH_FFMPEG=ON"],
   ['make','-C', 'opencv/build','-j4'],
-  ['make', '-C','opencv/build','install'], 
+  ['make', '-C','opencv/build','install'],
   ['ldconfig']
-]  
+]
 
 REQUIRED_PACKAGES = ['numpy','tensorflow',"urlparse"]
 
