@@ -22,7 +22,7 @@ python CreateManifest.py
 
 #testing without tensorflow
 python run_clouddataflow.py \
-    --runner DataflowRunner \
+    --runner DirectRunner \
     --project $PROJECT \
     --staging_location $BUCKET/staging \
     --temp_location $BUCKET/temp \

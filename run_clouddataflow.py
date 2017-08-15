@@ -19,9 +19,6 @@ class PredictDoFn(beam.DoFn):
     print(os.getcwd())
     print(element)
 
-    #set credentials
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = known_args.authtoken
-
     #download element locally
     parsed = urlparse(element[0])
 
@@ -33,8 +30,11 @@ class PredictDoFn(beam.DoFn):
     #store local path
     local_path="/tmp/" + parsed.path.split("/")[-1]
 
+    print('local path: ' + local_path)
     with open(local_path, 'wb') as file_obj:
       blob.download_to_file(file_obj)
+
+    print("Downloaded" + local_path)
 
     #Assign input from DataFlow/manifest
     DM.process_args(video=local_path)
@@ -62,9 +62,12 @@ def run():
   parser = argparse.ArgumentParser()
   parser.add_argument('--input', dest='input', default="gs://api-project-773889352370-testing/DataFlow/manifest.csv",
                       help='Input file to process.')
-  parser.add_argument('--authtoken', dest='input', default="/Users/ben/Dropbox/Google/MeerkatReader-9fbf10d1e30c.json",
+  parser.add_argument('--authtoken', default="/Users/Ben/Dropbox/Google/MeerkatReader-9fbf10d1e30c.json",
                       help='Input file to process.')
   known_args, pipeline_args = parser.parse_known_args()
+
+  #set credentials
+  os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = known_args.authtoken
 
   p = beam.Pipeline(argv=pipeline_args)
 

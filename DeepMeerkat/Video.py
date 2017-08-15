@@ -33,12 +33,12 @@ the list size is fixed. overflow items will be discarded
 
     def __delitem__(self,item):
         super(FixedlenList, self).__delitem__(item)
-        #self.__length__-=1	
+        #self.__length__-=1
 
     def append(self,item):
         if len(self) >= self.__length__:
             super(FixedlenList, self).pop(0)
-        super(FixedlenList, self).append(item)		
+        super(FixedlenList, self).append(item)
 
     def extend(self,aList):
         super(FixedlenList, self).extend(aList)
@@ -62,102 +62,106 @@ def resize_box(img,bbox,m=math.sqrt(2)-1):
     #expand box by multiplier m, limit to image edge
 
     #min height
-    p1=mult(bbox.y,-m)            
-    p1=check_bounds(img, 0, p1)            
+    p1=mult(bbox.y,-m)
+    p1=check_bounds(img, 0, p1)
 
     #max height
     p2=mult(bbox.y+bbox.h,m)
     p2=check_bounds(img, 0, p2)
 
     #min width
-    p3=mult(bbox.x,-m)            
-    p3=check_bounds(img, 1, p3)            
+    p3=mult(bbox.x,-m)
+    p3=check_bounds(img, 1, p3)
 
     #max width
-    p4=mult(bbox.x+bbox.w,m)                        
-    p4=check_bounds(img, 1, p4)            
+    p4=mult(bbox.x+bbox.w,m)
+    p4=check_bounds(img, 1, p4)
 
-    #create a mask, in case its bigger than image            
+    #create a mask, in case its bigger than image
     cropped_image=img[p1:p2,p3:p4]
 
     #Resize Image
-    resized_image = cv2.resize(cropped_image, (299, 299))  
+    resized_image = cv2.resize(cropped_image, (299, 299))
     return(resized_image)
 
 class Video:
     def __init__(self,vid,args,tensorflow_session=None):
-                
+
         #start time
         self.start_time=time.time()
-        
+
         #store args from DeepMeerkat.py
         self.args=args
         self.args.video=vid
         self.tensorflow_session=tensorflow_session
-        
+
         #set descriptors
         self.frame_count=0
-        
+
         #Annotations dictionary
         self.annotations={}
-        
+
         #MotionHistory
         self.MotionHistory=[]
-        
+
         #Frame Padding
         self.padding_frames=FixedlenList(l=self.args.buffer)
 
-        #create output directory    
+        #create output directory
         normFP=os.path.normpath(vid)
         (filepath, filename)=os.path.split(normFP)
         (shortname, extension) = os.path.splitext(filename)
-        (_,IDFL) = os.path.split(filepath) 
-        
-        self.file_destination=os.path.join(self.args.output,IDFL)                
-        self.file_destination=os.path.join(self.file_destination,shortname)               
+        (_,IDFL) = os.path.split(filepath)
 
+        #if batch, contain in one folder
+        if len(self.queue) > 1:
+            self.file_destination=os.path.join(self.args.output,IDFL)
+
+        self.file_destination=os.path.join(self.file_destination,shortname)
+
+        #create if directory does not exist
         if not os.path.exists(self.file_destination):
-            os.makedirs(self.file_destination)        
-        
+            os.makedirs(self.file_destination)
+
         #read video
         self.cap=cv2.VideoCapture(self.args.video)
-        
+
         #set frame frate
         self.frame_rate=round(self.cap.get(5))
-        
+
         #This seems to misinterpret just .tlv files
-        if extension in ['.tlv','.TLV']: 
+        if extension in ['.tlv','.TLV']:
             self.frame_rate=1
-            print("File type is .tlv, setting frame rate to 1 fps")        
+            print("File type is .tlv, setting frame rate to 1 fps")
 
         #background subtraction
-        self.background_instance=self.create_background() 
-                
+        self.background_instance=self.create_background()
+
         #Detector almost always returns first frame
         self.IS_FIRST_FRAME = True
-        
+
     def analyze(self):
-         
-        if self.args.show: 
+
+        if self.args.show:
             print(self.args.show)
             cv2.namedWindow("Motion_Event")
-            #cv2.namedWindow("Background")            
-            
+            #cv2.namedWindow("Background")
+
         while True:
-            
+
             #Reset padding frames, for debugging.
             WritePadding=False
 
             #read frame
-            ret,self.read_image=self.read_frame()            
-            
+            ret,self.read_image=self.read_frame()
+
             if not ret:
                 #end time
                 self.end_time=time.time()
                 break
-            
+
             self.frame_count+=1
-            
+
             #skip the first frame after adding it to the background.
             if self.IS_FIRST_FRAME:
 
@@ -166,65 +170,65 @@ class Video:
                 self.height = np.size(self.read_image, 0)
                 self.image_area = self.width * self.height
                 self.aspect_ratio=self.width/self.height
-            
+
                 #optional resize
                 target_area=(self.image_area/self.args.resize)
                 self.new_h=math.sqrt(target_area/self.aspect_ratio)
                 self.new_w=self.new_h * self.aspect_ratio
-                
+
                 print("Skipping first frame")
                 self.IS_FIRST_FRAME=False
                 continue
-            
+
             #adapt settings of mogvariance to keep from running away
             self.adapt()
-            
+
             #background subtraction
             self.background_apply()
-            
+
             #Gather clips and compute hog features for new background
             self.bg_image=self.fgbg.getBackgroundImage()
-                        
+
             #contour analysis
             self.countours=self.find_contour()
-            
+
             #Next frame if no contours
             if len(self.contours) == 0 :
                 self.end_sequence(Motion=False)
                 continue
-              
+
             #bounding boxes
             bounding_boxes = self.cluster_bounding_boxes(self.contours)
-            
+
             #Next frame if no bounding boxes
             if len(bounding_boxes) == 0 :
                 self.end_sequence(Motion=False)
                 continue
-            
+
             #remove if smaller than min size
             remaining_bounding_box=[]
-            
+
             for bounding_box in bounding_boxes:
                 if self.image_area * self.args.size < bounding_box.h * bounding_box.w:
                     remaining_bounding_box.append(bounding_box)
-            
+
             #next frame is no remaining bounding boxes
             if len(remaining_bounding_box)==0:
                 self.end_sequence(Motion=False)
-                continue            
-                            
+                continue
+
             if self.args.tensorflow:
-                clips=[]                
+                clips=[]
                 for bounding_box in remaining_bounding_box:
                     x1=int(bounding_box.x * (float(self.width)/self.new_w))
                     y1=int(bounding_box.y * (float(self.height)/self.new_h))
                     w1=int(bounding_box.w * (float(self.width)/self.new_w))
-                    h1=int(bounding_box.h * (float(self.height)/self.new_h)) 
-                    
+                    h1=int(bounding_box.h * (float(self.height)/self.new_h))
+
                     newbox=self.BoundingBox(Rect(x1, y1, w1, h1))
                     clips.append(resize_box(self.original_image,newbox))
-                            
-                self.tensorflow_label=predict.TensorflowPredict(sess=self.tensorflow_session,read_from="numpy",image_array=clips,numpy_name=self.frame_count,label_lines=self.args.label_lines)                
+
+                self.tensorflow_label=predict.TensorflowPredict(sess=self.tensorflow_session,read_from="numpy",image_array=clips,numpy_name=self.frame_count,label_lines=self.args.label_lines)
                 cv2.putText(self.original_image,str(self.tensorflow_label[self.frame_count]),(50,50),cv2.FONT_HERSHEY_SIMPLEX,2,(255,255,255),2)
 
                 #next frame if negative label
@@ -232,117 +236,117 @@ class Video:
                     WritePadding=True
 
             self.annotations[self.frame_count] = remaining_bounding_box
-            
-            if self.args.draw_box:             
+
+            if self.args.draw_box:
                 print("Draw box")
                 for bounding_box in remaining_bounding_box:
-                    
+
                     boxx=int(bounding_box.x * (float(self.width)/self.new_w))
                     boxy=int(bounding_box.y * (float(self.height)/self.new_h))
                     boxw=int(bounding_box.w * (float(self.width)/self.new_w))
                     boxh=int(bounding_box.h * (float(self.self.height)/self.new_h))
-                    
-                    cv2.rectangle(self.original_image, (boxx, boxy), 
+
+                    cv2.rectangle(self.original_image, (boxx, boxy),
                                   (boxx+boxw, boxy+boxh), (0,0,255), 2)
             if self.args.show:
                 cv2.imshow("Motion_Event", self.original_image)
                 cv2.waitKey(0)
-            
+
             #Motion Frame! passed all filters.
             if self.args.training:
-                
+
                 #mean subtracted image
                 for index,bounding_box in enumerate(remaining_bounding_box):
-                    current,msde_image=self.MSDE(self.read_image,self.bg_image,bounding_box)                                    
+                    current,msde_image=self.MSDE(bounding_box)
 
                     #write clip diff and original, easier to score
                     cv2.imwrite(self.file_destination + "/"+str(self.frame_count)+ "_" + str(index) + "_train.jpg",msde_image)
                     cv2.imwrite(self.file_destination + "/"+str(self.frame_count)+ "_" + str(index) + ".jpg",current)
             else:
                 self.end_sequence(Motion=True,WritePadding=WritePadding)
-            
-        cv2.destroyAllWindows()            
-    
+
+        cv2.destroyAllWindows()
+
     def read_frame(self):
-        
+
         #read frame
         ret,self.original_image=self.cap.read()
-        
+
         if not ret:
             return((ret,self.original_image))
-        
+
         #set crop settings if first frame
         if self.IS_FIRST_FRAME:
             if self.args.crop:
-                self.roi=Crop.Crop(self.original_image,"Crop")            
+                self.roi=Crop.Crop(self.original_image,"Crop")
             return((ret,self.original_image))
         if self.args.crop:
             image=self.original_image[self.roi[1]:self.roi[3], self.roi[0]:self.roi[2]]
         else:
             image=self.original_image
-        
+
         #Optional resize input image
         if not self.args.resize ==1:
             image=cv2.resize(image,(int(self.new_w),int(self.new_h)))
         return((ret,image))
-    
+
     def create_background(self):
-        
+
         self.fgbg = cv2.createBackgroundSubtractorMOG2(detectShadows=False,varThreshold=float(self.args.mogvariance))
         self.fgbg.setBackgroundRatio(0.95)
-           
+
     #Frame Subtraction
     def background_apply(self):
-        
+
         #Apply Subtraction
         self.image = self.fgbg.apply(self.read_image,learningRate=self.args.moglearning)
-    
+
         #Erode to remove noise, dilate the areas to merge bounded objects
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(9,9))
         self.image= cv2.morphologyEx(self.image, cv2.MORPH_OPEN, kernel)
-                
+
     def find_contour(self):
             _,self.contours,hierarchy = cv2.findContours(self.image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE )
             self.contours = [contour for contour in self.contours if cv2.contourArea(contour) > 50]
-    
+
     def end_sequence(self,Motion,WritePadding=False):        #When frame hits the end of processing
-        
+
         #write history
         self.MotionHistory.append(Motion)
-        
+
         if not Motion:
             #Capture Frame
             self.padding_frames.append(self.original_image)
-                        
+
         else:
-        
+
             #write current frame
             fname=self.file_destination + "/"+str(self.frame_count)+".jpg"
-            cv2.imwrite(fname,self.original_image)                
-            
+            cv2.imwrite(fname,self.original_image)
+
             #write padding frames, if they don't exist
             if WritePadding:
                 for x in range(0,len(self.padding_frames)):
                     filenm=self.file_destination + "/"+str(self.frame_count-(x+1))+".jpg"
                     if not os.path.exists(filenm):
                         cv2.imwrite(filenm,self.padding_frames[x])
-                            
+
             #write post motion frames
             for x in range(self.args.buffer):
                 #read frame, check if its the last frame in video
-                ret,self.read_image=self.read_frame()                
-                if not ret: 
+                ret,self.read_image=self.read_frame()
+                if not ret:
                     self.end_time=time.time()
                     break
                 #add to frame count and apply
                 self.frame_count+=1
-                self.background_apply()                                                            
-                
+                self.background_apply()
+
                 #write frame
                 fname=self.file_destination + "/"+str(self.frame_count)+".jpg"
                 if not os.path.exists(fname):
-                    cv2.imwrite(fname,self.original_image)                
-                         
+                    cv2.imwrite(fname,self.original_image)
+
     def cluster_bounding_boxes(self, contours):
         bounding_boxes = []
         for i in range(len(contours)):
@@ -375,8 +379,8 @@ class Video:
         y = min(rect1.l_top.y, rect2.l_top.y)
         w = max(rect1.r_top.x, rect2.r_top.x) - x
         h = max(rect1.r_bot.y, rect2.r_bot.y) - y
-        return Rect(x, y, w, h)    
-    
+        return Rect(x, y, w, h)
+
     class BoundingBox:
         def update_rect(self, rect):
             self.rect = rect
@@ -388,121 +392,117 @@ class Video:
 
         def __init__(self, rect):
             self.update_rect(rect)
-            self.members = []    
-    
-    def write(self):      
-        
-        #write parameter logs        
+            self.members = []
+
+    def write(self):
+
+        #write parameter logs
         self.output_args=self.file_destination + "/parameters.csv"
-        if sys.version_info >= (3, 0):        
+        if sys.version_info >= (3, 0):
             with open(self.output_args, 'w',newline="") as f:
                 writer = csv.writer(f,)
                 writer.writerows(self.args.__dict__.items())
-                
+
                 #Total time
                 self.total_min=round((self.end_time-self.start_time)/60,3)
                 writer.writerow(["Minutes",self.total_min])
-            
+
                 #Frames in file
                 writer.writerow(["Total Frames",self.frame_count])
-            
+
                 #Frames returned to file
                 writer.writerow(["Motion Events",len(self.annotations)])
-            
+
                 #Hit rate
                 len(self.annotations)
                 writer.writerow(["Return rate",float(len(self.annotations)/self.frame_count)])
-            
+
                 #Frames per second
-                writer.writerow(["Frame processing rate",round(float(self.frame_count)/(self.total_min*60),2)])                
-        else:    
+                writer.writerow(["Frame processing rate",round(float(self.frame_count)/(self.total_min*60),2)])
+        else:
             with open(self.output_args, 'wb') as f:
                 writer = csv.writer(f,)
                 writer.writerows(self.args.__dict__.items())
-                
+
                 #Total time
                 self.total_min=round((self.end_time-self.start_time)/60,3)
                 writer.writerow(["Minutes",self.total_min])
-                
+
                 #Frames in file
                 writer.writerow(["Total Frames",self.frame_count])
-                
+
                 #Frames returned to file
                 writer.writerow(["Motion Events",len(self.annotations)])
-                
+
                 #Hit rate
                 len(self.annotations)
                 writer.writerow(["Return rate",float(len(self.annotations)/self.frame_count)])
-                
+
                 #Frames per second
                 writer.writerow(["Frame processing rate",round(float(self.frame_count)/(self.total_min*60),2)])
-        
+
         #Write frame annotations
         self.output_annotations=self.file_destination + "/annotations.csv"
-        if sys.version_info >= (3, 0):        
+        if sys.version_info >= (3, 0):
             with open(self.output_annotations, 'w',newline="") as f:
                 writer = csv.writer(f,)
                 writer.writerow(["Frame","x","y","h","w"])
-                for x in self.annotations.keys():   
+                for x in self.annotations.keys():
                     bboxes=self.annotations[x]
-                    for bbox in bboxes: 
-                        writer.writerow([x,bbox.x,bbox.y,bbox.h,bbox.w])                
-        else:    
+                    for bbox in bboxes:
+                        writer.writerow([x,bbox.x,bbox.y,bbox.h,bbox.w])
+        else:
             with open(self.output_annotations, 'wb') as f:
 
                 writer = csv.writer(f,)
                 writer.writerow(["Frame","x","y","h","w"])
-                for x in self.annotations.keys():   
+                for x in self.annotations.keys():
                     bboxes=self.annotations[x]
-                    for bbox in bboxes: 
+                    for bbox in bboxes:
                         writer.writerow([x,bbox.x,bbox.y,bbox.h,bbox.w])
-    
+
     def MSDE(self,bounding_box):
 
         #resize box, pass the new frame
         x1=int(bounding_box.x * (float(self.width)/self.new_w))
         y1=int(bounding_box.y * (float(self.height)/self.new_h))
         w1=int(bounding_box.w * (float(self.width)/self.new_w))
-        h1=int(bounding_box.h * (float(self.height)/self.new_h)) 
-    
+        h1=int(bounding_box.h * (float(self.height)/self.new_h))
+
         newbox=self.BoundingBox(Rect(x1, y1, w1, h1))
         current=resize_box(self.original_image,newbox)
         background=resize_box(self.bg_image,newbox)
-    
+
         #convert to luminance
-        current_gray=cv2.cvtColor(current, cv2.COLOR_BGR2GRAY)                    
-        background_grey=cv2.cvtColor(background, cv2.COLOR_BGR2GRAY)                    
-    
+        current_gray=cv2.cvtColor(current, cv2.COLOR_BGR2GRAY)
+        background_grey=cv2.cvtColor(background, cv2.COLOR_BGR2GRAY)
+
         #absolute diff
         current_diff=cv2.absdiff(current_gray,background_grey)
-        
+
         #substract mean
         mean,_ = cv2.meanStdDev(current_diff)
         mean_diff=current_diff - mean
-        
+
         #set all negative values to 0
         mean_diff[np.where(mean_diff<0)] = 0
-        
+
         #strech to 255
         msde_image=cv2.normalize(mean_diff, mean_diff,alpha=0,beta=255,norm_type=cv2.NORM_MINMAX)
-        
+
         return [current,msde_image]
-    
+
     def adapt(self):
-        
+
             #If current frame is a multiple of the 1000 frames
-            if self.frame_count % 1000 == 0:                                  
+            if self.frame_count % 1000 == 0:
                 #get the percent of frames returned in the last 10 minutes
                 if (sum([x < self.frame_count-1000 for x in self.annotations.keys()])/1000) > 0.05:
-                        
+
                     #increase tolerance rate
                     self.args.mogvariance+=5
-    
+
                     #add a ceiling
-                    if self.args.mogvariance > 60: 
+                    if self.args.mogvariance > 60:
                         self.args.mogvariance = 60
                     print("Adapting to video conditions: increasing MOG variance tolerance to %d" % self.args.mogvariance)
-        
-            
-            
-            
