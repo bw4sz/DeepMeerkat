@@ -7,13 +7,18 @@ import csv
 import apache_beam as beam
 from urlparse import urlparse
 from google.cloud import storage
-import glob
 
-from DeepMeerkat import DeepMeerkat
+##The namespaces inside of clouddataflow workers is not inherited , 
+##Please see https://cloud.google.com/dataflow/faq#how-do-i-handle-nameerrors, better to write ugly import statements then to miss a namespace
 
 class PredictDoFn(beam.DoFn):
-
   def process(self,element):
+    
+    import csv
+    from google.cloud import storage
+    from DeepMeerkat import DeepMeerkat
+    from urlparse import urlparse
+    
     DM=DeepMeerkat.DeepMeerkat()
 
     print(os.getcwd())
@@ -59,6 +64,13 @@ class PredictDoFn(beam.DoFn):
       blob.upload_from_filename(frame)
 
 def run():
+  import argparse
+  import os
+  import apache_beam as beam
+  import csv
+  import logging
+  
+  
   parser = argparse.ArgumentParser()
   parser.add_argument('--input', dest='input', default="gs://api-project-773889352370-testing/DataFlow/manifest.csv",
                       help='Input file to process.')
