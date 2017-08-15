@@ -41,7 +41,7 @@ CUSTOM_COMMANDS = [
   ['ldconfig']
 ]
 
-REQUIRED_PACKAGES = ['numpy','tensorflow',"urlparse"]
+REQUIRED_PACKAGES = ['numpy','tensorflow',"urlparse","google-cloud-storage"]
 
 setuptools.setup(
     name='DeepMeerkat',
