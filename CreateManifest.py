@@ -19,59 +19,59 @@ from urlparse import urlparse
 try:
     credentials = GoogleCredentials.get_application_default()
 except:
-    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "C:/Users/Ben/Dropbox/Google/MeerkatReader-9fbf10d1e30c.json"
+    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "/Users/Ben/Dropbox/Google/MeerkatReader-9fbf10d1e30c.json"
 
 def process_args():
     parser = argparse.ArgumentParser(description='Create document for dataflow job.')
     parser.add_argument('-input_dir', help='Google cloud storage path for input videos samples.',default="gs://api-project-773889352370-testing/Clips")
     parser.add_argument('-limit', help='Total number of videos',default=None)
     args, _ = parser.parse_known_args()
-    return args    
+    return args
 
 class Organizer:
     def __init__(self,args):
-        
+
         """Downloads a blob from the bucket."""
         storage_client = storage.Client()
         self.parsed = urlparse(args.input_dir)
-        
+
         #parse gcp path
-        self.bucket = storage_client.get_bucket(self.parsed.hostname)    
+        self.bucket = storage_client.get_bucket(self.parsed.hostname)
         vids=self.bucket.list_blobs(prefix=self.parsed.path[1:])
-        
-        
+
+
         #video list
         self.video_list=[]
-        
-        #first position is always itself        
+
+        #first position is always itself
         is_first=True
-        
+
         for vid in vids:
             if is_first:
                 is_first=False
                 continue
             self.video_list.append("gs://" + self.bucket.name +"/"+ str(vid.name))
-                
+
         #if no ceiling, process all arguments
         if not args.limit:
             limit=vids.num_results
         else:
             limit=args.limit
-                    
+
     def WriteCsv(self):
 
         #Write to temp then send to google cloud
         handle, fn = tempfile.mkstemp(suffix='.csv')
-        
+
         with open(fn,"wb") as f:
             writer=csv.writer(f)
             for row in self.video_list:
                 writer.writerow([row])
-            
+
         #write to google cloud
         blob=self.bucket.blob("DataFlow/manifest.csv")
         blob.upload_from_filename(fn)
-                
+
 if __name__ == "__main__":
     args = process_args()
     p=Organizer(args)

@@ -18,6 +18,7 @@ class PredictDoFn(beam.DoFn):
     from google.cloud import storage
     from DeepMeerkat import DeepMeerkat
     from urlparse import urlparse
+    import os
 
     DM=DeepMeerkat.DeepMeerkat()
 
