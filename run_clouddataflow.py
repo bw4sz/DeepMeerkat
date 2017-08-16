@@ -34,7 +34,7 @@ class PredictDoFn(beam.DoFn):
     blob=storage.Blob(parsed.path[1:],bucket)
 
     #store local path
-    local_path="/tmp/" + parsed.path.split("/")[-1]
+    local_path=parsed.path.split("/")[-1]
 
     print('local path: ' + local_path)
     with open(local_path, 'wb') as file_obj:
@@ -70,7 +70,7 @@ def run():
   import apache_beam as beam
   import csv
   import logging
-
+  import google.auth
 
   parser = argparse.ArgumentParser()
   parser.add_argument('--input', dest='input', default="gs://api-project-773889352370-testing/DataFlow/manifest.csv",
@@ -79,8 +79,12 @@ def run():
                       help='Input file to process.')
   known_args, pipeline_args = parser.parse_known_args()
 
-  #set credentials
-  os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = known_args.authtoken
+  #set credentials, inherent from worker
+  try:
+      credentials, project = google.auth.default()
+  except:
+      os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = known_args.authtoken
+      credentials, project = google.auth.default()
 
   p = beam.Pipeline(argv=pipeline_args)
 
