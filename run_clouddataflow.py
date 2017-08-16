@@ -15,7 +15,7 @@ class PredictDoFn(beam.DoFn):
   def process(self,element):
 
     import csv
-    import google.cloud.storage as storage
+    from google.cloud import storage
     from DeepMeerkat import DeepMeerkat
     from urlparse import urlparse
 
