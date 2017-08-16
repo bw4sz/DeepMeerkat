@@ -41,7 +41,7 @@ CUSTOM_COMMANDS = [
   ['ldconfig']
 ]
 
-REQUIRED_PACKAGES = ['numpy','tensorflow',"google-cloud"]
+REQUIRED_PACKAGES = ['numpy','tensorflow',"google-cloud","google-auth"]
 
 setuptools.setup(
     name='DeepMeerkat',
