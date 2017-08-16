@@ -47,6 +47,7 @@ setuptools.setup(
     name='DeepMeerkat',
     version='0.0.1',
     description='Running MotionMeerkat in the Cloud',
+    install_requires=REQUIRED_PACKAGES,
     packages=setuptools.find_packages(),
     cmdclass={
         # Command class instantiated and run during pip install scenarios.
