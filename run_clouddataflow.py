@@ -19,18 +19,21 @@ class PredictDoFn(beam.DoFn):
     from DeepMeerkat import DeepMeerkat
     from urlparse import urlparse
     import os
+    import google.auth
+    import logging
 
     DM=DeepMeerkat.DeepMeerkat()
 
-    print(os.getcwd())
-    print(element)
+    logging.info(os.getcwd())
+    logging.info(element)
 
-    #try adding credentials
+    #try adding credentials?
     #set credentials, inherent from worker
     credentials, project = google.auth.default()
 
     #download element locally
     parsed = urlparse(element[0])
+    logging.info(parsed)
 
     #parse gcp path
     storage_client=storage.Client(credentials=credentials)
@@ -40,14 +43,15 @@ class PredictDoFn(beam.DoFn):
     #store local path
     local_path=parsed.path.split("/")[-1]
 
-    print('local path: ' + local_path)
+    logging.info('local path: ' + local_path)
     with open(local_path, 'wb') as file_obj:
       blob.download_to_file(file_obj)
 
-    print("Downloaded" + local_path)
+    logging.info("Downloaded" + local_path)
 
     #Assign input from DataFlow/manifest
     DM.process_args(video=local_path)
+    DM.process_args()    
     DM.args.output="Frames"
 
     #Run DeepMeerkat
