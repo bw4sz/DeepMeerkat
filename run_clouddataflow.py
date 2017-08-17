@@ -25,11 +25,15 @@ class PredictDoFn(beam.DoFn):
     print(os.getcwd())
     print(element)
 
+    #try adding credentials
+    #set credentials, inherent from worker
+    credentials, project = google.auth.default()
+
     #download element locally
     parsed = urlparse(element[0])
 
     #parse gcp path
-    storage_client=storage.Client()
+    storage_client=storage.Client(credentials=credentials)
     bucket = storage_client.get_bucket(parsed.hostname)
     blob=storage.Blob(parsed.path[1:],bucket)
 
