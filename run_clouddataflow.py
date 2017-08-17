@@ -47,7 +47,7 @@ class PredictDoFn(beam.DoFn):
     with open(local_path, 'wb') as file_obj:
       blob.download_to_file(file_obj)
     
-    logging.info("Check local path exists: " + os.path.exists(local_path))
+    logging.info("Check local path exists: " + str(os.path.exists(local_path)))
 
     #Assign input from DataFlow/manifest
     DM.process_args(video=local_path)
