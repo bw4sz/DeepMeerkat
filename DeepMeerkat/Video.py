@@ -113,11 +113,7 @@ class Video:
         (shortname, extension) = os.path.splitext(filename)
         (_,IDFL) = os.path.split(filepath)
 
-        #if batch, contain in one folder
-        if len(self.queue) > 1:
-            self.file_destination=os.path.join(self.args.output,IDFL)
-
-        self.file_destination=os.path.join(self.file_destination,shortname)
+        self.file_destination=os.path.join(self.args.output,shortname)
 
         #create if directory does not exist
         if not os.path.exists(self.file_destination):
