@@ -1,4 +1,5 @@
 numpy
 tensorflow
-google-cloud
+google-cloud-storage==1.3.2
 google-auth
+requests>=2.18.0
