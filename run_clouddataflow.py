@@ -50,7 +50,8 @@ class PredictDoFn(beam.DoFn):
     logging.info("Check local path exists: " + str(os.path.exists(local_path)))
 
     #Assign input from DataFlow/manifest
-    DM.process_args(video=local_path)
+    #DM.process_args(video=local_path)
+    DM.process_args()
     DM.args.output="Frames"
 
     #Run DeepMeerkat
