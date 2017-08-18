@@ -50,8 +50,7 @@ class PredictDoFn(beam.DoFn):
     logging.info("Check local path exists: " + str(os.path.exists(local_path)))
 
     #Assign input from DataFlow/manifest
-    #DM.process_args(video=local_path)
-    DM.process_args()
+    DM.process_args(video=local_path)
     DM.args.output="Frames"
 
     #Run DeepMeerkat
@@ -86,7 +85,11 @@ def run():
   parser.add_argument('--authtoken', default="/Users/Ben/Dropbox/Google/MeerkatReader-9fbf10d1e30c.json",
                       help='Input file to process.')
   known_args, pipeline_args = parser.parse_known_args()
-
+  
+  #expose args
+  logging.info("Known args: " + str(known_args))
+  logging.info("Pipe args: " + str(pipeline_args))
+  
   #set credentials, inherent from worker
   try:
       credentials, project = google.auth.default()
