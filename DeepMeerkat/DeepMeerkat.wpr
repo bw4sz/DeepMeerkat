@@ -17,7 +17,10 @@ proj.directory-list = [{'dirloc': loc('..'),
                         'recursive': True,
                         'watch_for_changes': True}]
 proj.file-type = 'shared'
-proj.launch-config = {loc('CommandArgs.py'): ('project',
+proj.launch-config = {loc('../CreateManifest.py'): ('project',
+        (u'-limit 4',
+         '')),
+                      loc('CommandArgs.py'): ('project',
         (u'--buffer 1\n',
          '')),
                       loc('DeepMeerkat.py'): ('project',
