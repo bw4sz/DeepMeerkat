@@ -17,7 +17,7 @@ def CommandArgs(argv=None):
     parser.add_argument("--crop", help="Set region of interest?",action='store_true')
     parser.add_argument("--draw_box", help="Draw boxes to highlight motion'?",action="store_true")
     parser.add_argument("--show", help="Show frames as you process",action='store_false')
-    parser.add_argument("--tensorflow", help="Process model with a tensorflow image trained on google cloud machine learning engine",action='store_true')
+    parser.add_argument("--tensorflow", help="Process model with a tensorflow image trained on google cloud machine learning engine",action='store_false')
     parser.add_argument("--path_to_model", help="Path to model/ directory",default="/Users/Ben/Dropbox/GoogleCloud/DeepMeerkat_20170801_172956/model/")
     
     #if additional args were passed by string from CloudDataFlow
