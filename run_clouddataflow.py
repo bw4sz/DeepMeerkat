@@ -87,8 +87,8 @@ def run():
   known_args, pipeline_args = parser.parse_known_args()
   
   #expose args
-  logging.info("Known args: " + str(known_args))
-  logging.info("Pipe args: " + str(pipeline_args))
+  print("Known args: " + str(known_args))
+  print("Pipe args: " + str(pipeline_args))
   
   #set credentials, inherent from worker
   try:

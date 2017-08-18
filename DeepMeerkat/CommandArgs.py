@@ -1,4 +1,5 @@
 import argparse
+import logging
 
 def CommandArgs():
     parser = argparse.ArgumentParser()
@@ -19,4 +20,7 @@ def CommandArgs():
     parser.add_argument("--tensorflow", help="Process model with a tensorflow image trained on google cloud machine learning engine",action='store_false')
     parser.add_argument("--path_to_model", help="Path to model/ directory",default="/Users/Ben/Dropbox/GoogleCloud/DeepMeerkat_20170801_172956/model/")
     args,_=parser.parse_known_args()
+    
+    print("DeepMeerkat args: " + str(args))
+    logging.info("DeepMeerkat args: " + str(args))
     return(args)
