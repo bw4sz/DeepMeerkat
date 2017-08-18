@@ -45,7 +45,7 @@ class PredictDoFn(beam.DoFn):
     blob=storage.Blob(parsed.path[1:],bucket)
 
     #store local path
-    local_path=parsed.path.split("/")[-1]
+    local_path="/tmp/" + parsed.path.split("/")[-1]
 
     logging.info('local path: ' + local_path)
     with open(local_path, 'wb') as file_obj:
