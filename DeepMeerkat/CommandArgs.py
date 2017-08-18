@@ -1,7 +1,7 @@
 import argparse
 import logging
 
-def CommandArgs():
+def CommandArgs(argv=None):
     parser = argparse.ArgumentParser()
     parser.add_argument("--training", help="generate test clips",action="store_true")
     parser.add_argument("--input", help="path of single video",type=str,default='Hummingbird.avi')
@@ -16,11 +16,16 @@ def CommandArgs():
     parser.add_argument("--mogvariance", help="Variance in MOG to select background",default=20,type=int)
     parser.add_argument("--crop", help="Set region of interest?",action='store_true')
     parser.add_argument("--draw_box", help="Draw boxes to highlight motion'?",action="store_true")
-    parser.add_argument("--show", help="Show frames as you process",action='store_true')
-    parser.add_argument("--tensorflow", help="Process model with a tensorflow image trained on google cloud machine learning engine",action='store_false')
+    parser.add_argument("--show", help="Show frames as you process",action='store_false')
+    parser.add_argument("--tensorflow", help="Process model with a tensorflow image trained on google cloud machine learning engine",action='store_true')
     parser.add_argument("--path_to_model", help="Path to model/ directory",default="/Users/Ben/Dropbox/GoogleCloud/DeepMeerkat_20170801_172956/model/")
-    args,_=parser.parse_known_args()
     
+    #if additional args were passed by string
+    if argv:
+        args,_=parser.parse_known_args(argv)
+    else:
+        args,_=parser.parse_known_args()
+        
     print("DeepMeerkat args: " + str(args))
     logging.info("DeepMeerkat args: " + str(args))
     return(args)

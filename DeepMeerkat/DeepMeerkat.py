@@ -9,8 +9,8 @@ class DeepMeerkat:
     def __init__(self):
         print("Welcome to DeepMeerkat")
 
-    def process_args(self,video=None):
-        self.args=CommandArgs.CommandArgs()
+    def process_args(self,video=None,argv=None):
+        self.args=CommandArgs.CommandArgs(argv)
 
         #get all videos in queue
         self.queue= []

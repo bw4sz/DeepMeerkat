@@ -23,8 +23,8 @@ except:
 
 def process_args():
     parser = argparse.ArgumentParser(description='Create document for dataflow job.')
-    parser.add_argument('-input_dir', help='Google cloud storage path for input videos samples.',default="gs://api-project-773889352370-testing/Clips")
-    parser.add_argument('-limit', help='Total number of videos',default=None)
+    parser.add_argument('-input_dir', help='Google cloud storage path for input videos samples.',default="gs://api-project-773889352370-testing/Hummingbirds")
+    parser.add_argument('-limit', help='Total number of videos',default=None,type=int)
     args, _ = parser.parse_known_args()
     return args
 
@@ -39,11 +39,10 @@ class Organizer:
         self.bucket = storage_client.get_bucket(self.parsed.hostname)
         vids=self.bucket.list_blobs(prefix=self.parsed.path[1:])
 
-
         #video list
         self.video_list=[]
 
-        #first position is always itself
+        #first position is always folder containing videos
         is_first=True
 
         for vid in vids:
@@ -52,11 +51,9 @@ class Organizer:
                 continue
             self.video_list.append("gs://" + self.bucket.name +"/"+ str(vid.name))
 
-        #if no ceiling, process all arguments
-        if not args.limit:
-            limit=vids.num_results
-        else:
-            limit=args.limit
+        #Limit total number of videos if testing
+        if args.limit:
+            self.video_list=self.video_list[0:limit]
 
     def WriteCsv(self):
 

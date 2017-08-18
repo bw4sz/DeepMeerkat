@@ -22,13 +22,12 @@ python CreateManifest.py
 
 #testing without tensorflow
 python run_clouddataflow.py \
-    --runner DataFlowRunner \
+    --runner DirectRunner \
     --project $PROJECT \
     --staging_location $BUCKET/staging \
     --temp_location $BUCKET/temp \
     --job_name $PROJECT-deepmeerkat \
     --setup_file ./setup.py \
     --maxNumWorkers 3 \
-    --path_to_model "model/" \
     --tensorflow \
     --training

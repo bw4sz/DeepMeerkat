@@ -12,6 +12,10 @@ from google.cloud import storage
 ##Please see https://cloud.google.com/dataflow/faq#how-do-i-handle-nameerrors, better to write ugly import statements then to miss a namespace
 
 class PredictDoFn(beam.DoFn):
+  def __init__(self,argv):
+    #capture any command line arguments passed to dataflow that belong to DeepMeerkat
+    self.argv=argv
+    
   def process(self,element):
 
     import csv
@@ -50,7 +54,7 @@ class PredictDoFn(beam.DoFn):
     logging.info("Check local path exists: " + str(os.path.exists(local_path)))
 
     #Assign input from DataFlow/manifest
-    DM.process_args(video=local_path)
+    DM.process_args(video=local_path,argv=self.argv)
     DM.args.output="Frames"
 
     #Run DeepMeerkat
@@ -66,10 +70,16 @@ class PredictDoFn(beam.DoFn):
 
     for frame in found_frames:
 
-      #create GCS path
-      path="DeepMeerkat/" + parsed.path.split("/")[-1] + "/" + frame.split("/")[-1]
+      #create GCS path and strip exntension for the folder name
+      folder=os.path.splitext(parsed.path.split("/")[-1])[0]
+      path="DeepMeerkat/" + folder  + "/" + frame.split("/")[-1]
+      
+      #upload to gcs
       blob=storage.Blob(path,bucket)
       blob.upload_from_filename(frame)
+      
+      #delete frame
+      os.remove(frame)
 
 def run():
   import argparse
@@ -101,7 +111,7 @@ def run():
 
   vids = (p|'Read input' >> beam.io.ReadFromText(known_args.input)
        | 'Parse input' >> beam.Map(lambda line: csv.reader([line]).next())
-       | 'Run DeepMeerkat' >> beam.ParDo(PredictDoFn()))
+       | 'Run DeepMeerkat' >> beam.ParDo(PredictDoFn(pipeline_args)))
 
   logging.getLogger().setLevel(logging.INFO)
   p.run()
