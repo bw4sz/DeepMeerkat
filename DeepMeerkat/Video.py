@@ -57,7 +57,7 @@ def check_bounds(img,axis,p):
         p=0
     return(p)
 
-def resize_box(img,bbox,m=math.sqrt(2)-1):
+def resize_box(img,bbox,m=math.sqrt(2)-1/2):
 
     #expand box by multiplier m, limit to image edge
 
@@ -225,12 +225,16 @@ class Video:
                     clips.append(resize_box(self.original_image,newbox))
 
                 self.tensorflow_label=predict.TensorflowPredict(sess=self.tensorflow_session,read_from="numpy",image_array=clips,numpy_name=self.frame_count,label_lines=self.args.label_lines)
-                cv2.putText(self.original_image,str(self.tensorflow_label[self.frame_count]),(50,50),cv2.FONT_HERSHEY_SIMPLEX,2,(255,255,255),2)
+                cv2.putText(self.original_image,str(self.tensorflow_label[self.frame_count]),(50,50),cv2.FONT_HERSHEY_SIMPLEX,2,(0,0,255),2)
 
-                #next frame if negative label
-                if "positive" in str(self.tensorflow_label[self.frame_count]):
-                    WritePadding=True
-
+                #next frame if negative label that has score greater than 0.9
+                for label,score in self.tensorflow_label[self.frame_count]:
+                    if label == 'positive':
+                        WritePadding=True
+                    else:
+                        if score < 0.9:
+                            WritePadding=True
+                            
             self.annotations[self.frame_count] = remaining_bounding_box
 
             if self.args.draw_box:

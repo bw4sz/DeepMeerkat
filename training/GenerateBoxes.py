@@ -11,30 +11,6 @@ import os
 import platform
 import datetime
 
-def MSDE(frame,bg_image,bounding_box):
-
-    current=resize_box(frame,bounding_box)
-    background=resize_box(bg_image,bounding_box)
-
-    #convert to luminance
-    current_gray=cv2.cvtColor(current, cv2.COLOR_BGR2GRAY)                    
-    background_grey=cv2.cvtColor(background, cv2.COLOR_BGR2GRAY)                    
-
-    #absolute diff
-    current_diff=cv2.absdiff(current_gray,background_grey)
-    
-    #substract mean
-    mean,_ = cv2.meanStdDev(current_diff)
-    mean_diff=current_diff - mean
-    
-    #set all negative values to 0
-    mean_diff[np.where(mean_diff<0)] = 0
-    
-    #strech to 255
-    msde_image=cv2.normalize(mean_diff, mean_diff,alpha=0,beta=255,norm_type=cv2.NORM_MINMAX)
-    
-    return [current,msde_image]
-
 def creation_date(path_to_file):
     """
     Try to get the date that a file was created, falling back to when it was
@@ -53,8 +29,8 @@ def creation_date(path_to_file):
             return stat.st_mtime
 
 csvs = []
-for root, dirnames, filenames in os.walk("C:/Users/Ben/Dropbox/HummingbirdProject/"):
-    for filename in fnmatch.filter(filenames, '*frames.csv'):
+for root, dirnames, filenames in os.walk("/Users/ben/Dropbox/HummingbirdProject/"):
+    for filename in fnmatch.filter(filenames, '*Frames.csv'):
         csvs.append(os.path.join(root, filename))
 
 def mult(p,x):
@@ -74,7 +50,7 @@ new_csvs=[]
 for csvfile in csvs:
     #convert time
     filedate=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(creation_date(csvfile)))
-    if filedate > '2017-07-30 00:00:00':
+    if filedate > '2017-08-17 00:00:00':
         new_csvs.append(csvfile)
 
 print(len(new_csvs))
@@ -173,5 +149,5 @@ for f in new_csvs:
             #k=cv2.waitKey(0)
             
             #Save image for scoring
-            cv2.imwrite("G:/Crops/"+str(crop_counter) + ".jpg",resized_image) 
+            cv2.imwrite("/Users/Ben/Dropbox/GoogleCloud/TestCrops/"+str(crop_counter) + ".jpg",resized_image) 
             crop_counter+=1

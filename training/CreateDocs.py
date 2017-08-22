@@ -29,17 +29,17 @@ except:
 
 def process_args():
     parser = argparse.ArgumentParser(description='Runs Flowers Sample E2E pipeline.')
-    parser.add_argument('--positives', help='Google cloud storage path for positive samples.',default="gs://api-project-773889352370-ml/Hummingbirds/Positives/")
-    parser.add_argument('--negatives', help='Google cloud storage path for negatives samples.',default="gs://api-project-773889352370-ml/Hummingbirds/Negatives/")
-    parser.add_argument('--prop', help='Proportion of training data',default=0.85,type=float)
-    parser.add_argument('--prop_out', help='Proportion of testing data to hold out of sample',default=0.1,type=float)    
+    parser.add_argument('--train_positives', help='Google cloud storage path for positive samples.',default="gs://api-project-773889352370-ml/Hummingbirds/Training/Positives/")
+    parser.add_argument('--train_negatives', help='Google cloud storage path for negatives samples.',default="gs://api-project-773889352370-ml/Hummingbirds/Training/Negatives/")
+    parser.add_argument('--test_positives', help='Google cloud storage path for positive samples.',default="gs://api-project-773889352370-ml/Hummingbirds/Testing/Positives/")
+    parser.add_argument('--test_negatives', help='Google cloud storage path for negatives samples.',default="gs://api-project-773889352370-ml/Hummingbirds/Testing/Negatives/")
     parser.add_argument('--debug', help='Debug dataset, only write a small portion to reduce run time',action="store_true")    
     
     args, _ = parser.parse_known_args()
     return args    
 
 class Organizer:
-    def __init__(self,positives,negatives,debug):
+    def __init__(self,train_positives,train_negatives,test_positives,test_negatives,debug):
         
         #set testing switch
         self.debug=debug
@@ -54,9 +54,10 @@ class Organizer:
         #open bucket
         self.bucket = storage_client.get_bucket(bucket_name)
         
+        ##TRAINING
         #positives
-        positives_folder_name=positives.split("/")[3:]
-        iterator=self.bucket.list_blobs(prefix="/".join(positives_folder_name))        
+        train_positives_folder_name=train_positives.split("/")[3:]
+        iterator=self.bucket.list_blobs(prefix="/".join(train_positives_folder_name))        
         
         self.positives_files=[]        
         for page in iterator.pages:
@@ -68,13 +69,13 @@ class Organizer:
             for f in page:
                 self.positives_files.append("gs://" + f.bucket.name + "/" + f.name)
             
-        print( "Found %d results" %(len( self.positives_files)))  
+        print( "Found %d results" %(len( self.train_positives_files)))  
         
         #negatives
-        negatives_folder_name=negatives.split("/")[3:]
-        iterator=self.bucket.list_blobs(prefix="/".join(negatives_folder_name))        
+        train_negatives_folder_name=train_negatives.split("/")[3:]
+        iterator=self.bucket.list_blobs(prefix="/".join(train_negatives_folder_name))        
         
-        self.negatives_files=[]        
+        self.train_negatives_files=[]        
         for page in iterator.pages:
             print('    Page number: %d' % (iterator.page_number,))
             print('  Items in page: %d' % (page.num_items,))
@@ -82,40 +83,43 @@ class Organizer:
             print('Items remaining: %d' % (page.remaining,))
             print('Next page token: %s' % (iterator.next_page_token,))        
             for f in page:
-                self.negatives_files.append("gs://" + f.bucket.name + "/" + f.name)
+                self.train_negatives_files.append("gs://" + f.bucket.name + "/" + f.name)
             
-        print( "Found %d results" % (len( self.negatives_files)))  
+        print( "Found %d results" % (len( self.train_negatives_files)))          
         
-    def divide_data(self,prop,prop_out):
+    ##Testing - comes from a different bucket
+    #positives
+    test_positives_folder_name=test_positives.split("/")[3:]
+    iterator=self.bucket.list_blobs(prefix="/".join(test_positives_folder_name))        
+    
+    self.positives_files=[]        
+    for page in iterator.pages:
+        print('    Page number: %d' % (iterator.page_number,))
+        print('  Items in page: %d' % (page.num_items,))
+        print('     First item: %r' % (next(page),))
+        print('Items remaining: %d' % (page.remaining,))
+        print('Next page token: %s' % (iterator.next_page_token,))        
+        for f in page:
+            self.test_positives_files.append("gs://" + f.bucket.name + "/" + f.name)
         
-        #Shuffle positive datasets and divide
-        positives_random=self.positives_files
-        random.shuffle(positives_random)
+    print( "Found %d results" %(len( self.test_positives_files)))  
+    
+    #negatives
+    test_negatives_folder_name=test_negatives.split("/")[3:]
+    iterator=self.bucket.list_blobs(prefix="/".join(test_negatives_folder_name))        
+    
+    self.negatives_files=[]        
+    for page in iterator.pages:
+        print('    Page number: %d' % (iterator.page_number,))
+        print('  Items in page: %d' % (page.num_items,))
+        print('     First item: %r' % (next(page),))
+        print('Items remaining: %d' % (page.remaining,))
+        print('Next page token: %s' % (iterator.next_page_token,))        
+        for f in page:
+            self.test_negatives_files.append("gs://" + f.bucket.name + "/" + f.name)
         
-        self.positives_training=positives_random[:int(len(positives_random)*prop)]
-        self.positives_testing=positives_random[int(len(positives_random)*prop):]
-
-        #Shuffle negatives datasets and divide
-        negatives_random=self.negatives_files
-        random.shuffle(negatives_random)
-        
-        self.negatives_training=negatives_random[:int(len(negatives_random)*prop)]
-        self.negatives_testing=negatives_random[int(len(negatives_random)*prop):]
-        
-        #split testing data into in sample and out of sample
-        self.negatives_holdout=self.negatives_testing[:int(len(self.negatives_testing)*prop_out)]
-        self.positives_holdout=self.positives_testing[:int(len(self.positives_testing)*prop_out)]
-
-        self.negatives_testing=self.negatives_testing[int(len(self.negatives_testing)*prop_out):]
-        self.positives_testing=self.positives_testing[int(len(self.positives_testing)*prop_out):]
-                
-        #debug model, only write a tiny dataset
-        if self.debug:
-            self.positives_training=self.positives_training[0:50]
-            self.positives_testing=self.positives_testing[0:10]
-            self.negatives_training=self.negatives_training[0:50]
-            self.negatives_testing=self.negatives_training[0:10]
-            
+    print( "Found %d results" % (len( self.test_negatives_files)))    
+    
     def write_data(self):
         
         ##Training
@@ -125,9 +129,9 @@ class Organizer:
         
         with open(fn,"wb") as f:
             writer=csv.writer(f)
-            for eachrow in  self.positives_training:
+            for eachrow in  self.train_positives_files:
                 writer.writerow([str(eachrow),"positive"])
-            for eachrow in  self.negatives_training:
+            for eachrow in  self.train_negatives_files:
                 writer.writerow([str(eachrow),"negative"])
         
         #write to google cloud
@@ -141,26 +145,14 @@ class Organizer:
         
         with open(fn,"wb") as f:
             writer=csv.writer(f)
-            for eachrow in  self.positives_testing:
+            for eachrow in  self.test_positives_files:
                 writer.writerow([str(eachrow),"positive"])
-            for eachrow in  self.negatives_testing:
+            for eachrow in  self.test_negatives_files:
                 writer.writerow([str(eachrow),"negative"])
         
         #write to google cloud
         blob=self.bucket.blob("Hummingbirds/testingdata.csv")
         blob.upload_from_filename(fn)    
-
-        ##Holdout
-        
-        #Write to temp then send to google cloud
-        handle, fn = tempfile.mkstemp(suffix='.csv')
-        
-        with open(fn,"wb") as f:
-            writer=csv.writer(f)
-            for eachrow in  self.positives_testing:
-                writer.writerow([str(eachrow),"positive"])
-            for eachrow in  self.negatives_testing:
-                writer.writerow([str(eachrow),"negative"])
         
         #write to google cloud
         blob=self.bucket.blob("Hummingbirds/holdoutdata.csv")
@@ -179,6 +171,7 @@ class Organizer:
         
 if __name__ == "__main__":
     args = process_args()
-    p=Organizer(positives=args.positives, negatives=args.negatives,debug=args.debug)
+    p=Organizer(train_positives=args.train_positives, train_negatives=args.train_negatives,test_positives=args.test_positives, 
+                test_negatives=args.test_negatives,debug=args.debug)
     p.divide_data(prop=args.prop,prop_out=args.prop_out)
     p.write_data()
