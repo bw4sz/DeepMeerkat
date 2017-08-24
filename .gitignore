@@ -2,3 +2,4 @@ variables/
 .Rproj.user
 model/*
 Frames/*
+training/DeepMeerkat/*

@@ -11,11 +11,16 @@ from google.cloud import storage
 ##The namespaces inside of clouddataflow workers is not inherited ,
 ##Please see https://cloud.google.com/dataflow/faq#how-do-i-handle-nameerrors, better to write ugly import statements then to miss a namespace
 
+def read_file(element):
+  with beam.io.gcp.gcsio.GcsIO().open(element, 'r') as f:
+    # process f content
+    pass  
+  
 class PredictDoFn(beam.DoFn):
   def __init__(self,argv):
     #capture any command line arguments passed to dataflow that belong to DeepMeerkat
     self.argv=argv
-    
+  
   def process(self,element):
 
     import csv
@@ -111,6 +116,7 @@ def run():
 
   vids = (p|'Read input' >> beam.io.ReadFromText(known_args.input)
        | 'Parse input' >> beam.Map(lambda line: csv.reader([line]).next())
+       #| ("Read file" >> beam.FlatMap(read_file))       
        | 'Run DeepMeerkat' >> beam.ParDo(PredictDoFn(pipeline_args)))
 
   logging.getLogger().setLevel(logging.INFO)
