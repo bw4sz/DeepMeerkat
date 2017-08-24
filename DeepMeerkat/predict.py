@@ -6,6 +6,7 @@ import numpy as np
 import argparse
 import cv2
 from collections import defaultdict
+import csv
 
 def TensorflowPredict(read_from,sess,image_array=None,imagedir=None,numpy_name="image",wait_time=10,label_lines=None):
     
@@ -61,7 +62,7 @@ if __name__ == "__main__":
     print("Loading tensorflow model. May take several minutes.")
     tf.saved_model.loader.load(sess,[tf.saved_model.tag_constants.SERVING], "/Users/ben/Dropbox/GoogleCloud/DeepMeerkat_20170824_115048/model/")    
     print("Model loaded")
-    photos_run=glob.glob("/Users/Ben/Dropbox/GoogleCloud/Testing/Negatives/*.jpg")
+    photos_run=glob.glob("/Users/Ben/Dropbox/GoogleCloud/Training/Negatives/*.jpg")
     #photos_run=glob.glob("G:/Crops/*.jpg")
     counter=0
     false_positives=[]
@@ -84,12 +85,12 @@ if __name__ == "__main__":
             counter+=1                     
                 
     print("False Positive Rate: " + str(float(counter)/len(photos_run)))
-    with open("FalsePositives.csv") as f:
+    with open("../training/FalsePositives.csv","w") as f:
         writer=csv.writer(f)
         for x in false_positives:
-            writer.writerows(x)
+            writer.writerow([x,label,score])
             
-    photos_run=glob.glob("/Users/Ben/Dropbox/GoogleCloud/Testing/Positives/*.jpg")
+    photos_run=glob.glob("/Users/Ben/Dropbox/GoogleCloud/Training/Positives/*.jpg")
     #photos_run=glob.glob("G:/Crops/*.jpg")
     counter=0
     false_negatives=[]
@@ -98,7 +99,7 @@ if __name__ == "__main__":
         pred=TensorflowPredict(read_from="numpy",sess=sess,image_array=[image],label_lines=["Positive","Negative"])
         label,score=pred["image"][0]
         if label == "Negative":
-            false_negatives.append(x)
+            false_negatives.append([x,label,score])
             if score > 0.9:
                 font = cv2.FONT_HERSHEY_COMPLEX         
                 cv2.putText(image,str(pred["image"]),(10,20), font, 0.5,(255,255,255),1)            
@@ -107,9 +108,9 @@ if __name__ == "__main__":
                 counter+=1                
                 
     print("False Negative Rate: " + str(float(counter)/len(photos_run)))    
-    with open("FalseNegatives.csv") as f:
+    with open("../training/FalseNegatives.csv","w") as f:
         writer=csv.writer(f)
         for x in false_negatives:
-            writer.writerows(x)
+            writer.writerow([x])
         
     
