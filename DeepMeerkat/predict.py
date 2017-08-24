@@ -59,7 +59,7 @@ def TensorflowPredict(read_from,sess,image_array=None,imagedir=None,numpy_name="
 if __name__ == "__main__":
     sess=tf.Session()
     print("Loading tensorflow model. May take several minutes.")
-    tf.saved_model.loader.load(sess,[tf.saved_model.tag_constants.SERVING], "/Users/ben/Dropbox/GoogleCloud/DeepMeerkat_20170718_133541/model/")    
+    tf.saved_model.loader.load(sess,[tf.saved_model.tag_constants.SERVING], "/Users/ben/Dropbox/GoogleCloud/DeepMeerkat_20170801_172956/model/")    
     print("Model loaded")
     photos_run=glob.glob("/Users/Ben/Dropbox/GoogleCloud/Testing/Negatives/*.jpg")
     #photos_run=glob.glob("G:/Crops/*.jpg")
