@@ -10,6 +10,11 @@ import fnmatch
 import os
 import platform
 import datetime
+import argparse
+
+parser = argparse.ArgumentParser(description='Create bounding boxes for the machine learning model')
+parser.add_argument('--date', help='Date Since Last Run',default="2017-08-27")
+args, _ = parser.parse_known_args()
 
 def creation_date(path_to_file):
     """
@@ -29,7 +34,7 @@ def creation_date(path_to_file):
             return stat.st_mtime
 
 csvs = []
-for root, dirnames, filenames in os.walk("/Users/ben/Dropbox/HummingbirdProject/"):
+for root, dirnames, filenames in os.walk("/Users/ben/Dropbox/HummingbirdProject/Data"):
     for filename in fnmatch.filter(filenames, '*Frames.csv'):
         csvs.append(os.path.join(root, filename))
 
@@ -50,10 +55,11 @@ new_csvs=[]
 for csvfile in csvs:
     #convert time
     filedate=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(creation_date(csvfile)))
-    if filedate > '2017-08-22 00:00:00':
+    if filedate > args.date + '00:00:00':
         new_csvs.append(csvfile)
 
 print(len(new_csvs))
+print(new_csvs)
 
 for f in new_csvs:
     
@@ -103,14 +109,12 @@ for f in new_csvs:
     
     for row in frame_file:
         
-        print(frame_file.line_num)
         if frame_file.line_num in biggest:
     
             #read in image
             fname=os.path.split(f)[0] + "/" +row[1]+".jpg"
             img=cv2.imread(fname)
             if img is None:
-                print(fname + " does not exist")
                 continue
             
             #score if background or foreground?
@@ -121,7 +125,7 @@ for f in new_csvs:
             bbox=eval(row[2])
                         
             #expand box by multiplier m, limit to image edge
-            m=(math.sqrt(2)-1)/2
+            m=(math.sqrt(2)-1)
             
             #min height
             p1=mult(bbox[1][1],-m)

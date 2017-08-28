@@ -57,7 +57,7 @@ def check_bounds(img,axis,p):
         p=0
     return(p)
 
-def resize_box(img,bbox,m=math.sqrt(2)-1/2):
+def resize_box(img,bbox,m=math.sqrt(2)-1):
 
     #expand box by multiplier m, limit to image edge
 
@@ -363,7 +363,7 @@ class Video:
                     x2,y2,w2,h2 = cv2.boundingRect(contours[j])
                     rect = Rect(x2, y2, w2, h2)
                     distance = parent_bounding_box.rect.distance_to_rect(rect)
-                    if distance < 50:
+                    if distance < 75:
                         parent_bounding_box.update_rect(self.extend_rectangle(parent_bounding_box.rect, rect))
                         parent_bounding_box.members.append(j)
         return bounding_boxes
