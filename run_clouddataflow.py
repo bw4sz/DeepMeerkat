@@ -21,18 +21,17 @@ class PredictDoFn(beam.DoFn):
     from DeepMeerkat import DeepMeerkat
     from urlparse import urlparse
     import os
-    import google.auth
     import subprocess
     import logging
 
     DM=DeepMeerkat.DeepMeerkat()
 
+    #Download tensorflow model, if it does not exist
+    if not os.path.exists("/tmp/model/"):
+      cmd=["gsutil","cp","-r","gs://DeepMeerkat_20170828_135818/model/","/tmp/"]
     logging.info(os.getcwd())
     logging.info(element)
-
-    #set credentials, inherent from worker
-    credentials, project = google.auth.default()
-
+    
     #download element locally
     parsed = urlparse(element[0])
     logging.info(parsed)
@@ -40,18 +39,26 @@ class PredictDoFn(beam.DoFn):
     cmd=["gsutil","cp",element[0],"/tmp/"]
     subprocess.call(cmd)    
     
-    logging.info("Check local path exists: " + str(os.path.exists(local_path)))
-
+    #set local path
+    local_path="/tmp/"+parsed.path.split("/")[-1]
+    
+    print("Local path: " + str(local_path))
+    if os.path.exists(local_path):
+      logging.info("Check local path exists")
+    else:
+      raise("Local path does not exist")
+    
     #Assign input from DataFlow/manifest
     DM.process_args(video=local_path,argv=self.argv)
     DM.args.output="/tmp/Frames"
+    DM.path_to_model = "/tmp/model/"
 
     #Run DeepMeerkat
     DM.run()
     
     #Set output folder
     folder=os.path.splitext(parsed.path.split("/")[-1])[0]
-    output_path=parsed.scheme+"://"+parsed.netloc+"DeepMeerkat/"+ folder     
+    output_path=parsed.scheme+"://"+parsed.netloc+"/DeepMeerkat/"+ folder     
 
     cmd=["gsutil","cp","/tmp/Frames/*",output_path]
     subprocess.call(cmd)
@@ -77,19 +84,11 @@ def run():
   #expose args
   print("Known args: " + str(known_args))
   print("Pipe args: " + str(pipeline_args))
-  
-  #set credentials, inherent from worker
-  try:
-      credentials, project = google.auth.default()
-  except:
-      os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = known_args.authtoken
-      credentials, project = google.auth.default()
 
   p = beam.Pipeline(argv=pipeline_args)
 
   vids = (p|'Read input' >> beam.io.ReadFromText(known_args.input)
        | 'Parse input' >> beam.Map(lambda line: csv.reader([line]).next())
-       #| ("Read file" >> beam.FlatMap(read_file))       
        | 'Run DeepMeerkat' >> beam.ParDo(PredictDoFn(pipeline_args)))
 
   logging.getLogger().setLevel(logging.INFO)
