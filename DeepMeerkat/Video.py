@@ -227,7 +227,7 @@ class Video:
                         for index,clip in enumerate(clips):
                             cv2.imwrite(self.file_destination + "/"+str(self.frame_count)+ "_" + str(index) + "_clip.jpg",clip)                
                 self.tensorflow_label=predict.TensorflowPredict(sess=self.tensorflow_session,read_from="numpy",image_array=clips,numpy_name=self.frame_count,label_lines=["Positive","Negative"])
-                cv2.putText(self.original_image,str(self.tensorflow_label[self.frame_count]),(50,50),cv2.FONT_HERSHEY_SIMPLEX,2,(0,0,255),2)
+                cv2.putText(self.original_image,str(self.tensorflow_label[self.frame_count][0]),(10,10),cv2.FONT_HERSHEY_SIMPLEX,1,(0,0,255),2)
 
                 #next frame if negative label that has score greater than 0.9
                 for label,score in self.tensorflow_label[self.frame_count]:

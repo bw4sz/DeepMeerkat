@@ -8,14 +8,6 @@ import apache_beam as beam
 from urlparse import urlparse
 from google.cloud import storage
 
-##The namespaces inside of clouddataflow workers is not inherited ,
-##Please see https://cloud.google.com/dataflow/faq#how-do-i-handle-nameerrors, better to write ugly import statements then to miss a namespace
-
-def read_file(element,local_path):
-  with beam.io.gcp.gcsio.GcsIO().open(element, '') as f:
-    
-    # process f content
-    f.save(local_path)  
   
 class PredictDoFn(beam.DoFn):
   def __init__(self,argv):
@@ -23,7 +15,7 @@ class PredictDoFn(beam.DoFn):
     self.argv=argv
   
   def process(self,element):
-
+    ##The namespaces inside of clouddataflow workers is not inherited
     import csv
     from google.cloud import storage
     from DeepMeerkat import DeepMeerkat
@@ -37,7 +29,6 @@ class PredictDoFn(beam.DoFn):
     logging.info(os.getcwd())
     logging.info(element)
 
-    #try adding credentials?
     #set credentials, inherent from worker
     credentials, project = google.auth.default()
 
@@ -45,50 +36,28 @@ class PredictDoFn(beam.DoFn):
     parsed = urlparse(element[0])
     logging.info(parsed)
 
-    #parse gcp path
-    storage_client=storage.Client(credentials=credentials)
-    bucket = storage_client.get_bucket(parsed.hostname)
-    blob=storage.Blob(parsed.path[1:],bucket)
-
-    #store local path
-    local_path="/tmp/" + parsed.path.split("/")[-1]
-
-    read_file(element[0], local_path)
-    #logging.info('local path: ' + local_path)
-    #with open(local_path, 'wb') as file_obj:
-      #blob.download_to_file(file_obj)
-    
+    cmd=["gsutil","cp",element[0],"/tmp/"]
+    subprocess.call(cmd)    
     
     logging.info("Check local path exists: " + str(os.path.exists(local_path)))
 
     #Assign input from DataFlow/manifest
     DM.process_args(video=local_path,argv=self.argv)
-    DM.args.output="Frames"
+    DM.args.output="/tmp/Frames"
 
     #Run DeepMeerkat
     DM.run()
+    
+    #Set output folder
+    folder=os.path.splitext(parsed.path.split("/")[-1])[0]
+    output_path=parsed.scheme+"://"+parsed.netloc+"DeepMeerkat/"+ folder     
 
-    #upload back to GCS
-    found_frames=[]
-    for (root, dirs, files) in os.walk("Frames/"):
-      for files in files:
-        fileupper=files.upper()
-        if fileupper.endswith((".JPG")):
-          found_frames.append(os.path.join(root, files))
-
-    for frame in found_frames:
-
-      #create GCS path and strip exntension for the folder name
-      folder=os.path.splitext(parsed.path.split("/")[-1])[0]
-      path="DeepMeerkat/" + folder  + "/" + frame.split("/")[-1]
-      
-      #upload to gcs
-      blob=storage.Blob(path,bucket)
-      blob.upload_from_filename(frame)
-      
-      #delete frame
-      os.remove(frame)
-
+    cmd=["gsutil","cp","/tmp/Frames/*",output_path]
+    subprocess.call(cmd)
+    
+    #clean out /tmp
+    subprocess.call("rm -rf /tmp/Frames/*")
+    
 def run():
   import argparse
   import os

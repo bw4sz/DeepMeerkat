@@ -115,10 +115,9 @@ def interactive(path):
     for x in photos_run:
         image=cv2.imread(x)
         pred=TensorflowPredict(read_from="numpy",sess=sess,image_array=[image],label_lines=["Positive","Negative"])
-        cv2.putText(image,str(pred),(50,50),cv2.FONT_HERSHEY_SIMPLEX,2,(0,0,255),2)
+        cv2.putText(image,str(pred),(10,10),cv2.FONT_HERSHEY_SIMPLEX,0.75,(0,0,255),2)
         cv2.imshow("Annotation", image)
         cv2.waitKey(0)
-        
 
 if __name__ == "__main__":
     sess=tf.Session()
@@ -127,7 +126,7 @@ if __name__ == "__main__":
     print("Model loaded")
     
     #Interactive
-    interactive("/Users/ben/DeepMeerkat/FFH110_02/*_clip")
+    interactive("/Users/ben/DeepMeerkat/FFH110_02/*_clip.jpg")
     
     #Training
     #check_negatives(path="/Users/Ben/Dropbox/GoogleCloud/Training/Negatives/*.jpg", output="../training/Training_Negatives.csv")
@@ -136,30 +135,3 @@ if __name__ == "__main__":
     #Testing
     #check_negatives(path="/Users/Ben/Dropbox/GoogleCloud/Testing/Negatives/*.jpg", output="../training/Testing_Negatives.csv")
     #check_positives(path="/Users/Ben/Dropbox/GoogleCloud/Testing/Positives/*.jpg", output="../training/Testing_Positives.csv")
-    
-    
-    
-            
-    photos_run=glob.glob("/Users/Ben/Dropbox/GoogleCloud/Testing/Positives/*.jpg")
-    counter=0
-    positives=[]
-    for x in photos_run:
-        image=cv2.imread(x)
-        pred=TensorflowPredict(read_from="numpy",sess=sess,image_array=[image],label_lines=["Positive","Negative"])
-        label,score=pred["image"][0]
-        if label == "Negative":
-            if score > 0.9:
-                font = cv2.FONT_HERSHEY_COMPLEX         
-                cv2.putText(image,str(pred["image"]),(10,20), font, 0.5,(255,255,255),1)            
-                cv2.imshow("Annotation", image)
-                cv2.waitKey(1)            
-                counter+=1                
-        positives.append([x,label,score])
-        
-    print("False Negative Rate: " + str(float(counter)/len(photos_run)))    
-    with open("../training/Testing_Positives.csv","w") as f:
-        writer=csv.writer(f)
-        for x in positives:
-            writer.writerow(x)
-        
-    
