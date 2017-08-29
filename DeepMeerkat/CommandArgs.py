@@ -3,7 +3,6 @@ import logging
 
 def CommandArgs(argv=None):
     parser = argparse.ArgumentParser()
-    parser.add_argument("--training", help="generate test clips",action="store_true")
     parser.add_argument("--input", help="path of single video",type=str,default='Hummingbird.avi')
     parser.add_argument("--output", help="output directory",default="/Users/Ben/DeepMeerkat")
     parser.add_argument("--draw_size", help="'Draw' or 'enter' object size",type=str,default='enter')
@@ -17,6 +16,7 @@ def CommandArgs(argv=None):
     parser.add_argument("--crop", help="Set region of interest?",action='store_true')
     parser.add_argument("--draw_box", help="Draw boxes to highlight motion'?",action="store_true")
     parser.add_argument("--show", help="Show frames as you process",action='store_true')
+    parser.add_argument("--threaded", help="Run two instances simultaneously on different cores",action='store_true')    
     parser.add_argument("--tensorflow", help="Process model with a tensorflow image trained on google cloud machine learning engine",action='store_false')
     parser.add_argument("--path_to_model", help="Path to model/ directory",default="/Users/ben/Dropbox/GoogleCloud/DeepMeerkat_20170828_135818/model/")
     

@@ -214,7 +214,7 @@ class Video:
                 continue
 
             if self.args.tensorflow:
-                clips=[]
+                labels=[]
                 for bounding_box in remaining_bounding_box:
                     x1=int(bounding_box.x * (float(self.width)/self.new_w))
                     y1=int(bounding_box.y * (float(self.height)/self.new_h))
@@ -222,20 +222,27 @@ class Video:
                     h1=int(bounding_box.h * (float(self.height)/self.new_h))
 
                     newbox=self.BoundingBox(Rect(x1, y1, w1, h1))
-                    clips.append(resize_box(self.original_image,newbox))
-                    if self.args.training:
-                        for index,clip in enumerate(clips):
-                            cv2.imwrite(self.file_destination + "/training_clips/"+str(self.frame_count)+ "_" + str(index) + ".jpg",clip)                
-                self.tensorflow_label=predict.TensorflowPredict(sess=self.tensorflow_session,read_from="numpy",image_array=clips,numpy_name=self.frame_count,label_lines=["Positive","Negative"])
-                cv2.putText(self.original_image,str(self.tensorflow_label[self.frame_count]),(30,30),cv2.FONT_HERSHEY_SIMPLEX,0.75,(0,0,255),1)
-
+                    clip=resize_box(self.original_image,newbox)
+                    
+                    #Tensorflow prediction
+                    pred=predict.TensorflowPredict(sess=self.tensorflow_session,read_from="numpy",image_array=[clip],numpy_name=self.frame_count,label_lines=["Positive","Negative"])
+                    
+                    #Assign output
+                    bounding_box.label=pred
+                    labels.append(pred)                    
+                    
+                for index,label in enumerate(labels):
+                    cv2.putText(self.original_image,str(label),(30+10*index,30),cv2.FONT_HERSHEY_SIMPLEX,0.75,(0,0,255),1)
+                    
+                    
                 #next frame if negative label that has score greater than 0.9
-                for label,score in self.tensorflow_label[self.frame_count]:
-                    if label == 'Positive':
-                        WritePadding=True
-                    else:
-                        if score < 0.9:
+                for box in labels:
+                    for label,score in box:
+                        if label == 'Positive':
                             WritePadding=True
+                        else:
+                            if score < 0.9:
+                                WritePadding=True
                             
             self.annotations[self.frame_count] = remaining_bounding_box
 
@@ -381,6 +388,7 @@ class Video:
             self.w = rect.width
             self.h = rect.height
             self.time=None
+            self.label=None
 
         def __init__(self, rect):
             self.update_rect(rect)
@@ -438,11 +446,11 @@ class Video:
         if sys.version_info >= (3, 0):
             with open(self.output_annotations, 'w',newline="") as f:
                 writer = csv.writer(f,)
-                writer.writerow(["Frame","x","y","h","w"])
+                writer.writerow(["Frame","x","y","h","w","label"])
                 for x in self.annotations.keys():
                     bboxes=self.annotations[x]
                     for bbox in bboxes:
-                        writer.writerow([x,bbox.x,bbox.y,bbox.h,bbox.w])
+                        writer.writerow([x,bbox.x,bbox.y,bbox.h,bbox.w,bbox.label])
         else:
             with open(self.output_annotations, 'wb') as f:
 
@@ -452,37 +460,6 @@ class Video:
                     bboxes=self.annotations[x]
                     for bbox in bboxes:
                         writer.writerow([x,bbox.x,bbox.y,bbox.h,bbox.w])
-
-    def MSDE(self,bounding_box):
-
-        #resize box, pass the new frame
-        x1=int(bounding_box.x * (float(self.width)/self.new_w))
-        y1=int(bounding_box.y * (float(self.height)/self.new_h))
-        w1=int(bounding_box.w * (float(self.width)/self.new_w))
-        h1=int(bounding_box.h * (float(self.height)/self.new_h))
-
-        newbox=self.BoundingBox(Rect(x1, y1, w1, h1))
-        current=resize_box(self.original_image,newbox)
-        background=resize_box(self.bg_image,newbox)
-
-        #convert to luminance
-        current_gray=cv2.cvtColor(current, cv2.COLOR_BGR2GRAY)
-        background_grey=cv2.cvtColor(background, cv2.COLOR_BGR2GRAY)
-
-        #absolute diff
-        current_diff=cv2.absdiff(current_gray,background_grey)
-
-        #substract mean
-        mean,_ = cv2.meanStdDev(current_diff)
-        mean_diff=current_diff - mean
-
-        #set all negative values to 0
-        mean_diff[np.where(mean_diff<0)] = 0
-
-        #strech to 255
-        msde_image=cv2.normalize(mean_diff, mean_diff,alpha=0,beta=255,norm_type=cv2.NORM_MINMAX)
-
-        return [current,msde_image]
 
     def adapt(self):
 

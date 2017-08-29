@@ -33,7 +33,7 @@ class DeepMeerkat:
         if len(self.queue)==0:
             raise ValueError("No videos in the supplied folder. If videos exist, ensure that they can be read by standard video CODEC libraries.")
 
-    def run(self):
+    def run(self,vid):
 
         #hold on to original mog variance
         mogvariance=self.args.mogvariance
@@ -54,18 +54,27 @@ class DeepMeerkat:
             sess=None
 
         #run each video, use created tensorflow instance.
-        for vid in self.queue:
-            print("Processing: " + str(vid))
-            if not os.path.exists(vid):
-                raise "Video does not exist at specified path"
-            video_instance=Video.Video(vid,self.args,tensorflow_session=sess)
-            video_instance.analyze()
-            video_instance.write()
+        print("Processing: " + str(vid))
+        if not os.path.exists(vid):
+            raise "Video does not exist at specified path"
+        video_instance=Video.Video(vid,self.args,tensorflow_session=sess)
+        video_instance.analyze()
+        video_instance.write()
 
-            #reset mog variance if adapting during run.
-            self.args.mogvariance=mogvariance
+        #reset mog variance if adapting during run.
+        self.args.mogvariance=mogvariance
 
 if __name__ == "__main__":
     DM=DeepMeerkat()
     DM.process_args()
-    DM.run()
+    if DM.args.threaded:
+        from multiprocessing import Pool
+        from multiprocessing.dummy import Pool as ThreadPool 
+        pool = ThreadPool(2)         
+        results = pool.map(DM.run,DM.queue)
+        pool.close()
+        pool.join()
+
+    else:
+        for vid in DM.queue:
+            DM.run(vid=vid)

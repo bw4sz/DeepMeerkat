@@ -13,9 +13,6 @@ def TensorflowPredict(read_from,sess,image_array=None,imagedir=None,numpy_name="
     #frames to be analyzed
     tfimages=[]     
     
-    #names for those frames
-    image_name=[]
-    
     # Read in the image_data
     if read_from=="file":
         if os.path.isdir(imagedir):
@@ -23,26 +20,21 @@ def TensorflowPredict(read_from,sess,image_array=None,imagedir=None,numpy_name="
             for x in find_photos:
                 image_data = tf.gfile.FastGFile(x, 'rb').read()    
                 tfimages.append(image_data)
-                image_name.append(x)
         else:
             image_data = tf.gfile.FastGFile(imagedir, 'rb').read()                    
             tfimages.append(image_data)
-            image_name.append(imagedir)
             
     if read_from=="numpy":
         for x in image_array:
             bimage=cv2.imencode(".jpg", x)[1].tostring()
             tfimages.append(bimage)
-            
-            #set imagedir for dict recall
-            image_name.append(numpy_name)
     
     # Feed the image_data as input to the graph and get first prediction
     softmax_tensor = sess.graph.get_tensor_by_name('final_ops/softmax:0')
     predictions = sess.run(softmax_tensor, {'Placeholder:0': tfimages})
     
     #output results
-    results_frame=defaultdict(list)
+    results_frame=[ ]
     
     for x in range(0,len(predictions)):
         # Sort to show labels of first prediction in order of confidence
@@ -53,7 +45,7 @@ def TensorflowPredict(read_from,sess,image_array=None,imagedir=None,numpy_name="
             score = predictions[x][node_id]
             #print('%s (score = %.3f)' % (human_string, score))
         #return best label and score
-        results_frame[image_name[x]].append([label_lines[top_k[0]],predictions[x][top_k[0]]])
+        results_frame.append([label_lines[top_k[0]],predictions[x][top_k[0]]])
             
     return(results_frame)
 
@@ -69,7 +61,7 @@ def check_positives(path,output):
         if label == "Negative":
             if score > 0.9:
                 font = cv2.FONT_HERSHEY_COMPLEX         
-                cv2.putText(image,str(pred["image"]),(10,20), font, 0.5,(255,255,255),1)            
+                cv2.putText(image,str(pred),(10,20), font, 0.5,(255,255,255),1)            
                 cv2.imshow("Annotation", image)
                 cv2.waitKey(1)            
                 counter+=1                
@@ -89,17 +81,17 @@ def check_negatives(path,output):
     for x in photos_run:
         image=cv2.imread(x)
         pred=TensorflowPredict(read_from="numpy",sess=sess,image_array=[image],label_lines=["Positive","Negative"])
-        label,score=pred["image"][0]
+        label,score=pred
         negatives.append([x,label,score])        
         if label == "Positive":
             font = cv2.FONT_HERSHEY_COMPLEX         
-            cv2.putText(image,str(pred["image"]),(10,20), font, 0.5,(255,255,255),1)            
+            cv2.putText(image,str(pred),(10,20), font, 0.5,(255,255,255),1)            
             cv2.imshow("Annotation", image)
             cv2.waitKey(1)            
             counter+=1
         elif score < 0.9:
             font = cv2.FONT_HERSHEY_COMPLEX         
-            cv2.putText(image,str(pred["image"]),(10,20), font, 0.5,(255,255,255),1)            
+            cv2.putText(image,str(pred),(10,20), font, 0.5,(255,255,255),1)            
             cv2.imshow("Annotation", image)
             cv2.waitKey(1)
             counter+=1                     
@@ -115,7 +107,7 @@ def interactive(path):
     for x in photos_run:
         image=cv2.imread(x)
         pred=TensorflowPredict(read_from="numpy",sess=sess,image_array=[image],label_lines=["Positive","Negative"])
-        cv2.putText(image,str(pred),(10,10),cv2.FONT_HERSHEY_SIMPLEX,0.75,(0,0,255),2)
+        cv2.putText(image,str(pred),(10,20),cv2.FONT_HERSHEY_SIMPLEX,0.75,(0,0,255),2)
         cv2.imshow("Annotation", image)
         cv2.waitKey(0)
 
