@@ -43,7 +43,7 @@ class PredictDoFn(beam.DoFn):
     
     print("Local path: " + str(local_path))
     if os.path.exists(local_path):
-      logging.info("Check local path exists")
+      logging.info("Local path exists")
     else:
       raise("Local path does not exist")
     
