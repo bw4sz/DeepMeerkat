@@ -6,8 +6,6 @@ import os
 import csv
 import apache_beam as beam
 from urlparse import urlparse
-from google.cloud import storage
-
   
 class PredictDoFn(beam.DoFn):
   def __init__(self,argv):
@@ -17,7 +15,6 @@ class PredictDoFn(beam.DoFn):
   def process(self,element):
     ##The namespaces inside of clouddataflow workers is not inherited
     import csv
-    from google.cloud import storage
     from DeepMeerkat import DeepMeerkat
     from urlparse import urlparse
     import os
@@ -28,7 +25,9 @@ class PredictDoFn(beam.DoFn):
 
     #Download tensorflow model, if it does not exist
     if not os.path.exists("/tmp/model/"):
-      cmd=["gsutil","cp","-r","gs://DeepMeerkat_20170828_135818/model/","/tmp/"]
+      cmd=["gsutil","cp","-r","gs://api-project-773889352370-ml/DeepMeerkat/DeepMeerkat_20170828_135818/model/","/tmp/"]
+      subprocess.call(cmd)
+      
     logging.info(os.getcwd())
     logging.info(element)
     
@@ -51,20 +50,20 @@ class PredictDoFn(beam.DoFn):
     #Assign input from DataFlow/manifest
     DM.process_args(video=local_path,argv=self.argv)
     DM.args.output="/tmp/Frames"
-    DM.path_to_model = "/tmp/model/"
+    DM.args.path_to_model = "/tmp/model/"
 
     #Run DeepMeerkat
     DM.run()
     
     #Set output folder
     folder=os.path.splitext(parsed.path.split("/")[-1])[0]
-    output_path=parsed.scheme+"://"+parsed.netloc+"/DeepMeerkat/"+ folder     
+    output_path=parsed.scheme+"://"+parsed.netloc+"/DeepMeerkat/"     
 
-    cmd=["gsutil","cp","/tmp/Frames/*",output_path]
+    cmd=["gsutil","-m","cp","-r","/tmp/Frames/*",output_path]
     subprocess.call(cmd)
     
     #clean out /tmp
-    subprocess.call("rm -rf /tmp/Frames/*")
+    subprocess.call(["rm","-rf","/tmp/Frames/*"])
     
 def run():
   import argparse
@@ -72,7 +71,6 @@ def run():
   import apache_beam as beam
   import csv
   import logging
-  import google.auth
 
   parser = argparse.ArgumentParser()
   parser.add_argument('--input', dest='input', default="gs://api-project-773889352370-testing/DataFlow/manifest.csv",
