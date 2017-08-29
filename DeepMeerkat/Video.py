@@ -396,7 +396,7 @@ class Video:
                 writer.writerows(self.args.__dict__.items())
 
                 #Total time
-                self.total_min=round((self.end_time-self.start_time)/60,3)
+                self.total_min=(self.end_time-self.start_time)/60.0
                 writer.writerow(["Minutes",self.total_min])
 
                 #Frames in file
