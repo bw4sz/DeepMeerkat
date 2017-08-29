@@ -22,6 +22,7 @@ class PredictDoFn(beam.DoFn):
     from urlparse import urlparse
     import os
     import google.auth
+    import subprocess
     import logging
 
     DM=DeepMeerkat.DeepMeerkat()
