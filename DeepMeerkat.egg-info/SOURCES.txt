@@ -18,6 +18,7 @@ training/GenerateAnnotate.py
 training/GenerateBoxes.py
 training/MSDE_annotations.py
 training/ParsePredictions.py
+training/View.py
 training/__init__.py
 training/images_to_json.py
 training/pipeline.py
