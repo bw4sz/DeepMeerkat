@@ -14,4 +14,4 @@ python run_clouddataflow.py \
     --temp_location $BUCKET/temp \
     --job_name $PROJECT-deepmeerkat \
     --setup_file ./setup.py \
-    --training
+    --draw_box

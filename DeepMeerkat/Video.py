@@ -160,20 +160,12 @@ class Video:
 
             #skip the first frame after adding it to the background.
             if self.IS_FIRST_FRAME:
-
-                #minimum box size and aspect ratio
+                print("Skipping first frame")
+                self.IS_FIRST_FRAME=False
                 self.width = np.size(self.read_image, 1)
                 self.height = np.size(self.read_image, 0)
                 self.image_area = self.width * self.height
-                self.aspect_ratio=self.width/self.height
-
-                #optional resize
-                target_area=(self.image_area/self.args.resize)
-                self.new_h=math.sqrt(target_area/self.aspect_ratio)
-                self.new_w=self.new_h * self.aspect_ratio
-
-                print("Skipping first frame")
-                self.IS_FIRST_FRAME=False
+                
                 continue
 
             #adapt settings of mogvariance to keep from running away
@@ -216,25 +208,18 @@ class Video:
             if self.args.tensorflow:
                 labels=[]
                 for bounding_box in remaining_bounding_box:
-                    x1=int(bounding_box.x * (float(self.width)/self.new_w))
-                    y1=int(bounding_box.y * (float(self.height)/self.new_h))
-                    w1=int(bounding_box.w * (float(self.width)/self.new_w))
-                    h1=int(bounding_box.h * (float(self.height)/self.new_h))
-
-                    newbox=self.BoundingBox(Rect(x1, y1, w1, h1))
-                    clip=resize_box(self.original_image,newbox)
+                    clip=resize_box(self.original_image,bounding_box)
                     
                     #Tensorflow prediction
-
                     pred=predict.TensorflowPredict(sess=self.tensorflow_session,read_from="numpy",image_array=[clip],label_lines=["Positive","Negative"])                    
+                    
                     #Assign output
                     bounding_box.label=pred
                     labels.append(pred)                    
                     
                 for index,label in enumerate(labels):
                     cv2.putText(self.original_image,str(label),(30+10*index,30),cv2.FONT_HERSHEY_SIMPLEX,0.75,(0,0,255),1)
-                    
-                    
+                                 
                 #next frame if negative label that has score greater than 0.9
                 for box in labels:
                     for label,score in box:
@@ -247,14 +232,8 @@ class Video:
 
             if self.args.draw_box:
                 for bounding_box in remaining_bounding_box:
-
-                    boxx=int(bounding_box.x * (float(self.width)/self.new_w))
-                    boxy=int(bounding_box.y * (float(self.height)/self.new_h))
-                    boxw=int(bounding_box.w * (float(self.width)/self.new_w))
-                    boxh=int(bounding_box.h * (float(self.height)/self.new_h))
-
-                    cv2.rectangle(self.original_image, (boxx, boxy),
-                                  (boxx+boxw, boxy+boxh), (0,0,255), 2)
+                    cv2.rectangle(self.original_image, (bounding_box.x, bounding_box.y),
+                                  (bounding_box.x+bounding_box.w, bounding_box.y+bounding_box.h), (0,0,255), 2)
             if self.args.show:
                 cv2.imshow("Motion_Event", self.original_image)
                 cv2.waitKey(0)
@@ -282,10 +261,7 @@ class Video:
             image=self.original_image[self.roi[1]:self.roi[3], self.roi[0]:self.roi[2]]
         else:
             image=self.original_image
-
-        #Optional resize input image
-        if not self.args.resize ==1:
-            image=cv2.resize(image,(int(self.new_w),int(self.new_h)))
+            
         return((ret,image))
 
     def create_background(self):
