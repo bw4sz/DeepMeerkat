@@ -16,6 +16,14 @@ parser = argparse.ArgumentParser(description='Create bounding boxes for the mach
 parser.add_argument('--date', help='Date Since Last Run',default="2017-08-27")
 args, _ = parser.parse_known_args()
 
+class BoundingBox:
+    def __init__(self,x,y,h,w,label):
+        self.x = x
+        self.y = y
+        self.w = w
+        self.h = h
+        self.label=label
+        
 def creation_date(path_to_file):
     """
     Try to get the date that a file was created, falling back to when it was
@@ -37,16 +45,6 @@ csvs = []
 for root, dirnames, filenames in os.walk("/Users/ben/DeepMeerkat/"):
     for filename in fnmatch.filter(filenames, 'annotations.csv'):
         csvs.append(os.path.join(root, filename))
-
-def mult(p,x):
-    return(int(p+p*x))
-
-def check_bounds(img,axis,p):
-    if p > img.shape[axis]:
-        p=img.shape[axis]
-    if p < 0:
-        p=0
-    return(p)
 
 crop_counter=0
         
@@ -70,88 +68,25 @@ for f in new_csvs:
     #skip header
     next(frame_file,None)
     
-    ##get the largest box for each image
-    image_areas=defaultdict(list)
-    
     for row in frame_file:
-        if isinstance(eval(row[2]),float):
-            continue
-        bbox=eval(row[2])
-        area=(bbox[0][1]-bbox[1][1])*(bbox[1][0]-bbox[0][0])
-        image_areas[row[1]].append([frame_file.line_num,area])
-    
-    #get top 2 boxes 
-    biggest=[]
-    for key, value in image_areas.items():
-        if len(value)==0:
+            
+        #read in image
+        fname=os.path.split(f)[0] + "/" +row[0]+".jpg"
+        img=cv2.imread(fname)
+        if img is None:
             continue
         
-        #get areas
-        a=[x[1] for x in value]
-        if len(a) > 1:
-            #find indices
-            top2=np.argpartition(a,-2)[-2:]
-            for ind in top2:
-                biggest.append(value[ind][0])
+        box=BoundingBox(x=int(row[1]),y=int(row[2]),h=int(row[3]),w=int(row[4]),label=eval(row[5]))
+        cropped_image=img[box.y:box.y+box.h,box.x:box.x+box.w]
+                                
+        #Save image for scoring
+        frame_number=os.path.splitext(fname)[0].split("/")[-1]
+        
+        #video
+        video_name=f.split("/")[-2]
+        
+        if box.label[0][0] == "Positive":
+            cv2.imwrite("/Users/Ben/Dropbox/GoogleCloud/TestCrops/Positives/"+ video_name+  "_" + frame_number + "_" + str(crop_counter) + ".jpg",cropped_image) 
         else:
-            biggest.append(value[0][0])
-
-    frames.close()
-
-    second_file=open(f)
-    frame_file=csv.reader(second_file)
-
-    #skip header
-    next(frame_file,None)
-    
-    #just proccess those line numbers
-    #start at first data row
-    
-    for row in frame_file:
-        
-        if frame_file.line_num in biggest:
-    
-            #read in image
-            fname=os.path.split(f)[0] + "/" +row[1]+".jpg"
-            img=cv2.imread(fname)
-            if img is None:
-                continue
-            
-            #score if background or foreground?
-            
-            #for image get the largest box
-            
-            #get bounding coordinates
-            bbox=eval(row[2])
-                        
-            #expand box by multiplier m, limit to image edge
-            m=(math.sqrt(2)-1)
-            
-            #min height
-            p1=mult(bbox[1][1],-m)
-            p1=check_bounds(img, 0, p1)
-            
-            #max height
-            p2=mult(bbox[0][1],m)            
-            p2=check_bounds(img, 0, p2)            
-    
-            #min width
-            p3=mult(bbox[0][0],-m)            
-            p3=check_bounds(img, 1, p3)            
-            
-            #max width
-            p4=mult(bbox[1][0],m)                        
-            p4=check_bounds(img, 1, p4)            
-        
-            #create a mask, in case its bigger than image            
-            current_image=img[p1:p2,p3:p4]
-    
-            #4. Resize Image
-            resized_image = cv2.resize(current_image, (299, 299))             
-            #cv2.namedWindow("img")
-            #cv2.imshow("img", resized_image)
-            #k=cv2.waitKey(0)
-            
-            #Save image for scoring
-            cv2.imwrite("/Users/Ben/Dropbox/GoogleCloud/TestCrops/"+str(crop_counter) + ".jpg",resized_image) 
-            crop_counter+=1
+            cv2.imwrite("/Users/Ben/Dropbox/GoogleCloud/TestCrops/Negatives/"+ video_name+  "_" + frame_number + "_" + str(crop_counter) + ".jpg",cropped_image) 
+        crop_counter+=1

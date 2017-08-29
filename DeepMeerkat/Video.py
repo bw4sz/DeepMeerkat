@@ -337,7 +337,7 @@ class Video:
                     x2,y2,w2,h2 = cv2.boundingRect(contours[j])
                     rect = Rect(x2, y2, w2, h2)
                     distance = parent_bounding_box.rect.distance_to_rect(rect)
-                    if distance < 75:
+                    if distance < 50:
                         parent_bounding_box.update_rect(self.extend_rectangle(parent_bounding_box.rect, rect))
                         parent_bounding_box.members.append(j)
         return bounding_boxes
