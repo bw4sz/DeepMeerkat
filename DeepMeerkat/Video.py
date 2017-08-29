@@ -208,7 +208,7 @@ class Video:
             if self.args.tensorflow:
                 labels=[]
                 for bounding_box in remaining_bounding_box:
-                    clip=resize_box(self.original_image,bounding_box)
+                    clip=resize_box(self.original_image,bounding_box,m=0)
                     
                     #Tensorflow prediction
                     pred=predict.TensorflowPredict(sess=self.tensorflow_session,read_from="numpy",image_array=[clip],label_lines=["Positive","Negative"])                    

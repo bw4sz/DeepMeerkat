@@ -38,7 +38,6 @@ class DeepMeerkat:
         #hold on to original mog variance
         mogvariance=self.args.mogvariance
 
-        #init tensorflow
         #load tensorflow model
         if self.args.tensorflow:
             import tensorflow as tf

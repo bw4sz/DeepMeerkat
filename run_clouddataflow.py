@@ -53,7 +53,8 @@ class PredictDoFn(beam.DoFn):
     DM.args.path_to_model = "/tmp/model/"
 
     #Run DeepMeerkat
-    DM.run()
+    for vid in DM.queue:
+      DM.run(vid=vid)
     
     #Set output folder
     folder=os.path.splitext(parsed.path.split("/")[-1])[0]
