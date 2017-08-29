@@ -1,0 +1,15 @@
+import os
+import cv2
+import csv
+
+
+with open("/Users/Ben/Documents/DeepMeerkat/Training/Negatives") as f:
+    reader=csv.reader(f)
+    line=reader.readrow()
+    
+    if line[1]=="Positive":
+        img=cv2.imread(line[0])
+        cv2.putText(img,str(line[2]),(10,10),cv2.FONT_HERSHEY_SIMPLEX,1,(0,0,255),2)        
+        cv2.imshow("image",img)
+        cv2.waitKey(0)    
+

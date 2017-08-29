@@ -246,7 +246,7 @@ class Video:
                     boxx=int(bounding_box.x * (float(self.width)/self.new_w))
                     boxy=int(bounding_box.y * (float(self.height)/self.new_h))
                     boxw=int(bounding_box.w * (float(self.width)/self.new_w))
-                    boxh=int(bounding_box.h * (float(self.self.height)/self.new_h))
+                    boxh=int(bounding_box.h * (float(self.height)/self.new_h))
 
                     cv2.rectangle(self.original_image, (boxx, boxy),
                                   (boxx+boxw, boxy+boxh), (0,0,255), 2)
