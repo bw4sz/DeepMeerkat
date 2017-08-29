@@ -223,13 +223,15 @@ class Video:
 
                     newbox=self.BoundingBox(Rect(x1, y1, w1, h1))
                     clips.append(resize_box(self.original_image,newbox))
-
-                self.tensorflow_label=predict.TensorflowPredict(sess=self.tensorflow_session,read_from="numpy",image_array=clips,numpy_name=self.frame_count,label_lines=self.args.label_lines)
+                    if self.args.training:
+                        for index,clip in enumerate(clips):
+                            cv2.imwrite(self.file_destination + "/"+str(self.frame_count)+ "_" + str(index) + "_clip.jpg",clip)                
+                self.tensorflow_label=predict.TensorflowPredict(sess=self.tensorflow_session,read_from="numpy",image_array=clips,numpy_name=self.frame_count,label_lines=["Positive","Negative"])
                 cv2.putText(self.original_image,str(self.tensorflow_label[self.frame_count]),(50,50),cv2.FONT_HERSHEY_SIMPLEX,2,(0,0,255),2)
 
                 #next frame if negative label that has score greater than 0.9
                 for label,score in self.tensorflow_label[self.frame_count]:
-                    if label == 'positive':
+                    if label == 'Positive':
                         WritePadding=True
                     else:
                         if score < 0.9:
@@ -253,15 +255,6 @@ class Video:
                 cv2.waitKey(0)
 
             #Motion Frame! passed all filters.
-            if self.args.training:
-
-                #mean subtracted image
-                for index,bounding_box in enumerate(remaining_bounding_box):
-                    current,msde_image=self.MSDE(bounding_box)
-
-                    #write clip diff and original, easier to score
-                    cv2.imwrite(self.file_destination + "/"+str(self.frame_count)+ "_" + str(index) + "_train.jpg",msde_image)
-                    cv2.imwrite(self.file_destination + "/"+str(self.frame_count)+ "_" + str(index) + ".jpg",current)
             else:
                 self.end_sequence(Motion=True,WritePadding=WritePadding)
 

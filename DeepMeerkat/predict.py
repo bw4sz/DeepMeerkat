@@ -56,13 +56,34 @@ def TensorflowPredict(read_from,sess,image_array=None,imagedir=None,numpy_name="
         results_frame[image_name[x]].append([label_lines[top_k[0]],predictions[x][top_k[0]]])
             
     return(results_frame)
-            
-if __name__ == "__main__":
-    sess=tf.Session()
-    print("Loading tensorflow model. May take several minutes.")
-    tf.saved_model.loader.load(sess,[tf.saved_model.tag_constants.SERVING], "/Users/ben/Dropbox/GoogleCloud/DeepMeerkat_20170824_115048/model/")    
-    print("Model loaded")
-    photos_run=glob.glob("/Users/Ben/Dropbox/GoogleCloud/Training/Negatives/*.jpg")
+
+#Positives
+def check_positives(path,output):
+    photos_run=glob.glob(path)
+    counter=0
+    positives=[]
+    for x in photos_run:
+        image=cv2.imread(x)
+        pred=TensorflowPredict(read_from="numpy",sess=sess,image_array=[image],label_lines=["Positive","Negative"])
+        label,score=pred["image"][0]
+        if label == "Negative":
+            if score > 0.9:
+                font = cv2.FONT_HERSHEY_COMPLEX         
+                cv2.putText(image,str(pred["image"]),(10,20), font, 0.5,(255,255,255),1)            
+                cv2.imshow("Annotation", image)
+                cv2.waitKey(1)            
+                counter+=1                
+        positives.append([x,label,score])
+        
+    print("False Negative Rate: " + str(float(counter)/len(photos_run)))    
+    with open(output) as f:
+        writer=csv.writer(f)
+        for x in positives:
+            writer.writerow(x)
+       
+#Negatives
+def check_negatives(path,output):
+    photos_run=glob.glob(path)
     counter=0
     negatives=[]
     for x in photos_run:
@@ -84,12 +105,42 @@ if __name__ == "__main__":
             counter+=1                     
             
     print("False Positive Rate: " + str(float(counter)/len(photos_run)))
-    with open("../training/Negatives.csv","w") as f:
+    with open(output,"w") as f:
         writer=csv.writer(f)
         for x in negatives:
-            writer.writerow(x)
+            writer.writerow(x)    
+
+def interactive(path):
+    photos_run=glob.glob(path)
+    for x in photos_run:
+        image=cv2.imread(x)
+        pred=TensorflowPredict(read_from="numpy",sess=sess,image_array=[image],label_lines=["Positive","Negative"])
+        cv2.putText(image,str(pred),(50,50),cv2.FONT_HERSHEY_SIMPLEX,2,(0,0,255),2)
+        cv2.imshow("Annotation", image)
+        cv2.waitKey(0)
+        
+
+if __name__ == "__main__":
+    sess=tf.Session()
+    print("Loading tensorflow model. May take several minutes.")
+    tf.saved_model.loader.load(sess,[tf.saved_model.tag_constants.SERVING], "/Users/ben/Dropbox/GoogleCloud/DeepMeerkat_20170828_135818/model/")    
+    print("Model loaded")
+    
+    #Interactive
+    interactive("/Users/ben/DeepMeerkat/FFH110_02/*_clip")
+    
+    #Training
+    #check_negatives(path="/Users/Ben/Dropbox/GoogleCloud/Training/Negatives/*.jpg", output="../training/Training_Negatives.csv")
+    #check_positives(path="/Users/Ben/Dropbox/GoogleCloud/Training/Positives/*.jpg", output="../training/Training_Positives.csv")
+    
+    #Testing
+    #check_negatives(path="/Users/Ben/Dropbox/GoogleCloud/Testing/Negatives/*.jpg", output="../training/Testing_Negatives.csv")
+    #check_positives(path="/Users/Ben/Dropbox/GoogleCloud/Testing/Positives/*.jpg", output="../training/Testing_Positives.csv")
+    
+    
+    
             
-    photos_run=glob.glob("/Users/Ben/Dropbox/GoogleCloud/Training/Positives/*.jpg")
+    photos_run=glob.glob("/Users/Ben/Dropbox/GoogleCloud/Testing/Positives/*.jpg")
     counter=0
     positives=[]
     for x in photos_run:
@@ -106,7 +157,7 @@ if __name__ == "__main__":
         positives.append([x,label,score])
         
     print("False Negative Rate: " + str(float(counter)/len(photos_run)))    
-    with open("../training/Positives.csv","w") as f:
+    with open("../training/Testing_Positives.csv","w") as f:
         writer=csv.writer(f)
         for x in positives:
             writer.writerow(x)

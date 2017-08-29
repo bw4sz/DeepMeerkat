@@ -11,10 +11,11 @@ from google.cloud import storage
 ##The namespaces inside of clouddataflow workers is not inherited ,
 ##Please see https://cloud.google.com/dataflow/faq#how-do-i-handle-nameerrors, better to write ugly import statements then to miss a namespace
 
-def read_file(element):
-  with beam.io.gcp.gcsio.GcsIO().open(element, 'r') as f:
+def read_file(element,local_path):
+  with beam.io.gcp.gcsio.GcsIO().open(element, '') as f:
+    
     # process f content
-    pass  
+    f.save(local_path)  
   
 class PredictDoFn(beam.DoFn):
   def __init__(self,argv):
@@ -52,9 +53,11 @@ class PredictDoFn(beam.DoFn):
     #store local path
     local_path="/tmp/" + parsed.path.split("/")[-1]
 
-    logging.info('local path: ' + local_path)
-    with open(local_path, 'wb') as file_obj:
-      blob.download_to_file(file_obj)
+    read_file(element[0], local_path)
+    #logging.info('local path: ' + local_path)
+    #with open(local_path, 'wb') as file_obj:
+      #blob.download_to_file(file_obj)
+    
     
     logging.info("Check local path exists: " + str(os.path.exists(local_path)))
 

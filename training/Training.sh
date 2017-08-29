@@ -26,11 +26,22 @@ declare -r GCS_PATH="${BUCKET}/${MODEL_NAME}/${JOB_ID}"
 #Train Model
 ############
 
+#python pipeline.py \
+    #--project ${PROJECT} \
+    #--cloud \
+    #--train_input_path gs://api-project-773889352370-ml/Hummingbirds/trainingdata.csv \
+    #--eval_input_path gs://api-project-773889352370-ml/Hummingbirds/testingdata.csv \
+    #--input_dict gs://api-project-773889352370-ml/Hummingbirds/dict.txt \
+    #--deploy_model_name "DeepMeerkat" \
+    #--gcs_bucket ${BUCKET} \
+    #--output_dir "${GCS_PATH}/" 
+
+#already preprocessed
 python pipeline.py \
     --project ${PROJECT} \
     --cloud \
-    --train_input_path gs://api-project-773889352370-ml/Hummingbirds/trainingdata.csv \
-    --eval_input_path gs://api-project-773889352370-ml/Hummingbirds/testingdata.csv \
+    --preprocessed_train_set gs://api-project-773889352370-ml/DeepMeerkat/DeepMeerkat_20170828_100513/preprocessed/train* \
+    --preprocessed_eval_set gs://api-project-773889352370-ml/DeepMeerkat/DeepMeerkat_20170828_100513/preprocessed/eval* \
     --input_dict gs://api-project-773889352370-ml/Hummingbirds/dict.txt \
     --deploy_model_name "DeepMeerkat" \
     --gcs_bucket ${BUCKET} \
