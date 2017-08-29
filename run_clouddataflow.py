@@ -63,7 +63,9 @@ class PredictDoFn(beam.DoFn):
     subprocess.call(cmd)
     
     #clean out /tmp
+    subprocess.call(["rm",local_path])
     subprocess.call(["rm","-rf","/tmp/Frames/*"])
+    print("End")
     
 def run():
   import argparse
