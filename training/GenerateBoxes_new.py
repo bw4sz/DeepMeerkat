@@ -85,6 +85,12 @@ for f in new_csvs:
         #video
         video_name=f.split("/")[-2]
         
+        #only review Positive scores or low negative scores
+        if box.label[0][0]=="Negative":
+            if float(box.label[0][1]) > 0.92:
+                print(str(box.label) + "skipped")
+                continue
+            
         if box.label[0][0] == "Positive":
             cv2.imwrite("/Users/Ben/Dropbox/GoogleCloud/TestCrops/Positives/"+ video_name+  "_" + frame_number + "_" + str(crop_counter) + ".jpg",cropped_image) 
         else:

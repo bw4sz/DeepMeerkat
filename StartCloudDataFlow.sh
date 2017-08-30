@@ -14,6 +14,5 @@ python run_clouddataflow.py \
     --temp_location $BUCKET/temp \
     --job_name $PROJECT-deepmeerkat \
     --setup_file ./setup.py \
-    --autoscaling_algorithm None \
+    --autoscaling_algorithm 'NONE' \
     --num_workers 15  \
-    --draw_box
