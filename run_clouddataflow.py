@@ -25,7 +25,7 @@ class PredictDoFn(beam.DoFn):
 
     #Download tensorflow model, if it does not exist
     if not os.path.exists("/tmp/model/"):
-      cmd=["gsutil","cp","-r","gs://api-project-773889352370-ml/DeepMeerkat/DeepMeerkat_20170901_204512/model/","/tmp/"]
+      cmd=["gsutil","cp","-r","gs://api-project-773889352370-ml/DeepMeerkat/DeepMeerkat_20170901_204512/model","/tmp/"]
       subprocess.call(cmd)
       
     logging.info(os.getcwd())
