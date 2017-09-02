@@ -73,7 +73,7 @@ def process_args():
       help='Input specified as uri to CSV file for the eval set.')
   parser.add_argument(
       '--eval_set_size',
-      default=50,
+      default=1028,
       help='The size of the eval dataset.')
   parser.add_argument(
       '--input_dict',

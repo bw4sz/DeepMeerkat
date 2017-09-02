@@ -15,4 +15,4 @@ python run_clouddataflow.py \
     --job_name $PROJECT-deepmeerkat \
     --setup_file ./setup.py \
     --autoscaling_algorithm 'NONE' \
-    --num_workers 15  \
+    --num_workers 33

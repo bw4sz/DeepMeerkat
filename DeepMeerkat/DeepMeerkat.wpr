@@ -4,16 +4,16 @@
 # Wing IDE project file                                          #
 ##################################################################
 [project attributes]
-proj.directory-list = [{'dirloc': loc('..'),
-                        'excludes': (),
-                        'filter': u'*',
-                        'include_hidden': False,
-                        'recursive': True,
-                        'watch_for_changes': True},
-                       {'dirloc': loc('../../model'),
+proj.directory-list = [{'dirloc': loc('../../model'),
                         'excludes': (),
                         'filter': '*',
                         'include_hidden': True,
+                        'recursive': True,
+                        'watch_for_changes': True},
+                       {'dirloc': loc('..'),
+                        'excludes': [u'training/env'],
+                        'filter': '*',
+                        'include_hidden': False,
                         'recursive': True,
                         'watch_for_changes': True}]
 proj.file-type = 'shared'
@@ -24,7 +24,7 @@ proj.launch-config = {loc('../CreateManifest.py'): ('project',
         (u'--buffer 1\n',
          '')),
                       loc('DeepMeerkat.py'): ('project',
-        (u'--buffer 1 --input G:\\SantaLuciaFlowers\\Cameras\\201402\\FH110_01.AVI --out G:/DeepMeerkat --check_color',
+        (u'--input /Users/ben/Dropbox/Videos/ --threaded ',
          '')),
                       loc('MotionMeerkat.py'): ('project',
         (u'--buffer 2',

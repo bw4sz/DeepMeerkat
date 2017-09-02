@@ -42,57 +42,6 @@
             pos_hint:{'center_x':0.485}
             multiline:False
         BoxLayout:
-            orientation:'horizontal'
-            spacing:10
-            size_hint:(1,0.5)
-            pos_hint:{'center_x':0.5}
-            Label:
-                text:"How much background variation [eg. wind, waves, debris] do you expect in your video?"
-                font_size:15
-                size_hint:(1,1)
-        BoxLayout:
-            spacing:10
-            size_hint:(1,.3)
-            pos_hint:{'center_x':0.5}
-            Label:
-                text:"No Movement"
-                font_size:15
-                size_hint:(.15,1)
-            Slider:
-                id:moglearning
-                min:0
-                max:5
-                value:3
-                on_value:app.root.MM.q1=self.value
-                step:1
-                size_hint:(0.7,1)    
-            Label:
-                text:"Extreme Movement"
-                font_size:15
-                size_hint:(.15,1)
-            Label:
-                text:str(int(moglearning.value))
-                size_hint:(0.1,1)
-        BoxLayout:
-            orientation:'horizontal'
-            spacing:10
-            size_hint:(1,0.5)
-            pos_hint:{'center_y':0.1}
-            Label:
-                text:"How quickly does your organism move?\n      Increasing returns fewer frames"
-                font_size:15
-                size_hint:(1,0.6)
-        BoxLayout:
-            orientation:'horizontal'
-            size_hint:(0.8,0.4)
-            pos_hint:{'center_x':0.47}
-            Image:
-                source:"images/shark.png"
-            Image:
-                source:"images/butterfly.png"       
-            Image:
-                source:"images/bird.png"
-        BoxLayout:
             spacing:10
             size_hint:(1,.6)
             pos_hint:{'center_y':0.1}

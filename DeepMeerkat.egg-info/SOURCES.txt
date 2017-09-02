@@ -12,13 +12,10 @@ DeepMeerkat.egg-info/SOURCES.txt
 DeepMeerkat.egg-info/dependency_links.txt
 DeepMeerkat.egg-info/requires.txt
 DeepMeerkat.egg-info/top_level.txt
-training/BatchPredict.py
 training/CreateDocs.py
 training/GenerateAnnotate.py
 training/GenerateBoxes.py
 training/GenerateBoxes_new.py
-training/MSDE_annotations.py
-training/ParsePredictions.py
 training/View.py
 training/__init__.py
 training/images_to_json.py

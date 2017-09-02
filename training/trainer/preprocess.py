@@ -424,7 +424,7 @@ def default_args(argv):
       default='flowers-' + datetime.datetime.now().strftime('%Y%m%d-%H%M%S'),
       help='A unique job identifier.')
   parser.add_argument(
-      '--num_workers', default=20, type=int, help='The number of workers.')
+      '--num_workers', default=25, type=int, help='The number of workers.')
   parser.add_argument('--cloud', default=False, action='store_true')
   parser.add_argument(
       '--runner',

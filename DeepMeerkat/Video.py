@@ -217,17 +217,29 @@ class Video:
                     bounding_box.label=pred[0]
                     labels.append(pred)                    
                     
-                #for index,label in enumerate(labels):
-                #    cv2.putText(self.original_image,str(label),(30,30+20*index),cv2.FONT_HERSHEY_SIMPLEX,0.75,(0,0,255),2)
+                for index,label in enumerate(labels):
+                    cv2.putText(self.original_image,str(label),(30,30+20*index),cv2.FONT_HERSHEY_SIMPLEX,0.75,(0,0,255),2)
                                  
                 #next frame if negative label that has score greater than 0.9
                 for box in labels:
                     for label,score in box:
                         if label == 'Positive':
                             WritePadding=True
+                            if score > 0.6:
+                                tensorflow_check=True
+                            else:
+                                pass
                         else:
-                            WritePadding=False
-                            
+                            tensorflow_check=False
+
+            
+            #did we pass tensorflow? A bit ugly from the nested loop
+            if tensorflow_check:
+                pass
+            else:
+                self.end_sequence(Motion=False,WritePadding=WritePadding)                
+                continue
+            
             self.annotations[self.frame_count] = remaining_bounding_box
 
             if self.args.draw_box:
@@ -265,7 +277,6 @@ class Video:
         return((ret,image))
 
     def create_background(self):
-
         self.fgbg = cv2.createBackgroundSubtractorMOG2(detectShadows=False,varThreshold=float(self.args.mogvariance))
         self.fgbg.setBackgroundRatio(0.95)
 
