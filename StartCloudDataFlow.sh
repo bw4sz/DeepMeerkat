@@ -16,3 +16,4 @@ python run_clouddataflow.py \
     --setup_file ./setup.py \
     --autoscaling_algorithm 'NONE' \
     --num_workers 33
+    --draw_box

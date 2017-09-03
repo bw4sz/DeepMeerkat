@@ -225,20 +225,16 @@ class Video:
                     for label,score in box:
                         if label == 'Positive':
                             WritePadding=True
-                            if score > 0.6:
-                                tensorflow_check=True
-                            else:
-                                pass
+                            tensorflow_check=True
                         else:
-                            tensorflow_check=False
-
+                            tensorflow_check=False                    
             
-            #did we pass tensorflow? A bit ugly from the nested loop
-            if tensorflow_check:
-                pass
-            else:
-                self.end_sequence(Motion=False,WritePadding=WritePadding)                
-                continue
+            ##did we pass tensorflow? A bit ugly from the nested loop
+            #if tensorflow_check:
+                #pass
+            #else:
+                #self.end_sequence(Motion=False,WritePadding=WritePadding)                
+                #continue
             
             self.annotations[self.frame_count] = remaining_bounding_box
 
