@@ -53,7 +53,6 @@ if __name__ == "__main__":
           #For hyperlinks
           import webbrowser
           from time import sleep
-          from os import startfile
           from os.path import isdir
           from os.path import isfile
           

@@ -217,8 +217,8 @@ class Video:
                     bounding_box.label=pred[0]
                     labels.append(pred)                    
                     
-                for index,label in enumerate(labels):
-                    cv2.putText(self.original_image,str(label),(30,30+20*index),cv2.FONT_HERSHEY_SIMPLEX,0.75,(0,0,255),2)
+                #for index,label in enumerate(labels):
+                #    cv2.putText(self.original_image,str(label),(30,30+20*index),cv2.FONT_HERSHEY_SIMPLEX,0.75,(0,0,255),2)
                                  
                 #next frame if negative label that has score greater than 0.9
                 for box in labels:
@@ -227,14 +227,17 @@ class Video:
                             WritePadding=True
                             tensorflow_check=True
                         else:
-                            tensorflow_check=False                    
+                            if score > 0.9:
+                                tensorflow_check=False
+                            else:
+                                tensorflow_check=True
             
-            ##did we pass tensorflow? A bit ugly from the nested loop
-            #if tensorflow_check:
-                #pass
-            #else:
-                #self.end_sequence(Motion=False,WritePadding=WritePadding)                
-                #continue
+                ##did we pass tensorflow? A bit ugly from the nested loop
+                if tensorflow_check:
+                    pass
+                else:
+                    self.end_sequence(Motion=False,WritePadding=WritePadding)                
+                    continue
             
             self.annotations[self.frame_count] = remaining_bounding_box
 
@@ -428,19 +431,19 @@ class Video:
         if sys.version_info >= (3, 0):
             with open(self.output_annotations, 'w',newline="") as f:
                 writer = csv.writer(f,)
-                writer.writerow(["Frame","x","y","h","w","label"])
+                writer.writerow(["Frame","x","y","h","w","label","score"])
                 for x in self.annotations.keys():
                     bboxes=self.annotations[x]
                     for bbox in bboxes:
-                        writer.writerow([x,bbox.x,bbox.y,bbox.h,bbox.w,bbox.label])
+                        writer.writerow([x,bbox.x,bbox.y,bbox.h,bbox.w,bbox.label[0],bbox.label[1]])
         else:
             with open(self.output_annotations, 'wb') as f:
                 writer = csv.writer(f,)
-                writer.writerow(["Frame","x","y","h","w","label"])
+                writer.writerow(["Frame","x","y","h","w","label","score"])
                 for x in self.annotations.keys():
                     bboxes=self.annotations[x]
                     for bbox in bboxes:
-                        writer.writerow([x,bbox.x,bbox.y,bbox.h,bbox.w,bbox.label])
+                        writer.writerow([x,bbox.x,bbox.y,bbox.h,bbox.w,bbox.label[0],bbox.label[1]])
 
     def adapt(self):
 

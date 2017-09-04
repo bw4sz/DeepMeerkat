@@ -23,6 +23,7 @@ class BoundingBox:
         self.w = w
         self.h = h
         self.label=label
+        self.score=score
         
 def creation_date(path_to_file):
     """
@@ -76,7 +77,7 @@ for f in new_csvs:
         if img is None:
             continue
         
-        box=BoundingBox(x=int(row[1]),y=int(row[2]),h=int(row[3]),w=int(row[4]),label=eval(row[5]))
+        box=BoundingBox(x=int(row[1]),y=int(row[2]),h=int(row[3]),w=int(row[4]),label=row[5],score=float(row[6]))
         cropped_image=img[box.y:box.y+box.h,box.x:box.x+box.w]
                                 
         #Save image for scoring
@@ -86,12 +87,12 @@ for f in new_csvs:
         video_name=f.split("/")[-2]
         
         #only review Positive scores or low negative scores
-        if box.label[0]=="Negative":
-            if float(box.label[1]) > 0.92:
-                print(str(box.label) + " skipped")
+        if box.label=="Negative":
+            if float(box.score) > 0.90:
+                print(str(box.label) + " " +  str(box.score) + " skipped")
                 continue
             
-        if box.label[0] == "Positive":
+        if box.label == "Positive":
             cv2.imwrite("/Users/Ben/Dropbox/GoogleCloud/TestCrops/Positives/"+ video_name+  "_" + frame_number + "_" + str(crop_counter) + ".jpg",cropped_image) 
         else:
             cv2.imwrite("/Users/Ben/Dropbox/GoogleCloud/TestCrops/Negatives/"+ video_name+  "_" + frame_number + "_" + str(crop_counter) + ".jpg",cropped_image) 

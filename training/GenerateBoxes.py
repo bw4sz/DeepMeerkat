@@ -125,7 +125,7 @@ for f in new_csvs:
             bbox=eval(row[2])
                         
             #expand box by multiplier m, limit to image edge
-            m=(math.sqrt(2)-1)*1.4
+            m=(math.sqrt(2)-1)/2
             
             #min height
             p1=mult(bbox[1][1],-m)

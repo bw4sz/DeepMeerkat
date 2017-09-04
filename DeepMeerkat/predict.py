@@ -57,7 +57,7 @@ def check_positives(path,output):
     for x in photos_run:
         image=cv2.imread(x)
         pred=TensorflowPredict(read_from="numpy",sess=sess,image_array=[image],label_lines=["Positive","Negative"])
-        label,score=pred["image"][0]
+        label,score=pred[0]
         if label == "Negative":
             if score > 0.9:
                 font = cv2.FONT_HERSHEY_COMPLEX         
@@ -81,17 +81,17 @@ def check_negatives(path,output):
     for x in photos_run:
         image=cv2.imread(x)
         pred=TensorflowPredict(read_from="numpy",sess=sess,image_array=[image],label_lines=["Positive","Negative"])
-        label,score=pred
+        label,score=pred[0]
         negatives.append([x,label,score])        
         if label == "Positive":
             font = cv2.FONT_HERSHEY_COMPLEX         
-            cv2.putText(image,str(pred),(10,20), font, 0.5,(255,255,255),1)            
+            cv2.putText(image,str(pred[0]),(10,20), font, 0.5,(255,255,255),1)            
             cv2.imshow("Annotation", image)
             cv2.waitKey(1)            
             counter+=1
         elif score < 0.9:
             font = cv2.FONT_HERSHEY_COMPLEX         
-            cv2.putText(image,str(pred),(10,20), font, 0.5,(255,255,255),1)            
+            cv2.putText(image,str(pred[0]),(10,20), font, 0.5,(255,255,255),1)            
             cv2.imshow("Annotation", image)
             cv2.waitKey(1)
             counter+=1                     
@@ -118,12 +118,12 @@ if __name__ == "__main__":
     print("Model loaded")
     
     #Interactive
-    interactive("/Users/ben/DeepMeerkat/FFH110_02/*_clip.jpg")
+    #interactive("/Users/ben/DeepMeerkat/FFH110_02/*_clip.jpg")
     
     #Training
-    #check_negatives(path="/Users/Ben/Dropbox/GoogleCloud/Training/Negatives/*.jpg", output="../training/Training_Negatives.csv")
-    #check_positives(path="/Users/Ben/Dropbox/GoogleCloud/Training/Positives/*.jpg", output="../training/Training_Positives.csv")
+    check_negatives(path="/Users/Ben/Dropbox/GoogleCloud/Training/Negatives/*.jpg", output="Training_Negatives.csv")
+    check_positives(path="/Users/Ben/Dropbox/GoogleCloud/Training/Positives/*.jpg", output="Training_Positives.csv")
     
     #Testing
-    #check_negatives(path="/Users/Ben/Dropbox/GoogleCloud/Testing/Negatives/*.jpg", output="../training/Testing_Negatives.csv")
-    #check_positives(path="/Users/Ben/Dropbox/GoogleCloud/Testing/Positives/*.jpg", output="../training/Testing_Positives.csv")
+    check_negatives(path="/Users/Ben/Dropbox/GoogleCloud/Testing/Negatives/*.jpg", output="Testing_Negatives.csv")
+    check_positives(path="/Users/Ben/Dropbox/GoogleCloud/Testing/Positives/*.jpg", output="Testing_Positives.csv")
