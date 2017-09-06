@@ -35,11 +35,15 @@ class PredictDoFn(beam.DoFn):
     parsed = urlparse(element[0])
     logging.info(parsed)
 
-    cmd=["gsutil","cp",element[0],"/tmp/"]
+    #add in folder name
+    folder=parsed.path.split("/")[-2]
+
+    cmd=["gsutil","cp",element[0],"/tmp/"+folder]
     subprocess.call(cmd)    
     
     #set local path
-    local_path="/tmp/"+parsed.path.split("/")[-1]
+    #add folder is needed
+    local_path="/tmp/"+folder+"/"+parsed.path.split("/")[-1]  
     
     print("Local path: " + str(local_path))
     if os.path.exists(local_path):
@@ -57,7 +61,6 @@ class PredictDoFn(beam.DoFn):
       DM.run(vid=vid)
     
     #Set output folder
-    folder=os.path.splitext(parsed.path.split("/")[-1])[0]
     output_path=parsed.scheme+"://"+parsed.netloc+"/DeepMeerkat/"     
 
     cmd=["gsutil","-m","cp","-r","/tmp/Frames/*",output_path]
