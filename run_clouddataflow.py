@@ -35,16 +35,12 @@ class PredictDoFn(beam.DoFn):
     parsed = urlparse(element[0])
     logging.info(parsed)
 
-    #add in folder name
-    folder=parsed.path.split("/")[-2]
+    #add in folder name and video name
+    local_path="/tmp/"+"/".join(parsed.path.split("/")[-2:])
 
-    cmd=["gsutil","cp",element[0],"/tmp/"+folder]
+    cmd=["gsutil","cp",element[0],local_path]
     subprocess.call(cmd)    
-    
-    #set local path
-    #add folder is needed
-    local_path="/tmp/"+folder+"/"+parsed.path.split("/")[-1]  
-    
+        
     print("Local path: " + str(local_path))
     if os.path.exists(local_path):
       logging.info("Local path exists")
