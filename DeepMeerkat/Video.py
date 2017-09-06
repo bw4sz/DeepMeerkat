@@ -112,8 +112,9 @@ class Video:
         (filepath, filename)=os.path.split(normFP)
         (shortname, extension) = os.path.splitext(filename)
         (_,IDFL) = os.path.split(filepath)
-
-        self.file_destination=os.path.join(self.args.output,shortname)
+        
+        self.file_destination=os.path.join(self.args.output,IDFL)
+        self.file_destination=os.path.join(self.file_destination,shortname)
 
         #create if directory does not exist
         if not os.path.exists(self.file_destination):
@@ -217,8 +218,8 @@ class Video:
                     bounding_box.label=pred[0]
                     labels.append(pred)                    
                     
-                #for index,label in enumerate(labels):
-                #    cv2.putText(self.original_image,str(label),(30,30+20*index),cv2.FONT_HERSHEY_SIMPLEX,0.75,(0,0,255),2)
+                for index,label in enumerate(labels):
+                    cv2.putText(self.original_image,str(label),(30,30+20*index),cv2.FONT_HERSHEY_SIMPLEX,0.75,(0,0,255),2)
                                  
                 #next frame if negative label that has score greater than 0.9
                 for box in labels:
@@ -227,7 +228,7 @@ class Video:
                             WritePadding=True
                             tensorflow_check=True
                         else:
-                            if score > 0.9:
+                            if score > 0.95:
                                 tensorflow_check=False
                             else:
                                 tensorflow_check=True
