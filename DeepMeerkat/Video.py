@@ -218,8 +218,8 @@ class Video:
                     bounding_box.label=pred[0]
                     labels.append(pred)                    
                     
-                for index,label in enumerate(labels):
-                    cv2.putText(self.original_image,str(label),(30,30+20*index),cv2.FONT_HERSHEY_SIMPLEX,0.75,(0,0,255),2)
+                #for index,label in enumerate(labels):
+                #    cv2.putText(self.original_image,str(label),(30,30+20*index),cv2.FONT_HERSHEY_SIMPLEX,0.75,(0,0,255),2)
                                  
                 #next frame if negative label that has score greater than 0.9
                 for box in labels:
