@@ -400,7 +400,6 @@ class Video:
                 writer.writerow(["Motion Events",len(self.annotations)])
 
                 #Hit rate
-                len(self.annotations)
                 writer.writerow(["Return rate",float(len(self.annotations))/self.frame_count])
 
                 #Frames per second

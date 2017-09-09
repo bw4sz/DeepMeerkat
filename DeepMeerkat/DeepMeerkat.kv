@@ -203,12 +203,16 @@
             size_hint:(1,1)
             pos_hint:{'center_y':1}
             orientation:'vertical'
+            #Label:
+                #text: "[b]TensorFlow Status:[/b] " + str(app.root.MM.tensorflow_status)
+                #markup: True
+                #font_size:20
             Label:
-                text: "[b]Running File:[/b] " #+ str(root.vid)
+                text: "[b]Running File:[/b] " + str(app.root.MM.args.input)
                 markup: True
                 font_size:20
             Label:
-                text: "[b]Output Directory:[/b] " + str(app.root.MM.args.input)
+                text: "[b]Output Directory:[/b] " + str(app.root.MM.args.output)
                 markup: True
                 font_size:20
         BoxLayout:
@@ -224,8 +228,6 @@
                 size_hint:(0.8,1)
                                           
 <ResultsScreen>
-    on_enter: root.plots(app.root.MM)
-
     BoxLayout:
         orientation:'vertical'
         Button:
@@ -241,13 +243,13 @@
             text: "[b]Output Directory:[/b] " + str(app.root.MM.args.output)
             markup: True
             font_size:20
-        Label:
-            text: "[b]Run time:[/b] " + str(round(app.root.MM.total_min,2)) + " min"
-            markup: True
-            font_size:20
-        Label:
-            text:str(app.root.MM.total_count) + " candidate motion frames " + "from " + str(app.root.MM.frame_count) + " images (" + str(round(float(app.root.MM.total_count)/app.root.MM.frame_count,3)*100) + "%)"
-            font_size:20
+        #Label:
+            #text: "[b]Run time:[/b] " + str(round(app.root.MM.total_min,2)) + " min"
+            #markup: True
+            #font_size:20
+        #Label:
+            #text:str(len(app.root.MM.annotations)) + " candidate motion frames " + "from " + str(app.root.MM.frame_count) + " images (" + str(round(float(len(app.root.MM.annotations))/app.root.MM.frame_count,3)*100) + "%)"
+            #font_size:20
         Button:
             text: "More statistics and parameter information"
             size_hint:(1,0.5)

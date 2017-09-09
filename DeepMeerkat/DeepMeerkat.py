@@ -41,10 +41,12 @@ class DeepMeerkat:
 
         #load tensorflow model
         if self.args.tensorflow:
+            self.tensorflow_status="loading"
             import tensorflow as tf
             print("Loading Tensorflow model")
             sess=tf.Session()
             tf.saved_model.loader.load(sess,[tf.saved_model.tag_constants.SERVING], self.args.path_to_model)
+            self.tensorflow_status="Running"
             print("Complete")
 
             #get dictionary

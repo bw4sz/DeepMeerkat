@@ -99,9 +99,9 @@ if __name__ == "__main__":
                #Drawing checkbox
                def on_check_draw(self, value,MM):     
                     if value:
-                         MM.drawSmall='draw'
+                         MM.args.draw_size='draw'
                     else:
-                         MM.drawSmall='enter'
+                         MM.args.draw_size='enter'
                
                def checkfile(self,MM):
                     if isfile(self.ids.fc.text):
@@ -152,7 +152,6 @@ if __name__ == "__main__":
                     try:
                          #Collect video queue
                          MM.create_queue()
-                         
                          if MM.args.threaded:
                               from multiprocessing import Pool
                               from multiprocessing.dummy import Pool as ThreadPool 
