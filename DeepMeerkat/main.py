@@ -56,6 +56,32 @@ if __name__ == "__main__":
           from os.path import isdir
           from os.path import isfile
           
+          class MyScreenManager(ScreenManager):
+     
+               try:
+                    #Create motion instance class
+                    MM=DeepMeerkat.DeepMeerkat()
+     
+                    #Instantiate Command line args
+                    MM.process_args()
+                    
+               except Exception as e:
+                    traceback.print_exc()
+                    if len(sys.argv)<= 2:          
+                         k=raw_input("Enter any key to exit:")
+                         sys.exit(0)
+     
+               def getProgress(self):
+                    name="P"
+                    s=ProgressScreen(name=name)
+                    self.add_widget(s)
+                    self.transition.direction='left'          
+                    self.current='P'
+     
+          class DeepMeerkatApp(App):
+               def build(self):
+                    return MyScreenManager()
+          
           class MainScreen(Screen):
                
                def help_site(instance):
@@ -66,9 +92,9 @@ if __name__ == "__main__":
                
                def on_check_roi(self, value,MM):
                     if value:
-                         MM.crop=True
+                         MM.args.crop=True
                     else:
-                         MM.crop=False
+                         MM.args.crop=False
                
                #Drawing checkbox
                def on_check_draw(self, value,MM):     
@@ -88,7 +114,7 @@ if __name__ == "__main__":
                          self.ids.fc.background_color=(1,0,0,1)
                     
                     #send text to motion object
-                    MM.input=self.ids.fc.text
+                    MM.args.input=self.ids.fc.text
                          
                def run_press(self,root):
                     root.getProgress()
@@ -115,7 +141,7 @@ if __name__ == "__main__":
                video_count=ListProperty(["1"])
                
                def assignname(self,MM):
-                    self.video_id.append(MM.input)
+                    self.video_id.append(MM.args.input)
                
                def MotionM(self,MM):
                     self.waitflag=0   
@@ -124,15 +150,23 @@ if __name__ == "__main__":
                   
                def worker(self,MM,pbar):
                     try:
-                         CommandArgs.CommandArgs(MM)
-                         MM.run(pbar=pbar,video_id=self.video_id)          
+                         #Collect video queue
+                         MM.create_queue()
+                         
+                         if MM.args.threaded:
+                              from multiprocessing import Pool
+                              from multiprocessing.dummy import Pool as ThreadPool 
+                              pool = ThreadPool(2)         
+                              results = pool.map(MM.run,MM.queue)
+                              pool.close()
+                              pool.join()
+                         else:
+                              for vid in MM.queue:
+                                   self.vid=vid
+                                   MM.run(vid=vid)      
                          self.waitflag=1
                     except Exception as e:
                          self.tb.append(str(traceback.format_exc()))
-                         try:
-                              MM.report()               
-                         except:
-                              pass
                          self.errorflag=1
                          
                def gotoresults(self,screenmanage):          
@@ -152,7 +186,7 @@ if __name__ == "__main__":
                     screenmanage.current='GUI'   
                     
                def openfile(self,MM):
-                    startfile(MM.output + "/" + "Parameters_Results.log")
+                    startfile(MM.args.output + "/" + "Parameters_Results.log")
           
           class ErrorScreen(Screen):
                em=StringProperty()
@@ -169,29 +203,10 @@ if __name__ == "__main__":
                     screenmanage.current='GUI'      
                     
                def openfile(self,MM):
-                    startfile(MM.output + "/" + "Parameters_Results.log")
+                    startfile(MM.args.output + "/" + "Parameters_Results.log")
                
-          class MyScreenManager(ScreenManager):
-              
-               try:
-                    #Create motion instance class
-                    MM=DeepMeerkat.DeepMeerkat()
-               except Exception as e:
-                    traceback.print_exc()
-                    if len(sys.argv)<= 2:          
-                         k=raw_input("Enter any key to exit:")
-                         sys.exit(0)
-                    
-               def getProgress(self):
-                    name="P"
-                    s=ProgressScreen(name=name)
-                    self.add_widget(s)
-                    self.transition.direction='left'          
-                    self.current='P'
-          
-          class DeepMeerkatApp(App):
-               def build(self):
-                    return MyScreenManager()
           #run app  
-          DeepMeerkatApp().run()
-          cv2.destroyAllWindows()     
+          if __name__=="__main__":
+               DeepMeerkatApp().run()
+               cv2.destroyAllWindows()
+     

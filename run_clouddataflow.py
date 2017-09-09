@@ -25,7 +25,7 @@ class PredictDoFn(beam.DoFn):
 
     #Download tensorflow model, if it does not exist
     if not os.path.exists("/tmp/model/"):
-      cmd=["gsutil","cp","-r","gs://api-project-773889352370-ml/DeepMeerkat/DeepMeerkat_20170904_205429/model","/tmp/"]
+      cmd=["gsutil","cp","-r","gs://api-project-773889352370-ml/DeepMeerkat/DeepMeerkat_20170908_110934/model","/tmp/"]
       subprocess.call(cmd)
       
     logging.info(os.getcwd())
@@ -47,8 +47,12 @@ class PredictDoFn(beam.DoFn):
     else:
       raise("Local path does not exist")
     
-    #Assign input from DataFlow/manifest
-    DM.process_args(video=local_path,argv=self.argv)
+    #Assign input from DataFlow/manifest.
+    #default args
+    DM.process_args(argv=self.argv)
+    #file queue
+    DM.create_queue(video=local_path)
+    #specify output location
     DM.args.output="/tmp/Frames"
     DM.args.path_to_model = "/tmp/model/"
 

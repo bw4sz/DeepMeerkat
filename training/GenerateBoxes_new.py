@@ -17,7 +17,7 @@ parser.add_argument('--date', help='Date Since Last Run',default="2017-08-27")
 args, _ = parser.parse_known_args()
 
 class BoundingBox:
-    def __init__(self,x,y,h,w,label):
+    def __init__(self,x,y,h,w,label,score):
         self.x = x
         self.y = y
         self.w = w
@@ -88,7 +88,7 @@ for f in new_csvs:
         
         #only review Positive scores or low negative scores
         if box.label=="Negative":
-            if float(box.score) > 0.90:
+            if float(box.score) > 0.95:
                 print(str(box.label) + " " +  str(box.score) + " skipped")
                 continue
             

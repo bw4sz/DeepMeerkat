@@ -36,7 +36,7 @@
         TextInput:
             id:outd
             text:"Output Location (C:/DeepMeerkat)"
-            on_text: app.root.MM.output=self.text
+            on_text: app.root.MM.args.output=self.text
             font_size:20
             size_hint:(.645,.5)
             pos_hint:{'center_x':0.485}
@@ -130,7 +130,7 @@
                     size_hint:(0.3,1)
                     multiline:False
                     pos_hint:{'center_x':0.5}
-                    on_text: app.root.MM.minSIZE=float(self.text)/100
+                    on_text: app.root.MM.args.size=float(self.text)/100
             BoxLayout:
                 orientation:'vertical'
                 size_hint:(0.5,0.9)
@@ -182,7 +182,7 @@
                 text: "Multithreaded"
             CheckBox:
                 active: True
-                on_active:app.root.MM.threaded=self.active
+                on_active:app.root.MM.args.threaded=self.active
             
         Button:
             text:"Run"
@@ -204,11 +204,11 @@
             pos_hint:{'center_y':1}
             orientation:'vertical'
             Label:
-                text: "[b]Input File:[/b] " + str(root.video_id[-1])
+                text: "[b]Running File:[/b] " #+ str(root.vid)
                 markup: True
                 font_size:20
             Label:
-                text: "[b]Output Directory:[/b] " + str(app.root.MM.input)
+                text: "[b]Output Directory:[/b] " + str(app.root.MM.args.input)
                 markup: True
                 font_size:20
         BoxLayout:
@@ -234,11 +234,11 @@
             pos_hint:{'top':0}
             on_press:root.gotoMain(app.root)
         Label:
-            text: "[b]Input File:[/b] " + str(app.root.MM.input)
+            text: "[b]Input File:[/b] " + str(app.root.MM.args.input)
             markup: True
             font_size:20
         Label:
-            text: "[b]Output Directory:[/b] " + str(app.root.MM.output)
+            text: "[b]Output Directory:[/b] " + str(app.root.MM.args.output)
             markup: True
             font_size:20
         Label:

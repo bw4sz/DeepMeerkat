@@ -8,10 +8,11 @@ import glob
 class DeepMeerkat:
     def __init__(self):
         print("Welcome to DeepMeerkat")
-
-    def process_args(self,video=None,argv=None):
-        self.args=CommandArgs.CommandArgs(argv)
-
+    
+    def process_args(self,argv=None):
+        self.args=CommandArgs.CommandArgs(argv)    
+    
+    def create_queue(self,video=None):
         #get all videos in queue
         self.queue= []
 
@@ -24,7 +25,7 @@ class DeepMeerkat:
             for (root, dirs, files) in os.walk(self.args.input):
                 for files in files:
                     fileupper=files.upper()
-                    if fileupper.endswith((".TLV",".AVI",".MPG",".MP4",".MOD",".MTS",".WMV",".MOV",".MP2",".MPEG-4",".DTS",".VOB",".MJPEG",".M4V",".XBA")):
+                    if fileupper.endswith((".TLV",".AVI",".MPG",".MP4",".MOD",".MTS",".WMV",".MOV",".MP2",".MPEG-4",".DTS",".VOB",".MJPEG","MPEG",".M4V",".XBA")):
                         self.queue.append(os.path.join(root, files))
                         print("Added " + str(files) + " to queue")
         else:
@@ -69,6 +70,7 @@ class DeepMeerkat:
 if __name__ == "__main__":
     DM=DeepMeerkat()
     DM.process_args()
+    DM.create_queue()
     if DM.args.threaded:
         from multiprocessing import Pool
         from multiprocessing.dummy import Pool as ThreadPool 
