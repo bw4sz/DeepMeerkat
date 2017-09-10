@@ -47,6 +47,10 @@ if __name__ == "__main__":
           from kivy.uix.screenmanager import ScreenManager, Screen
           from kivy.core.clipboard import Clipboard
           
+          #box
+          import tkinter as tk
+          from tkinter import filedialog          
+          
           #threading
           from threading import Thread
           
@@ -95,7 +99,7 @@ if __name__ == "__main__":
                          MM.args.crop=True
                     else:
                          MM.args.crop=False
-               
+          
                #Drawing checkbox
                def on_check_draw(self, value,MM):     
                     if value:
@@ -125,7 +129,18 @@ if __name__ == "__main__":
                     screenmanage.add_widget(a)
                     screenmanage.transition.direction='left'          
                     screenmanage.current='A'
-                    
+               
+               def gotoFileOpen(self,screenmanage):
+                    fileopen=FileOpen(name="FileOpen")
+                    screenmanage.add_widget(fileopen)
+                    screenmanage.transition.direction='left'          
+                    screenmanage.current='FileOpen'               
+          
+          class FileOpen(Screen):
+               def gotoMain(self,screenmanage):
+                    screenmanage.transition.direction='right'          
+                    screenmanage.current='GUI'   
+          
           class AdvancedScreen(Screen):
                def gotoMain(self,screenmanage):
                     screenmanage.transition.direction='right'          

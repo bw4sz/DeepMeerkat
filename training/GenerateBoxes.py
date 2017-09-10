@@ -13,7 +13,7 @@ import datetime
 import argparse
 
 parser = argparse.ArgumentParser(description='Create bounding boxes for the machine learning model')
-parser.add_argument('--date', help='Date Since Last Run',default="2017-08-27")
+parser.add_argument('--date', help='Date Since Last Run',default="2017-08-30")
 args, _ = parser.parse_known_args()
 
 def creation_date(path_to_file):
