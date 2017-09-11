@@ -14,7 +14,7 @@
                 size_hint:(0.25,1)
                 Label:
                     text:"DeepMeerkat V0.0.1"
-                    font_size:13
+                    font_size:14
                 Button:
                     text:"Help"
                     on_press: root.help_site()   
@@ -28,11 +28,11 @@
                 text: "File"
                 group:"method"
                 state:'down'
-                on_press:app.root.MM.args.runtype='File'
+                on_press:app.root.MM.args.runfile='True'; print(app.root.MM.args)
             ToggleButton:
                 text:"Folder"
                 group:"method"
-                on_press:app.root.MM.args.runtype='Folder'
+                on_press:app.root.MM.args.runfile='False'
         Button:
             text:"Choose input"
             on_press:root.gotoFileOpen(app.root)
@@ -59,6 +59,7 @@
         orientation: "vertical"
         FileChooserListView:
             id: filechooser
+            dirselect:"True"
             on_selection: text_input.text = self.selection and self.selection[0] or ''
         Label:
             text: "Select or type path below"

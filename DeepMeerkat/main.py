@@ -68,6 +68,9 @@ if __name__ == "__main__":
                     #Instantiate Command line args
                     MM.process_args()
                     
+                    #set tensorflow status
+                    MM.tensorflow_status="Loading"
+                    
                except Exception as e:
                     traceback.print_exc()
                     if len(sys.argv)<= 2:          
@@ -158,6 +161,7 @@ if __name__ == "__main__":
                waitflag = NumericProperty()
                errorflag= NumericProperty()
                tb= ListProperty([])
+               tensorflow_status= ListProperty([])               
                video_id=ListProperty(["Retrieving File"])
                video_count=ListProperty(["1"])
                
