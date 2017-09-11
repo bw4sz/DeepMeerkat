@@ -4,6 +4,7 @@
     
 <MainScreen>:
     name:'GUI'
+    runtype:"File"
     BoxLayout:
         orientation:'vertical'
         BoxLayout:
@@ -13,33 +14,39 @@
                 size_hint:(0.25,1)
                 Label:
                     text:"DeepMeerkat V0.0.1"
-                    font_size:12
+                    font_size:13
                 Button:
                     text:"Help"
-                    font_size:10
                     on_press: root.help_site()   
                 Button:
                     text:"Advanced settings"
                     on_press: root.gotoAdvanced(app.root)
+        BoxLayout:
+            Label:
+                text:"Run Type"
+            ToggleButton:
+                text: "File"
+                group:"method"
+                state:'down'
+                on_press:app.root.MM.args.runtype='File'
+            ToggleButton:
+                text:"Folder"
+                group:"method"
+                on_press:app.root.MM.args.runtype='Folder'
         Button:
             text:"Choose input"
             on_press:root.gotoFileOpen(app.root)
+        Button:
+            text:"Choose output directory"
+            on_press:root.gotoOutdir(app.root)
         Label:
-            text: "[b]Input:[/b] "
+            text: "[b]Input:[/b] " + str(root.)
             markup: True
             font_size:20
         Label:
-            text: "[b]Output:[/b] "
+            text: "[b]Output:[/b] " + str(root)
             markup: True
             font_size:20
-        TextInput:
-            id:outd
-            text:"Output Location (/DeepMeerkat)"
-            on_text: app.root.MM.args.output=self.text
-            font_size:20
-            size_hint:(.645,.5)
-            pos_hint:{'center_x':0.485}
-            multiline:False
         Button: 
             text:"Run"
             font_size:40
@@ -47,6 +54,30 @@
             on_release:root.run_press(app.root)
 <FileOpen>:
     name:"FileOpen"
+    text_input: text_input
+    BoxLayout:
+        orientation: "vertical"
+        FileChooserListView:
+            id: filechooser
+            on_selection: text_input.text = self.selection and self.selection[0] or ''
+        Label:
+            text: "Select or type path below"
+        TextInput:
+            text_input: text_input
+            id: text_input
+            height: 40
+            multiline: False
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        Button:
+            text: "Cancel"
+            on_release: root.gotoMain(app.root)
+        Button:
+            text: "Select"
+            on_release: app.root.MM.args.input=text_input.text; root.gotoMain(app.root)
+<Outdir>:
+    name:"Outdir"
     text_input: text_input
     BoxLayout:
         orientation: "vertical"
@@ -63,21 +94,12 @@
         size_hint_y: None
         height: 30
         Button:
-            text: "File"
-            on_release: dir=True
-        Button:
-            text: "Folder"
-            on_release: dir=False
-    BoxLayout:
-        size_hint_y: None
-        height: 30
-        Button:
             text: "Cancel"
             on_release: root.gotoMain(app.root)
         Button:
             text: "Save"
-            on_release: app.root.MM.args.input=filechooser.path
-        
+            on_release: app.root.MM.args.output=filechooser.path; root.gotoMain(app.root)
+            
 <AdvancedScreen>
     on_enter:app.root.MM.mode='advanced'
     BoxLayout:
@@ -99,6 +121,13 @@
             CheckBox:
                 active: True
                 on_active:app.root.MM.args.threaded=self.active
+        Label:
+            text:"Path to tensorflow model"
+        TextInput:
+            text:str(app.root.MM.args.path_to_model)
+            on_text: app.root.MM.args.path_to_model=self.text
+            font_size:20
+            multiline:False
         Button:
             text:"Run"
             font_size:40
@@ -118,10 +147,10 @@
             size_hint:(1,1)
             pos_hint:{'center_y':1}
             orientation:'vertical'
-            #Label:
-                #text: "[b]TensorFlow Status:[/b] " + str(app.root.MM.tensorflow_status)
-                #markup: True
-                #font_size:20
+            Label:
+                text: "[b]TensorFlow Status:[/b] "
+                markup: True
+                font_size:20
             Label:
                 text: "[b]Running File:[/b] " + str(app.root.MM.args.input)
                 markup: True

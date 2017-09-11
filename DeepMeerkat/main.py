@@ -61,7 +61,6 @@ if __name__ == "__main__":
           from os.path import isfile
           
           class MyScreenManager(ScreenManager):
-     
                try:
                     #Create motion instance class
                     MM=DeepMeerkat.DeepMeerkat()
@@ -83,6 +82,7 @@ if __name__ == "__main__":
                     self.current='P'
      
           class DeepMeerkatApp(App):
+               
                def build(self):
                     return MyScreenManager()
           
@@ -134,7 +134,13 @@ if __name__ == "__main__":
                     fileopen=FileOpen(name="FileOpen")
                     screenmanage.add_widget(fileopen)
                     screenmanage.transition.direction='left'          
-                    screenmanage.current='FileOpen'               
+                    screenmanage.current='FileOpen'
+                    
+               def gotoOutdir(self,screenmanage):
+                    outdir=FileOpen(name="Outdir")
+                    screenmanage.add_widget(outdir)
+                    screenmanage.transition.direction='left'          
+                    screenmanage.current='Outdir'                  
           
           class FileOpen(Screen):
                def gotoMain(self,screenmanage):
