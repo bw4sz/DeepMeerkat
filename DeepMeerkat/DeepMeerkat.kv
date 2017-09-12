@@ -39,11 +39,11 @@
             text:"Choose output directory"
             on_press:root.gotoOutdir(app.root)
         Label:
-            text: "[b]Input:[/b] " + root.input_file
+            text: "[b]Input:[/b] " + app.input_file
             markup: True
             font_size:20
         Label:
-            text: "[b]Output:[/b] " + str(root)
+            text: "[b]Output:[/b] " + app.output_file
             markup: True
             font_size:20
         Button: 
@@ -64,6 +64,7 @@
             text: "Select or type path below"
         TextInput:
             text_input: text_input
+            on_text:app.input_file=str(text_input.text)
             id: text_input
             height: 40
             multiline: False
@@ -84,8 +85,10 @@
         FileChooserListView:
             id: filechooser
             on_selection: text_input.text = self.selection and self.selection[0] or ''
+            dirselect:"True"
         TextInput:
             text_input: text_input
+            on_text: app.output_file=text_input.text
             id: text_input
             size_hint_y: None
             height: 40

@@ -71,6 +71,10 @@ if __name__ == "__main__":
                     self.current='P'
      
           class DeepMeerkatApp(App):
+               
+               input_file=StringProperty("Input File")               
+               output_file=StringProperty("Output File")               
+               
                try:
                     #Create motion instance class
                     MM=DeepMeerkat.DeepMeerkat()
@@ -92,7 +96,6 @@ if __name__ == "__main__":
           
           class MainScreen(Screen):
                
-               input_file=StringProperty("Input File")               
                def help_site(instance):
                     webbrowser.open("https://github.com/bw4sz/DeepMeerkat/wiki")
                   
