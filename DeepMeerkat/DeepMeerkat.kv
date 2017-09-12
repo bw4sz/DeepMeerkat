@@ -4,7 +4,6 @@
     
 <MainScreen>:
     name:'GUI'
-    runtype:"File"
     BoxLayout:
         orientation:'vertical'
         BoxLayout:
@@ -28,11 +27,11 @@
                 text: "File"
                 group:"method"
                 state:'down'
-                on_press:app.root.MM.args.runfile='True'; print(app.root.MM.args)
+                on_press:app.MM.args.runfile='True'; print(app.MM.args)
             ToggleButton:
                 text:"Folder"
                 group:"method"
-                on_press:app.root.MM.args.runfile='False'
+                on_press:app.MM.args.runfile='False'
         Button:
             text:"Choose input"
             on_press:root.gotoFileOpen(app.root)
@@ -40,7 +39,7 @@
             text:"Choose output directory"
             on_press:root.gotoOutdir(app.root)
         Label:
-            text: "[b]Input:[/b] " + str(root)
+            text: "[b]Input:[/b] " + root.input_file
             markup: True
             font_size:20
         Label:
@@ -54,7 +53,7 @@
             on_release:root.run_press(app.root)
 <FileOpen>:
     name:"FileOpen"
-    text_input: text_input
+    #text_input: text_input
     BoxLayout:
         orientation: "vertical"
         FileChooserListView:
@@ -76,7 +75,7 @@
             on_release: root.gotoMain(app.root)
         Button:
             text: "Select"
-            on_release: app.root.MM.args.input=text_input.text; root.gotoMain(app.root)
+            on_release: app.MM.args.input=text_input.text; root.gotoMain(app.root)
 <Outdir>:
     name:"Outdir"
     text_input: text_input
@@ -99,10 +98,10 @@
             on_release: root.gotoMain(app.root)
         Button:
             text: "Save"
-            on_release: app.root.MM.args.output=filechooser.path; root.gotoMain(app.root)
+            on_release: app.MM.args.output=filechooser.path; root.gotoMain(app.root)
             
 <AdvancedScreen>
-    on_enter:app.root.MM.mode='advanced'
+    on_enter:app.MM.mode='advanced'
     BoxLayout:
         orientation:'vertical'
         Button:
@@ -115,18 +114,18 @@
                 text: "Draw Motion Objects"
             CheckBox:
                 active: False
-                on_active:app.root.MM.todraw=self.active
+                on_active:app.MM.todraw=self.active
         BoxLayout:
             Label:
                 text: "Multithreaded"
             CheckBox:
                 active: True
-                on_active:app.root.MM.args.threaded=self.active
+                on_active:app.MM.args.threaded=self.active
         Label:
             text:"Path to tensorflow model"
         TextInput:
-            text:str(app.root.MM.args.path_to_model)
-            on_text: app.root.MM.args.path_to_model=self.text
+            text:str(app.MM.args.path_to_model)
+            on_text: app.MM.args.path_to_model=self.text
             font_size:20
             multiline:False
         Button:
@@ -137,8 +136,8 @@
 
 <ProgressScreen>
     id: P
-    on_pre_enter:root.assignname(app.root.MM)
-    on_enter: root.MotionM(app.root.MM)
+    on_pre_enter:root.assignname(app.MM)
+    on_enter: root.MotionM(app.MM)
     on_waitflag: if self.waitflag==1: root.gotoresults(app.root)
     on_errorflag: if self.errorflag==1: root.gotoErrorScreen(app.root)
 
@@ -153,11 +152,11 @@
                 markup: True
                 font_size:20
             Label:
-                text: "[b]Running File:[/b] " + str(app.root.MM.args.input)
+                text: "[b]Running File:[/b] " + str(app.MM.args.input)
                 markup: True
                 font_size:20
             Label:
-                text: "[b]Output Directory:[/b] " + str(app.root.MM.args.output)
+                text: "[b]Output Directory:[/b] " + str(app.MM.args.output)
                 markup: True
                 font_size:20
         BoxLayout:
@@ -181,24 +180,24 @@
             pos_hint:{'top':0}
             on_press:root.gotoMain(app.root)
         Label:
-            text: "[b]Input File:[/b] " + str(app.root.MM.args.input)
+            text: "[b]Input File:[/b] " + str(app.MM.args.input)
             markup: True
             font_size:20
         Label:
-            text: "[b]Output Directory:[/b] " + str(app.root.MM.args.output)
+            text: "[b]Output Directory:[/b] " + str(app.MM.args.output)
             markup: True
             font_size:20
         #Label:
-            #text: "[b]Run time:[/b] " + str(round(app.root.MM.total_min,2)) + " min"
+            #text: "[b]Run time:[/b] " + str(round(app.MM.total_min,2)) + " min"
             #markup: True
             #font_size:20
         #Label:
-            #text:str(len(app.root.MM.annotations)) + " candidate motion frames " + "from " + str(app.root.MM.frame_count) + " images (" + str(round(float(len(app.root.MM.annotations))/app.root.MM.frame_count,3)*100) + "%)"
+            #text:str(len(app.MM.annotations)) + " candidate motion frames " + "from " + str(app.MM.frame_count) + " images (" + str(round(float(len(app.MM.annotations))/app.MM.frame_count,3)*100) + "%)"
             #font_size:20
         Button:
             text: "More statistics and parameter information"
             size_hint:(1,0.5)
-            on_press: root.openfile(app.root.MM)   
+            on_press: root.openfile(app.MM)   
 
 <ErrorScreen>
     on_enter:root.getMessage(app.root)
@@ -218,7 +217,7 @@
         Button:
             text: "Parameter Log"
             size_hint:(1,0.5)
-            on_press: root.openfile(app.root.MM)           
+            on_press: root.openfile(app.MM)           
         Label:
             text: "If you believe this is a bug, submit the parameter log,\na copy of your error, and a description of your video to the link below."            
         Button:

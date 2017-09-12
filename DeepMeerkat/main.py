@@ -61,6 +61,16 @@ if __name__ == "__main__":
           from os.path import isfile
           
           class MyScreenManager(ScreenManager):
+
+     
+               def getProgress(self):
+                    name="P"
+                    s=ProgressScreen(name=name)
+                    self.add_widget(s)
+                    self.transition.direction='left'          
+                    self.current='P'
+     
+          class DeepMeerkatApp(App):
                try:
                     #Create motion instance class
                     MM=DeepMeerkat.DeepMeerkat()
@@ -76,21 +86,13 @@ if __name__ == "__main__":
                     if len(sys.argv)<= 2:          
                          k=raw_input("Enter any key to exit:")
                          sys.exit(0)
-     
-               def getProgress(self):
-                    name="P"
-                    s=ProgressScreen(name=name)
-                    self.add_widget(s)
-                    self.transition.direction='left'          
-                    self.current='P'
-     
-          class DeepMeerkatApp(App):
-               
+                         
                def build(self):
                     return MyScreenManager()
           
           class MainScreen(Screen):
                
+               input_file=StringProperty("Input File")               
                def help_site(instance):
                     webbrowser.open("https://github.com/bw4sz/DeepMeerkat/wiki")
                   
@@ -146,6 +148,7 @@ if __name__ == "__main__":
                     screenmanage.current='Outdir'                  
           
           class FileOpen(Screen):
+               
                def gotoMain(self,screenmanage):
                     screenmanage.transition.direction='right'          
                     screenmanage.current='GUI'   
