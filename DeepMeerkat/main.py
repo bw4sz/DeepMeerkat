@@ -61,18 +61,16 @@ if __name__ == "__main__":
           from os.path import isfile
           
           class MyScreenManager(ScreenManager):
-     
+               
                def getProgress(self):
-                    name="P"
-                    s=ProgressScreen(name=name)
-                    self.add_widget(s)
                     self.transition.direction='left'          
-                    self.current='P'
+                    self.current='ProgressScreen'
      
           class DeepMeerkatApp(App):
                
                input_file=StringProperty("")               
                output_file=StringProperty("")               
+               dirselect=StringProperty("False")               
                
                try:
                     #Create motion instance class
@@ -131,21 +129,14 @@ if __name__ == "__main__":
                     root.getProgress()
                
                def gotoAdvanced(self,screenmanage):
-                    name="A"
-                    a=AdvancedScreen(name=name)
-                    screenmanage.add_widget(a)
                     screenmanage.transition.direction='left'          
-                    screenmanage.current='A'
+                    screenmanage.current='AdvancedScreen'
                
                def gotoFileOpen(self,screenmanage):
-                    fileopen=FileOpen(name="FileOpen")
-                    screenmanage.add_widget(fileopen)
                     screenmanage.transition.direction='left'          
                     screenmanage.current='FileOpen'
                     
                def gotoOutdir(self,screenmanage):
-                    outdir=FileOpen(name="Outdir")
-                    screenmanage.add_widget(outdir)
                     screenmanage.transition.direction='left'          
                     screenmanage.current='Outdir'                  
           
@@ -155,7 +146,14 @@ if __name__ == "__main__":
                     screenmanage.transition.direction='right'          
                     screenmanage.current='GUI'   
           
+          class Outdir(Screen):
+               
+               def gotoMain(self,screenmanage):
+                    screenmanage.transition.direction='right'          
+                    screenmanage.current='GUI' 
+                    
           class AdvancedScreen(Screen):
+               
                def gotoMain(self,screenmanage):
                     screenmanage.transition.direction='right'          
                     screenmanage.current='GUI'   
@@ -176,7 +174,7 @@ if __name__ == "__main__":
                def MotionM(self,MM):
                     self.waitflag=0   
                     self.errorflag=0                    
-                    Thread(target=self.worker,kwargs=dict(MM=MM,pbar=self.ids.pb)).start()
+                    self.MM=Thread(target=self.worker,kwargs=dict(MM=MM,pbar=self.ids.pb)).start()
                   
                def worker(self,MM,pbar):
                     try:
@@ -194,6 +192,7 @@ if __name__ == "__main__":
                                    self.vid=vid
                                    MM.run(vid=vid)      
                          self.waitflag=1
+                         return MM
                     except Exception as e:
                          self.tb.append(str(traceback.format_exc()))
                          self.errorflag=1
