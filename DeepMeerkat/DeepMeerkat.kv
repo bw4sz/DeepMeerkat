@@ -22,6 +22,7 @@
         name:"ResultsScreen"
         manager:screen_manager
         total_min:ProgressScreen.total_min
+        frame_count:ProgressScreen.frame_count
     ErrorScreen:
         name:"ErrorScreen"
         manager:screen_manager
@@ -211,9 +212,9 @@
             text: "[b]Run time:[/b] " + str(round(root.total_min,2)) + " min"
             markup: True
             font_size:20
-        #Label:
-            #text:str(len(app.MM.annotations)) + " candidate motion frames " + "from " + str(app.MM.frame_count) + " images (" + str(round(float(len(app.MM.annotations))/app.MM.frame_count,3)*100) + "%)"
-            #font_size:20
+        Label:
+            text: str(root.len_annotations) + " candidate motion frames " + "from " #+ str(root.frame_count) + " images (" + str(round(root.len_annotations/root.frame_count,3)*100) + "%)"
+            font_size:20
         Button:
             text: "More statistics and parameter information"
             size_hint:(1,0.5)

@@ -161,7 +161,12 @@ if __name__ == "__main__":
                     root.getProgress()     
                     
           class ProgressScreen(Screen):  
+               
+               #updated properties for reporting
+               len_annotations=NumericProperty()                              
                total_min=NumericProperty()
+               frame_count=NumericProperty()
+               
                waitflag = NumericProperty()
                errorflag= NumericProperty()
                tb= ListProperty([])
@@ -188,8 +193,10 @@ if __name__ == "__main__":
                                    self.vid=vid
                                    MM.run(vid=vid) 
                               
-                              #save outputs
-                              self.total_min=MM.video_instance.total_min
+                         #save outputs
+                         self.total_min=MM.video_instance.total_min
+                         self.frame_count=MM.video_instance.frame_count
+                         self.len_annotations=len(MM.video_instance.annotations)
                                    
                          self.waitflag=1
                          
@@ -211,7 +218,11 @@ if __name__ == "__main__":
                     
           class ResultsScreen(Screen):
                
-               total_min=NumericProperty()               
+               #data reporting
+               total_min=NumericProperty()      
+               frame_count=NumericProperty()               
+               len_annotations=NumericProperty()               
+               
                def gotoMain(self,screenmanage):
                     screenmanage.transition.direction='right'          
                     screenmanage.current='GUI'   
