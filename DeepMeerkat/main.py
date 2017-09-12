@@ -61,7 +61,6 @@ if __name__ == "__main__":
           from os.path import isfile
           
           class MyScreenManager(ScreenManager):
-
      
                def getProgress(self):
                     name="P"
@@ -72,8 +71,8 @@ if __name__ == "__main__":
      
           class DeepMeerkatApp(App):
                
-               input_file=StringProperty("Input File")               
-               output_file=StringProperty("Output File")               
+               input_file=StringProperty("")               
+               output_file=StringProperty("")               
                
                try:
                     #Create motion instance class

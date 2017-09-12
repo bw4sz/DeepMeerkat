@@ -6,20 +6,19 @@
     name:'GUI'
     BoxLayout:
         orientation:'vertical'
+        Label:
+            text:"DeepMeerkat V0.0.1"
+            font_size:21
         BoxLayout:
             BoxLayout:
                 orientation:'horizontal'
-                spacing:-1
-                size_hint:(0.25,1)
-                Label:
-                    text:"DeepMeerkat V0.0.1"
-                    font_size:14
                 Button:
                     text:"Help"
                     on_press: root.help_site()   
                 Button:
                     text:"Advanced settings"
                     on_press: root.gotoAdvanced(app.root)
+
         BoxLayout:
             Label:
                 text:"Run Type"
@@ -34,15 +33,19 @@
                 on_press:app.MM.args.runfile='False'
         Button:
             text:"Choose input"
+            font_size:25
             on_press:root.gotoFileOpen(app.root)
         Button:
             text:"Choose output directory"
+            font_size:25
             on_press:root.gotoOutdir(app.root)
         Label:
+            size_hint_x:0.75
             text: "[b]Input:[/b] " + app.input_file
             markup: True
             font_size:20
         Label:
+            size_hint_x:0.75
             text: "[b]Output:[/b] " + app.output_file
             markup: True
             font_size:20
@@ -60,13 +63,16 @@
             id: filechooser
             dirselect:"True"
             on_selection: text_input.text = self.selection and self.selection[0] or ''
+            size_hint_y:1.5
         Label:
-            text: "Select or type path below"
+            text: "Select above or type path below"
+            size_hint_y:0.25
         TextInput:
+            size_hint_y:0.4
             text_input: text_input
             on_text:app.input_file=str(text_input.text)
             id: text_input
-            height: 40
+            font_size: 30
             multiline: False
     BoxLayout:
         size_hint_y: None
