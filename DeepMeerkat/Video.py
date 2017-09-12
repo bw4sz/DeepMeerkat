@@ -384,13 +384,16 @@ class Video:
 
         #write parameter logs
         self.output_args=self.file_destination + "/parameters.csv"
+        
+        #report statistics
+        self.total_min=(self.end_time-self.start_time)/60.0
+        
         if sys.version_info >= (3, 0):
             with open(self.output_args, 'w',newline="") as f:
                 writer = csv.writer(f,)
                 writer.writerows(self.args.__dict__.items())
 
                 #Total time
-                self.total_min=(self.end_time-self.start_time)/60.0
                 writer.writerow(["Minutes",self.total_min])
 
                 #Frames in file
@@ -410,7 +413,6 @@ class Video:
                 writer.writerows(self.args.__dict__.items())
 
                 #Total time
-                self.total_min=round((self.end_time-self.start_time)/60,3)
                 writer.writerow(["Minutes",self.total_min])
 
                 #Frames in file

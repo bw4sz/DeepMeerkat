@@ -6,6 +6,7 @@
         name:"GUI"
         manager:screen_manager
     ProgressScreen:
+        id:ProgressScreen
         name:"ProgressScreen"
         manager:screen_manager
     AdvancedScreen:
@@ -16,6 +17,13 @@
         manager:screen_manager
     Outdir:
         name:"Outdir"
+        manager:screen_manager
+    ResultsScreen:
+        name:"ResultsScreen"
+        manager:screen_manager
+        total_min:ProgressScreen.total_min
+    ErrorScreen:
+        name:"ErrorScreen"
         manager:screen_manager
     
 <MainScreen>:
@@ -148,10 +156,9 @@
             on_release:root.run_press(app.root)
 
 <ProgressScreen>
-    id: P
     on_pre_enter:root.assignname(app.MM)
     on_enter: root.MotionM(app.MM)
-    on_waitflag: if self.waitflag==1: root.gotoresults(app.root)
+    on_waitflag: if self.waitflag==1: root.manager.current="ResultsScreen"
     on_errorflag: if self.errorflag==1: root.gotoErrorScreen(app.root)
 
     BoxLayout:
@@ -201,7 +208,7 @@
             markup: True
             font_size:20
         Label:
-            text: "[b]Run time:[/b] " + str(round(root.manager,2)) + " min"
+            text: "[b]Run time:[/b] " + str(round(root.total_min,2)) + " min"
             markup: True
             font_size:20
         #Label:

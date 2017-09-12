@@ -59,9 +59,9 @@ class DeepMeerkat:
         print("Processing: " + str(vid))
         if not os.path.exists(vid):
             raise "Video does not exist at specified path"
-        video_instance=Video.Video(vid,self.args,tensorflow_session=sess)
-        video_instance.analyze()
-        video_instance.write()
+        self.video_instance=Video.Video(vid,self.args,tensorflow_session=sess)
+        self.video_instance.analyze()
+        self.video_instance.write()
 
         #reset mog variance if adapting during run.
         self.args.mogvariance=mogvariance

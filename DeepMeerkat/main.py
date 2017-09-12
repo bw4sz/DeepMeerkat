@@ -160,7 +160,8 @@ if __name__ == "__main__":
                def run_press(self,root):
                     root.getProgress()     
                     
-          class ProgressScreen(Screen):       
+          class ProgressScreen(Screen):  
+               total_min=NumericProperty()
                waitflag = NumericProperty()
                errorflag= NumericProperty()
                tb= ListProperty([])
@@ -170,11 +171,6 @@ if __name__ == "__main__":
                
                def assignname(self,MM):
                     self.video_id.append(MM.args.input)
-               
-               def MotionM(self,MM):
-                    self.waitflag=0   
-                    self.errorflag=0                    
-                    self.MM=Thread(target=self.worker,kwargs=dict(MM=MM,pbar=self.ids.pb)).start()
                   
                def worker(self,MM,pbar):
                     try:
@@ -190,25 +186,32 @@ if __name__ == "__main__":
                          else:
                               for vid in MM.queue:
                                    self.vid=vid
-                                   MM.run(vid=vid)      
+                                   MM.run(vid=vid) 
+                              
+                              #save outputs
+                              self.total_min=MM.video_instance.total_min
+                                   
                          self.waitflag=1
-                         return MM
+                         
+                         #store output
+                         
+                         
                     except Exception as e:
                          self.tb.append(str(traceback.format_exc()))
                          self.errorflag=1
                          
-               def gotoresults(self,screenmanage):          
-                    screenmanage.switch_to(ResultsScreen(),direction='left')
+               def MotionM(self,MM):
+                    self.waitflag=0   
+                    self.errorflag=0                    
+                    Thread(target=self.worker,kwargs=dict(MM=MM,pbar=self.ids.pb)).start()
                     
                def gotoErrorScreen(self,screenmanage):
-                    name="E"
-                    e=ErrorScreen(name=name)
-                    screenmanage.add_widget(e)
                     screenmanage.transition.direction='left'          
-                    screenmanage.current='E'
+                    screenmanage.current='ErrorScreen'
                     
           class ResultsScreen(Screen):
-                    
+               
+               total_min=NumericProperty()               
                def gotoMain(self,screenmanage):
                     screenmanage.transition.direction='right'          
                     screenmanage.current='GUI'   
@@ -219,7 +222,7 @@ if __name__ == "__main__":
           class ErrorScreen(Screen):
                em=StringProperty()
                def getMessage(self,screenmanage):
-                    PScreen=screenmanage.get_screen("P")
+                    PScreen=screenmanage.get_screen("ProgressScreen")
                     self.em=PScreen.tb.pop()
                
                def help_issue(instance):
