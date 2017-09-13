@@ -23,6 +23,7 @@
         manager:screen_manager
         total_min:ProgressScreen.total_min
         frame_count:ProgressScreen.frame_count
+        hitrate: ProgressScreen.hitrate
     ErrorScreen:
         name:"ErrorScreen"
         manager:screen_manager
@@ -30,40 +31,58 @@
 <MainScreen>:
     BoxLayout:
         orientation:'vertical'
-        Label:
-            text:"DeepMeerkat V0.0.1"
-            font_size:25
         BoxLayout:
+            size_hint_y:0.75 
+            orientation:'horizontal'
+            Image:
+                size_hint:(0.5,0.75)
+                source:"images/thumbnail.png"
             BoxLayout:
-                orientation:'horizontal'
-                Button:
-                    text:"Help"
-                    on_press: root.help_site()   
-                Button:
-                    text:"Advanced settings"
-                    on_press: root.gotoAdvanced(app.root)
-        Button:
-            text:"Choose input"
-            font_size:25
-            on_press:root.gotoFileOpen(app.root)
-        Button:
-            text:"Choose output directory"
-            font_size:25
-            on_press:root.gotoOutdir(app.root)
-        Label:
-            size_hint_x:0.75
-            text: "[b]Input:[/b] " + app.input_file
-            markup: True
-            font_size:15
-        Label:
-            size_hint_x:0.75
-            text: "[b]Output:[/b] " + app.output_file
-            markup: True
-            font_size:15
+                orientation:"vertical"
+                Label:
+                    text:"DeepMeerkat"
+                    font_size:40
+                Label:
+                    size_hint_y:0.2
+                    text_size: self.size
+                    halign:"right"
+                    text:"v0.0.1"
+                    font_size:12
+            Button:
+                size_hint_x:0.35
+                text:"Advanced settings"
+                on_press: root.gotoAdvanced(app.root)
+            Button:
+                text:"Help"
+                size_hint_x:0.25
+                on_press: root.help_site()   
+        BoxLayout:
+            orientation:"horizontal"
+            Button:
+                size_hint_x:0.5
+                text:"Choose input"
+                font_size:25
+                on_press:root.gotoFileOpen(app.root)
+            Label:
+                text: app.input_file
+                markup: True
+                font_size:20
+        BoxLayout:
+            orientation:"horizontal"
+            Button:
+                size_hint_x:0.5
+                text:"Choose output"
+                font_size:25
+                on_press:root.gotoOutdir(app.root)
+            Label:
+                text: app.output_file
+                markup: True
+                font_size:20
         Button: 
             text:"Run"
             font_size:45
             size_hint:(1,0.8)
+            background_color: (1,0,0,1.5) if self.state == 'normal' else (0,1,0,1)
             on_release:root.run_press(app.root)
 <FileOpen>:
     name:"FileOpen"
@@ -71,6 +90,7 @@
         orientation: "vertical"
         FileChooserListView:
             id: filechooser
+            path: root.wd
             dirselect:"True"
             on_selection: text_input.text = self.selection and self.selection[0] or ''
             size_hint_y:1.5
@@ -78,10 +98,10 @@
             text: "Select above or type path below"
             size_hint_y:0.25
         TextInput:
-            size_hint_y:0.4
+            id: text_input
+            size_hint_y:0.3
             text_input: text_input
             on_text:app.input_file=str(text_input.text)
-            id: text_input
             font_size: 30
             multiline: False
     BoxLayout:
@@ -89,27 +109,29 @@
         height: 30
         Button:
             text: "Cancel"
-            on_release: root.gotoMain(app.root)
+            on_release: text_input.text="";root.gotoMain(app.root)
         Button:
             text: "Select"
             on_release: app.MM.args.input=text_input.text; root.gotoMain(app.root)
 <Outdir>:
     name:"Outdir"
+    text_input:root.wd
     BoxLayout:
         orientation: "vertical"
         FileChooserListView:
             id: filechooser
             dirselect:"True"
+            path:root.wd
             on_selection: text_input.text = self.selection and self.selection[0] or ''
             size_hint_y:1.5
         Label:
             text: "Select above or type path below"
             size_hint_y:0.25
         TextInput:
-            size_hint_y:0.4
-            text_input: text_input
-            on_text:app.input_file=str(text_input.text)
             id: text_input
+            size_hint_y:0.3
+            text_input: text_input
+            on_text:app.output_file=str(text_input.text)
             font_size: 30
             multiline: False
     BoxLayout:
@@ -117,10 +139,10 @@
         height: 30
         Button:
             text: "Cancel"
-            on_release: root.gotoMain(app.root)
+            on_release: text_input.text=""; root.gotoMain(app.root)
         Button:
             text: "Select"
-            on_release: app.MM.args.input=text_input.text; root.gotoMain(app.root)
+            on_release: app.MM.args.output=text_input.text; root.gotoMain(app.root)
             
 <AdvancedScreen>
     on_enter:app.MM.mode='advanced'
@@ -135,6 +157,7 @@
             Label:
                 text: "Draw Motion Objects"
             CheckBox:
+                color:(1,0,0,1.2)
                 active: False
                 on_active:app.MM.todraw=self.active
         BoxLayout:
@@ -146,6 +169,7 @@
         Label:
             text:"Path to tensorflow model"
         TextInput:
+            size_hint_y:0.5
             text:str(app.MM.args.path_to_model)
             on_text: app.MM.args.path_to_model=self.text
             font_size:20
@@ -207,19 +231,23 @@
         Label:
             text: "[b]Output Directory:[/b] " + str(app.MM.args.output)
             markup: True
-            font_size:20
+            font_size:22
         Label:
             text: "[b]Run time:[/b] " + str(round(root.total_min,2)) + " min"
             markup: True
-            font_size:20
+            font_size:22
         Label:
-            text: str(root.len_annotations) + " candidate motion frames " + "from " #+ str(root.frame_count) + " images (" + str(round(root.len_annotations/root.frame_count,3)*100) + "%)"
+            text: str(root.len_annotations) + " candidate motion frames " + "from " + str(root.frame_count) + " (" + str(root.hitrate) + "%)" 
             font_size:20
         Button:
-            text: "More statistics and parameter information"
+            text: "Parameter File"
             size_hint:(1,0.5)
-            on_press: root.openfile(app.MM)   
-
+            on_press: root.openparfile(app.MM)   
+        
+        Button:
+            text: "Annotation File"
+            size_hint:(1,0.5)
+            on_press: root.openannotationfile(app.MM)   
 <ErrorScreen>
     on_enter:root.getMessage(app.root)
     BoxLayout:

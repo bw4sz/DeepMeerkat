@@ -6,6 +6,7 @@ import traceback
 #DeepMeerkat
 import DeepMeerkat
 import CommandArgs
+import os
 
 #Entry Point
 
@@ -59,6 +60,7 @@ if __name__ == "__main__":
           from time import sleep
           from os.path import isdir
           from os.path import isfile
+          import os
           
           class MyScreenManager(ScreenManager):
                
@@ -69,7 +71,7 @@ if __name__ == "__main__":
           class DeepMeerkatApp(App):
                
                input_file=StringProperty("")               
-               output_file=StringProperty("")               
+               output_file=StringProperty(os.getenv("HOME")+"/DeepMeerkat/")               
                dirselect=StringProperty("False")               
                
                try:
@@ -142,12 +144,15 @@ if __name__ == "__main__":
           
           class FileOpen(Screen):
                
+               wd=os.getenv("HOME")
+                                   
                def gotoMain(self,screenmanage):
                     screenmanage.transition.direction='right'          
                     screenmanage.current='GUI'   
           
           class Outdir(Screen):
                
+               wd=os.getenv("HOME")+"/DeepMeerkat"
                def gotoMain(self,screenmanage):
                     screenmanage.transition.direction='right'          
                     screenmanage.current='GUI' 
@@ -166,11 +171,12 @@ if __name__ == "__main__":
                len_annotations=NumericProperty()                              
                total_min=NumericProperty()
                frame_count=NumericProperty()
+               hitrate=NumericProperty()
                
                waitflag = NumericProperty()
                errorflag= NumericProperty()
                tb= ListProperty([])
-               tensorflow_status= ListProperty([])               
+               tensorflow_status= StringProperty("Loading")               
                video_id=ListProperty(["Retrieving File"])
                video_count=ListProperty(["1"])
                
@@ -197,11 +203,10 @@ if __name__ == "__main__":
                          self.total_min=MM.video_instance.total_min
                          self.frame_count=MM.video_instance.frame_count
                          self.len_annotations=len(MM.video_instance.annotations)
-                                   
+                         self.hitrate=round(float(self.len_annotations)/self.frame_count,3) * 100         
                          self.waitflag=1
                          
                          #store output
-                         
                          
                     except Exception as e:
                          self.tb.append(str(traceback.format_exc()))
@@ -219,16 +224,20 @@ if __name__ == "__main__":
           class ResultsScreen(Screen):
                
                #data reporting
-               total_min=NumericProperty()      
-               frame_count=NumericProperty()               
-               len_annotations=NumericProperty()               
-               
+               total_min=NumericProperty(0)      
+               frame_count=NumericProperty(0)               
+               len_annotations=NumericProperty(0)               
+               hitrate=NumericProperty(0)               
+                              
                def gotoMain(self,screenmanage):
                     screenmanage.transition.direction='right'          
                     screenmanage.current='GUI'   
                     
-               def openfile(self,MM):
-                    startfile(MM.args.output + "/" + "Parameters_Results.log")
+               def openannonationsfile(self,MM):
+                    startfile(MM.args.output + "/" + "Annotations.csv")
+                    
+               def openparfile(self,MM):
+                    startfile(MM.args.output + "/" + "Parameters.csv")
           
           class ErrorScreen(Screen):
                em=StringProperty()
