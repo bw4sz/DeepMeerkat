@@ -167,6 +167,7 @@ if __name__ == "__main__":
                total_min=NumericProperty()
                frame_count=NumericProperty()
                hitrate=NumericProperty()
+               video_name=StringProperty()                                             
                tensorflow_status=StringProperty()                              
                tb=ListProperty([])                              
                
@@ -175,7 +176,6 @@ if __name__ == "__main__":
                video_id=NumericProperty()
                video_count=NumericProperty()
 
-                  
                def worker(self,MM):
                     try:
                          #Collect video queue
@@ -195,7 +195,7 @@ if __name__ == "__main__":
                               self.video_id=0
                               for vid in MM.queue:
                                    self.video_id+=1
-                                   self.vid=vid
+                                   self.video_name=vid
                                    MM.run(vid=vid) 
                               
                          #save outputs
@@ -221,10 +221,10 @@ if __name__ == "__main__":
           class ResultsScreen(Screen):
                
                #data reporting
-               total_min=NumericProperty(0)      
-               frame_count=NumericProperty(0)               
-               len_annotations=NumericProperty(0)               
-               hitrate=NumericProperty(0)               
+               total_min=NumericProperty()      
+               frame_count=NumericProperty()               
+               len_annotations=NumericProperty()               
+               hitrate=NumericProperty()               
                               
                def gotoMain(self,screenmanage):
                     screenmanage.transition.direction='right'          

@@ -10,7 +10,6 @@
         id:ProgressScreen
         name:"ProgressScreen"
         manager:screen_manager
-        tensorflow_status:app.MM.tensorflow_status
     AdvancedScreen:
         name:"AdvancedScreen"
         manager:screen_manager
@@ -26,6 +25,7 @@
         total_min:ProgressScreen.total_min
         frame_count:ProgressScreen.frame_count
         hitrate: ProgressScreen.hitrate
+        len_annotations: ProgressScreen.len_annotations
     ErrorScreen:
         name:"ErrorScreen"
         manager:screen_manager
@@ -193,11 +193,7 @@
             pos_hint:{'center_y':1}
             orientation:'vertical'
             Label:
-                text: "[b]TensorFlow Status:[/b] " + str(root.tensorflow_status)
-                markup: True
-                font_size:20
-            Label:
-                text: "[b]Running File:[/b] " + str(app.MM.args.input) + " (%d/%d)" % (root.video_id,root.video_count)
+                text: "[b]Running File:[/b] " + str(root.video_name) + " (%d/%d)" % (root.video_id,root.video_count)
                 markup: True
                 font_size:20
             Label:
@@ -228,7 +224,7 @@
             markup: True
             font_size:22
         Label:
-            text: str(root.len_annotations) + " candidate motion frames " + "from " + str(root.frame_count) + " (" + str(root.hitrate) + "%)" 
+            text: "Returned " + str(root.len_annotations) + " frames " + "from " + str(root.frame_count) + " (" + str(root.hitrate) + "%)" 
             font_size:20
         Button:
             text: "Parameter File"
