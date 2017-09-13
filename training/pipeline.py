@@ -284,14 +284,14 @@ class FlowersE2E(object):
       model_path: Path to the trained model.
     """
 
-    create_model_cmd = [
-        'gcloud', 'ml-engine', 'models', 'create', self.args.deploy_model_name,
-        '--regions', 'us-central1',
-        '--project', self.args.project,
-    ]
+    #create_model_cmd = [
+    #    'gcloud', 'ml-engine', 'models', 'create', self.args.deploy_model_name,
+    #   '--regions', 'us-central1',
+    #    '--project', self.args.project,
+    #]
 
-    print(create_model_cmd)
-    subprocess.check_call(create_model_cmd)
+    #print(create_model_cmd)
+    #subprocess.check_call(create_model_cmd)
 
     submit = [
         'gcloud', 'ml-engine', 'versions', 'create',
