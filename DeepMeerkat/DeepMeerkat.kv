@@ -2,6 +2,7 @@
 <MyScreenManager>:
     id:screen_manager
     name:"screen_manager"
+    
     MainScreen:
         name:"GUI"
         manager:screen_manager
@@ -9,6 +10,7 @@
         id:ProgressScreen
         name:"ProgressScreen"
         manager:screen_manager
+        tensorflow_status:app.MM.tensorflow_status
     AdvancedScreen:
         name:"AdvancedScreen"
         manager:screen_manager
@@ -30,6 +32,7 @@
     
 <MainScreen>:
     BoxLayout:
+        padding:[10,10,10,10]
         orientation:'vertical'
         BoxLayout:
             size_hint_y:0.75 
@@ -49,8 +52,9 @@
                     text:"v0.0.1"
                     font_size:12
             Button:
-                size_hint_x:0.35
-                text:"Advanced settings"
+                size_hint_x:0.32
+                text:"Advanced \n settings"
+                markup:True
                 on_press: root.gotoAdvanced(app.root)
             Button:
                 text:"Help"
@@ -154,19 +158,21 @@
             pos_hint:{'top':0}
             on_press:root.gotoMain(app.root)
         BoxLayout:
+            size_hint_x:0.5
             Label:
                 text: "Draw Motion Objects"
             CheckBox:
-                color:(1,0,0,1.2)
                 active: False
                 on_active:app.MM.todraw=self.active
         BoxLayout:
+            size_hint_x:0.5
             Label:
                 text: "Multithreaded"
             CheckBox:
-                active: True
+                active: False
                 on_active:app.MM.args.threaded=self.active
         Label:
+            font_size:15
             text:"Path to tensorflow model"
         TextInput:
             size_hint_y:0.5
@@ -174,14 +180,8 @@
             on_text: app.MM.args.path_to_model=self.text
             font_size:20
             multiline:False
-        Button:
-            text:"Run"
-            font_size:40
-            size_hint:(1,0.6)
-            on_release:root.run_press(app.root)
 
 <ProgressScreen>
-    on_pre_enter:root.assignname(app.MM)
     on_enter: root.MotionM(app.MM)
     on_waitflag: if self.waitflag==1: root.manager.current="ResultsScreen"
     on_errorflag: if self.errorflag==1: root.gotoErrorScreen(app.root)
@@ -193,11 +193,11 @@
             pos_hint:{'center_y':1}
             orientation:'vertical'
             Label:
-                text: "[b]TensorFlow Status:[/b] "
+                text: "[b]TensorFlow Status:[/b] " + str(root.tensorflow_status)
                 markup: True
                 font_size:20
             Label:
-                text: "[b]Running File:[/b] " + str(app.MM.args.input)
+                text: "[b]Running File:[/b] " + str(app.MM.args.input) + " (%d/%d)" % (root.video_id,root.video_count)
                 markup: True
                 font_size:20
             Label:
@@ -206,15 +206,6 @@
                 font_size:20
         BoxLayout:
             size_hint:(0.9,1)
-            
-            Label:
-                text: 'Progress'
-                size_hint:(0.25,1)
-                font_size:20
-            ProgressBar:
-                id:pb
-                value: 0
-                size_hint:(0.8,1)
                                           
 <ResultsScreen>
     BoxLayout:

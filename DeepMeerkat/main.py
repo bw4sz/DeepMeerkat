@@ -22,11 +22,9 @@ if __name__ == "__main__":
           MM.process_args() 
           MM.run()
                     
-          #create blank list to mimic GUI features.
-          #MM.wrap(video_id=[],pbar=[])                
      else:            
 
-#run GUI
+          #run GUI
           #Kivy
           from kivy.app import App
           from kivy.uix.scatter import Scatter
@@ -72,7 +70,7 @@ if __name__ == "__main__":
                
                input_file=StringProperty("")               
                output_file=StringProperty(os.getenv("HOME")+"/DeepMeerkat/")               
-               dirselect=StringProperty("False")               
+               dirselect=StringProperty("False")   
                
                try:
                     #Create motion instance class
@@ -80,10 +78,7 @@ if __name__ == "__main__":
      
                     #Instantiate Command line args
                     MM.process_args()
-                    
-                    #set tensorflow status
-                    MM.tensorflow_status="Loading"
-                    
+                                        
                except Exception as e:
                     traceback.print_exc()
                     if len(sys.argv)<= 2:          
@@ -172,21 +167,23 @@ if __name__ == "__main__":
                total_min=NumericProperty()
                frame_count=NumericProperty()
                hitrate=NumericProperty()
+               tensorflow_status=StringProperty()                              
+               tb=ListProperty([])                              
                
                waitflag = NumericProperty()
                errorflag= NumericProperty()
-               tb= ListProperty([])
-               tensorflow_status= StringProperty("Loading")               
-               video_id=ListProperty(["Retrieving File"])
-               video_count=ListProperty(["1"])
-               
-               def assignname(self,MM):
-                    self.video_id.append(MM.args.input)
+               video_id=NumericProperty()
+               video_count=NumericProperty()
+
                   
-               def worker(self,MM,pbar):
+               def worker(self,MM):
                     try:
                          #Collect video queue
                          MM.create_queue()
+                         
+                         #set total number
+                         self.video_count=len(MM.queue)
+                         
                          if MM.args.threaded:
                               from multiprocessing import Pool
                               from multiprocessing.dummy import Pool as ThreadPool 
@@ -195,7 +192,9 @@ if __name__ == "__main__":
                               pool.close()
                               pool.join()
                          else:
+                              self.video_id=0
                               for vid in MM.queue:
+                                   self.video_id+=1
                                    self.vid=vid
                                    MM.run(vid=vid) 
                               
@@ -209,11 +208,11 @@ if __name__ == "__main__":
                     except Exception as e:
                          self.tb.append(str(traceback.format_exc()))
                          self.errorflag=1
-                         
+                    
                def MotionM(self,MM):
                     self.waitflag=0   
                     self.errorflag=0                    
-                    Thread(target=self.worker,kwargs=dict(MM=MM,pbar=self.ids.pb)).start()
+                    Thread(target=self.worker,kwargs=dict(MM=MM)).start()
                     
                def gotoErrorScreen(self,screenmanage):
                     screenmanage.transition.direction='left'          
