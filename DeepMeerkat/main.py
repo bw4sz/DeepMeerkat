@@ -59,6 +59,7 @@ if __name__ == "__main__":
           from os.path import isdir
           from os.path import isfile
           import os
+          import subprocess
           
           class MyScreenManager(ScreenManager):
                
@@ -168,7 +169,9 @@ if __name__ == "__main__":
                frame_count=NumericProperty()
                hitrate=NumericProperty()
                video_name=StringProperty()                                             
-               tensorflow_status=StringProperty()                              
+               output_args=StringProperty()      
+               output_annotations=StringProperty()                              
+               
                tb=ListProperty([])                              
                
                waitflag = NumericProperty()
@@ -203,6 +206,8 @@ if __name__ == "__main__":
                          self.frame_count=MM.video_instance.frame_count
                          self.len_annotations=len(MM.video_instance.annotations)
                          self.hitrate=round(float(self.len_annotations)/self.frame_count,3) * 100         
+                         self.output_annotations=MM.video_instance.output_annotations
+                         self.output_args=MM.video_instance.output_args
                          self.waitflag=1
                                                   
                     except Exception as e:
@@ -231,10 +236,10 @@ if __name__ == "__main__":
                     screenmanage.current='GUI'   
                     
                def openannonationsfile(self,MM):
-                    startfile(MM.args.output + "/" + "Annotations.csv")
-                    
+                    subprocess.call(["open", self.output_annotations])
+                                        
                def openparfile(self,MM):
-                    startfile(MM.args.output + "/" + "Parameters.csv")
+                    subprocess.call(["open", self.output_args])
           
           class ErrorScreen(Screen):
                em=StringProperty()
@@ -249,9 +254,6 @@ if __name__ == "__main__":
                     #restart
                     screenmanage.transition.direction='right'          
                     screenmanage.current='GUI'      
-                    
-               def openfile(self,MM):
-                    startfile(MM.args.output + "/" + "Parameters_Results.log")
                
           #run app  
           if __name__=="__main__":

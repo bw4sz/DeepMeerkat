@@ -26,6 +26,8 @@
         frame_count:ProgressScreen.frame_count
         hitrate: ProgressScreen.hitrate
         len_annotations: ProgressScreen.len_annotations
+        output_args:ProgressScreen.output_args
+        output_annotations:ProgressScreen.output_args
     ErrorScreen:
         name:"ErrorScreen"
         manager:screen_manager
@@ -230,11 +232,10 @@
             text: "Parameter File"
             size_hint:(1,0.5)
             on_press: root.openparfile(app.MM)   
-        
         Button:
             text: "Annotation File"
             size_hint:(1,0.5)
-            on_press: root.openannotationfile(app.MM)   
+            on_press: root.openannonationsfile(app.MM)   
 <ErrorScreen>
     on_enter:root.getMessage(app.root)
     BoxLayout:

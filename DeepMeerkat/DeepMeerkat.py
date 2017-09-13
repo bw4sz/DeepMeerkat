@@ -60,6 +60,7 @@ class DeepMeerkat:
         print("Processing: " + str(vid))
         if not os.path.exists(vid):
             raise "Video does not exist at specified path"
+        
         self.video_instance=Video.Video(vid,self.args,tensorflow_session=sess)
         self.video_instance.analyze()
         self.video_instance.write()
