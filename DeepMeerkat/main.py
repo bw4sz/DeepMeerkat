@@ -205,9 +205,7 @@ if __name__ == "__main__":
                          self.len_annotations=len(MM.video_instance.annotations)
                          self.hitrate=round(float(self.len_annotations)/self.frame_count,3) * 100         
                          self.waitflag=1
-                         
-                         #store output
-                         
+                                                  
                     except Exception as e:
                          self.tb.append(str(traceback.format_exc()))
                          self.errorflag=1

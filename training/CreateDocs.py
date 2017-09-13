@@ -73,7 +73,11 @@ class Organizer:
             
         print( "Found %d results" % (len( self.train_negatives_files)))          
         
-        ##Testing - comes from a different bucket
+        #shuffle negatives and take a sample equal to the size of the positives
+        random.shuffle(self.train_negatives_files)
+        self.train_negatives_files=self.train_negatives_files[:len(self.test_positives_files)]
+        
+        ##Testing - comes from a different folder
         
         #positives
         test_positives_folder_name=args.test_positives.split("/")[3:]
