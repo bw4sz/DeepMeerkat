@@ -40,8 +40,10 @@ eval=$(gsutil cat gs://api-project-773889352370-ml/Hummingbirds/testingdata.csv 
     #--input_dict gs://api-project-773889352370-ml/Hummingbirds/dict.txt \
     #--deploy_model_name "DeepMeerkat" \
     #--gcs_bucket ${BUCKET} \
-    #--output_dir "${GCS_PATH}/" 
-    #--eval_set_size  ${eval}
+    #--output_dir "${GCS_PATH}/"  \
+    #--eval_set_size  ${eval} 
+
+    
 
 #already preprocessed
 python pipeline.py \
@@ -53,4 +55,4 @@ python pipeline.py \
     --deploy_model_name "DeepMeerkat" \
     --gcs_bucket ${BUCKET} \
     --output_dir "${GCS_PATH}/" \
-    --eval_set_size  ${eval}
+    --eval_set_size  ${eval} 

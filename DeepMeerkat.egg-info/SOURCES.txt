@@ -16,11 +16,14 @@ training/CreateDocs.py
 training/GenerateAnnotate.py
 training/GenerateBoxes.py
 training/GenerateBoxes_new.py
+training/PredictionDataFlow.py
 training/View.py
 training/__init__.py
 training/images_to_json.py
 training/pipeline.py
 training/setup.py
+training/predict/__init__.py
+training/predict/images_to_json.py
 training/trainer/__init__.py
 training/trainer/model.py
 training/trainer/preprocess.py

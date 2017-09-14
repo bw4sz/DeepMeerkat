@@ -23,7 +23,7 @@ except:
 
 def process_args():
     parser = argparse.ArgumentParser(description='Create document for dataflow job.')
-    parser.add_argument('-input_dir', help='Google cloud storage path for input videos samples.',default="gs://api-project-773889352370-testing/testing/")
+    parser.add_argument('-input_dir', help='Google cloud storage path for input videos samples.',default="gs://api-project-773889352370-testing/Hummingbirds/")
     parser.add_argument('-limit', help='Total number of videos',default=None,type=int)
     args, _ = parser.parse_known_args()
     return args

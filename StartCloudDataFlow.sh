@@ -13,7 +13,8 @@ python run_clouddataflow.py \
     --staging_location $BUCKET/staging \
     --temp_location $BUCKET/temp \
     --job_name $PROJECT-deepmeerkat-$(date +%Y%m%d-%H%M%S) \
-    --setup_file ./setup.py
-    
-    #--autoscaling_algorithm 'NONE' \
-    #--num_workers 33
+    --setup_file ./setup.py \
+    --write_text \
+    --draw_box \
+    --autoscaling_algorithm 'NONE' \
+    --num_workers 40

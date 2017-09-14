@@ -50,9 +50,6 @@ class DeepMeerkat:
             tf.saved_model.loader.load(sess,[tf.saved_model.tag_constants.SERVING], self.args.path_to_model)
             print("Complete")
 
-            #get dictionary
-            # Loads label file, strips off carriage return
-            self.args.label_lines = [line.rstrip() for line in tf.gfile.GFile(self.args.path_to_model + "/dict.txt")]
         else:
             sess=None
 

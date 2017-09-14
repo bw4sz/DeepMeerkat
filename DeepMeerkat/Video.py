@@ -113,8 +113,12 @@ class Video:
         (shortname, extension) = os.path.splitext(filename)
         (_,IDFL) = os.path.split(filepath)
         
-        self.file_destination=os.path.join(self.args.output,IDFL)
-        self.file_destination=os.path.join(self.file_destination,shortname)
+        #if output is path add a container folder
+        if os.path.isdir(self.args.output):
+            self.file_destination=os.path.join(self.args.output,IDFL)
+            self.file_destination=os.path.join(self.file_destination,shortname)            
+        else:
+            self.file_destination=os.path.join(self.args.output,shortname)
 
         #create if directory does not exist
         if not os.path.exists(self.file_destination):
@@ -217,9 +221,10 @@ class Video:
                     #Assign output
                     bounding_box.label=pred[0]
                     labels.append(pred)                    
-                    
-                #for index,label in enumerate(labels):
-                    #cv2.putText(self.original_image,str(label),(30,30+20*index),cv2.FONT_HERSHEY_SIMPLEX,0.75,(0,0,255),2)
+                
+                if self.args.write_text:
+                    for index,label in enumerate(labels):
+                        cv2.putText(self.original_image,str(label),(30,30+20*index),cv2.FONT_HERSHEY_SIMPLEX,0.75,(0,0,255),2)
                                  
                 #next frame if negative label that has score greater than 0.9
                 for box in labels:
@@ -427,7 +432,8 @@ class Video:
 
                 #Frames per second
                 writer.writerow(["Frame processing rate",round(float(self.frame_count)/(self.total_min*60),2)])
-                
+         
+         #TODO sort rows  by frame order     
         #Write frame annotations
         self.output_annotations=self.file_destination + "/annotations.csv"
         if sys.version_info >= (3, 0):
