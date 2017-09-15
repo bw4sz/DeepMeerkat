@@ -1,25 +1,22 @@
 #!/bin/bash
+rm -rf /Users/Ben/Documents/DeepMeerkat/Installer/dist 
 
-cd /Users/Ben/Documents/DeepMeerkat/DeepMeerkat
+pyinstaller -y --clean --windowed DeepMeerkat.spec
 
-#remove all previous installs
-rm -rf dist/
+#Somehow the wrong libpng gets pulled, replace it
+rm /Users/ben/Documents/DeepMeerkat/Installer/dist/DeepMeerkat.app/Contents/MacOS/libpng16.16.dylib
 
-pyinstaller -y --clean --windowed --name DeepMeerkat \
-  --exclude-module _tkinter \
-  --exclude-module Tkinter \
-  --exclude-module enchant \
-  --exclude-module twisted \
-  /Users/Ben/Documents/DeepMeerkat/DeepMeerkat/main.py
+#grab from homebrew
+cp /usr/local/Cellar/libpng/ /Users/ben/Documents/DeepMeerkat/Installer/dist/DeepMeerkat.app/Contents/MacOS/
 
 #copy kivy .kv
-cp -r /Users/Ben/Documents/DeepMeerkat/DeepMeerkat/DeepMeerkat.kv dist/main/
+cp -r /Users/Ben/Documents/DeepMeerkat/DeepMeerkat/DeepMeerkat.kv dist/
 
-#Copy icon
-cp /Users/Ben/Documents/DeepMeerkat/thumbnail.ico dist/main/
+pushd dist
 
-#Copy plotwatcher test file
-cp /Users/Ben/Documents/DeepMeerkat/Hummingbird.avi dist/main/
+hdiutil create ./DeepMeerkat.dmg -srcfolder DeepMeerkat.app -ov
 
-#Copy FFmpeg binary?
-#cp /Python27/opencv_ffmpeg310.dll dist/main/
+popd
+
+#test if it works
+open /Users/ben/Documents/DeepMeerkat/Installer/dist/Lib/DeepMeerkat

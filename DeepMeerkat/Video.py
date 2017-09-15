@@ -114,7 +114,7 @@ class Video:
         (_,IDFL) = os.path.split(filepath)
         
         #if output is path add a container folder
-        if os.path.isdir(self.args.output):
+        if os.path.isdir(self.args.input):
             self.file_destination=os.path.join(self.args.output,IDFL)
             self.file_destination=os.path.join(self.file_destination,shortname)            
         else:
