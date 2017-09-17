@@ -1,15 +1,22 @@
 # -*- mode: python -*-
 
+import cv2
+
+from kivy.tools.packaging.pyinstaller_hooks import (
+    hookspath,
+    runtime_hooks
+)
+
 block_cipher = None
 
-a = Analysis(['/Users/Ben/Documents/DeepMeerkat/DeepMeerkat/main.py'],
-             pathex=['/Users/ben/Documents/DeepMeerkat/DeepMeerkat'],
+a = Analysis(['C:/Users/Ben/Documents/DeepMeerkat/DeepMeerkat/main.py'],
+             pathex=['C:/Users/ben/Documents/DeepMeerkat/DeepMeerkat'],
              binaries=[],
              datas=[],
              hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],
-             excludes=['_tkinter', 'Tkinter', 'enchant', 'twisted'],
+             excludes=['Tkinter', 'enchant', 'twisted'],
              win_no_prefer_redirects=False,
              win_private_assemblies=False,
              cipher=block_cipher)
@@ -23,7 +30,7 @@ exe = EXE(pyz,
           strip=False,
           upx=True,
           console=False )
-coll = COLLECT(exe, Tree('/Users/ben/Documents/DeepMeerkat/DeepMeerkat'),
+coll = COLLECT(exe, Tree('C:/Users/ben/Documents/DeepMeerkat/DeepMeerkat'),
                a.binaries,
                a.zipfiles,
                a.datas,
@@ -32,5 +39,5 @@ coll = COLLECT(exe, Tree('/Users/ben/Documents/DeepMeerkat/DeepMeerkat'),
                name='Lib')
 app = BUNDLE(coll,
              name='DeepMeerkat.app',
-             icon='/Users/ben/Documents/DeepMeerkat/DeepMeerkat/images/thumbnail.png',
+             icon='C:/Users/ben/Documents/DeepMeerkat/DeepMeerkat/images/thumbnail.png',
              bundle_identifier=None)

@@ -86,7 +86,7 @@ if __name__ == "__main__":
                except Exception as e:
                     traceback.print_exc()
                     if len(sys.argv)<= 2:          
-                         k=raw_input("Enter any key to exit:")
+                         k=input("Enter any key to exit:")
                          sys.exit(0)
                          
                def build(self):

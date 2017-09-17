@@ -1,7 +1,7 @@
 #!/bin/bash
 rm -rf C:/Users/Ben/Documents/DeepMeerkat/Installer/dist 
 
-pyinstaller -y --clean --windowed DeepMeerkat.spec
+/c/Python35/Scripts/pyinstaller -y --clean --windowed DeepMeerkat.spec
 
 #copy kivy .kv
 cp -r C:/Users/Ben/Documents/DeepMeerkat/DeepMeerkat/DeepMeerkat.kv dist/
