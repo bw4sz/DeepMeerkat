@@ -37,7 +37,20 @@ class DeepMeerkat:
         if len(self.queue)==0:
             raise ValueError("No videos in the supplied folder. If videos exist, ensure that they can be read by standard video CODEC libraries.")
         
-    def run(self,vid):
+        #if running in non-threaded environment, only open model once between batches
+        if self.args.threaded:
+            #load tensorflow model
+            if self.args.tensorflow:
+                import tensorflow as tf
+                print("Loading Tensorflow model")
+                self.sess=tf.Session()
+                tf.saved_model.loader.load(self.sess,[tf.saved_model.tag_constants.SERVING], self.args.path_to_model)
+                print("Complete")
+    
+            else:
+                self.sess=None
+        
+    def run_threaded(self,vid):
 
         #hold on to original mog variance
         mogvariance=self.args.mogvariance
@@ -68,6 +81,26 @@ class DeepMeerkat:
         #close tensorflow session
         sess.close()
 
+    def run(self,vid,sess):
+
+        #hold on to original mog variance
+        mogvariance=self.args.mogvariance
+
+        #run each video, use created tensorflow instance.
+        print("Processing: " + str(vid))
+        if not os.path.exists(vid):
+            raise "Video does not exist at specified path"
+        
+        self.video_instance=Video.Video(vid,self.args,tensorflow_session=sess)
+        self.video_instance.analyze()
+        self.video_instance.write()
+
+        #reset mog variance if adapting during run.
+        self.args.mogvariance=mogvariance
+        
+        #close tensorflow session
+        sess.close()
+        
 if __name__ == "__main__":
     DM=DeepMeerkat()
     DM.process_args()
@@ -76,10 +109,10 @@ if __name__ == "__main__":
         from multiprocessing import Pool
         from multiprocessing.dummy import Pool as ThreadPool 
         pool = ThreadPool(2)         
-        results = pool.map(DM.run,DM.queue)
+        results = pool.map(DM.run_threaded,DM.queue)
         pool.close()
         pool.join()
 
     else:
         for vid in DM.queue:
-            DM.run(vid=vid)
+            DM.run(vid=vid,sess=self.sess)
