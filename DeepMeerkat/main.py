@@ -71,11 +71,11 @@ if __name__ == "__main__":
                     self.current='ProgressScreen'
      
           class DeepMeerkatApp(App):
-               
+               from pathlib import Path
+               home = str(Path.home())
                input_file=StringProperty("")               
-               output_file=StringProperty(os.getenv("HOME")+"/DeepMeerkat/")               
-               dirselect=StringProperty("False")   
-               
+               output_file=StringProperty(home +"/DeepMeerkat/")    
+               dirselect=StringProperty("False")
                try:
                     #Create motion instance class
                     MM=DeepMeerkat.DeepMeerkat()
@@ -142,7 +142,8 @@ if __name__ == "__main__":
                     screenmanage.current='Outdir'                  
           
           class FileOpen(Screen):
-               
+               from pathlib import Path
+               home = str(Path.home())               
                wd=home
                                    
                def gotoMain(self,screenmanage):
@@ -150,8 +151,9 @@ if __name__ == "__main__":
                     screenmanage.current='GUI'   
           
           class Outdir(Screen):
-               
-               wd=os.getenv("HOME")+"/DeepMeerkat"
+               from pathlib import Path
+               home = str(Path.home())               
+               wd=home+"/DeepMeerkat"
                def gotoMain(self,screenmanage):
                     screenmanage.transition.direction='right'          
                     screenmanage.current='GUI' 
