@@ -8,6 +8,9 @@ import DeepMeerkat
 import CommandArgs
 import os
 
+from pathlib import Path
+home = str(Path.home())
+
 #Entry Point
 
 if __name__ == "__main__":
@@ -140,7 +143,7 @@ if __name__ == "__main__":
           
           class FileOpen(Screen):
                
-               wd=os.getenv("HOME")
+               wd=home
                                    
                def gotoMain(self,screenmanage):
                     screenmanage.transition.direction='right'          
@@ -236,10 +239,10 @@ if __name__ == "__main__":
                     screenmanage.current='GUI'   
                     
                def openannonationsfile(self,MM):
-                    subprocess.call(["open", self.output_annotations])
+                    subprocess.call(["start", self.output_annotations])
                                         
                def openparfile(self,MM):
-                    subprocess.call(["open", self.output_args])
+                    subprocess.call(["start", self.output_args])
           
           class ErrorScreen(Screen):
                em=StringProperty()
