@@ -21,7 +21,7 @@ if __name__ == "__main__":
      if len(sys.argv)>= 2:
           
           print("Entering Command Line")
-          MM=DeepMeerkat.DeepMeerkat()  
+          MM=Meerkat.DeepMeerkat()  
           MM.process_args() 
           MM.run()
                     
@@ -78,7 +78,7 @@ if __name__ == "__main__":
                dirselect=StringProperty("False")
                try:
                     #Create motion instance class
-                    MM=DeepMeerkat.DeepMeerkat()
+                    MM=Meerkat.DeepMeerkat()
      
                     #Instantiate Command line args
                     MM.process_args()
