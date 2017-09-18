@@ -195,6 +195,10 @@
             pos_hint:{'center_y':1}
             orientation:'vertical'
             Label:
+                text: "[b]Classification Model:[/b] " + str(root.tensorflow_loaded)
+                markup: True
+                font_size:20
+            Label:
                 text: "[b]Running File:[/b] " + str(root.video_name) + " (%d/%d)" % (root.video_id,root.video_count)
                 markup: True
                 font_size:20

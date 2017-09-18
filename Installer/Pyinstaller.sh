@@ -9,7 +9,7 @@ cp -f /usr/local/Cellar/libpng/1.6.32/lib/libpng16.16.dylib /Users/ben/Documents
 
 pushd dist
 
-hdiutil create ./DeepMeerkat.dmg -srcfolder DeepMeerkat.app -ov
+hdiutil create ./DeepMeerkat.dmg -srcfolder main.app -ov
 
 popd
 

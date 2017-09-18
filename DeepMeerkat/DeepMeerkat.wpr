@@ -32,7 +32,4 @@ proj.launch-config = {loc('../CreateManifest.py'): ('project',
          '')),
                       loc('Video.py'): ('project',
         (u'--input C:/Users/Ben/Desktop/MeerkatTest/130710AA.TLV',
-         '')),
-                      loc('main.py'): ('project',
-                                       (u'--input /Users/ben/Dropbox/Videos/rosada/170713AA.TLV --draw_bow --draw_text',
-        ''))}
+         ''))}
