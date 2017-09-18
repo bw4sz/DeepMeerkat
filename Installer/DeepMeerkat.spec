@@ -1,15 +1,17 @@
 # -*- mode: python -*-
 
+import cv2
+
 block_cipher = None
 
 a = Analysis(['/Users/Ben/Documents/DeepMeerkat/DeepMeerkat/main.py'],
-             pathex=['/Users/ben/Documents/DeepMeerkat/DeepMeerkat'],
+             pathex=['/Users/ben/Documents/DeepMeerkat/DeepMeerkat/'],
              binaries=[],
              datas=[],
-             hiddenimports=[],
+             hiddenimports=['setuptools.msvc','setuptools'],
              hookspath=[],
              runtime_hooks=[],
-             excludes=['_tkinter', 'Tkinter', 'enchant', 'twisted'],
+             excludes=[ 'enchant', 'twisted'],
              win_no_prefer_redirects=False,
              win_private_assemblies=False,
              cipher=block_cipher)
@@ -18,7 +20,7 @@ pyz = PYZ(a.pure, a.zipped_data,
 exe = EXE(pyz,
           a.scripts,
           exclude_binaries=True,
-          name='DeepMeerkat',
+          name='main',
           debug=False,
           strip=False,
           upx=True,
@@ -31,6 +33,6 @@ coll = COLLECT(exe, Tree('/Users/ben/Documents/DeepMeerkat/DeepMeerkat'),
                upx=True,
                name='Lib')
 app = BUNDLE(coll,
-             name='DeepMeerkat.app',
+             name='main.app',
              icon='/Users/ben/Documents/DeepMeerkat/DeepMeerkat/images/thumbnail.png',
              bundle_identifier=None)
