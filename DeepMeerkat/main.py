@@ -4,7 +4,7 @@ import cv2
 import traceback
 
 #DeepMeerkat
-import DeepMeerkat
+import Meerkat
 import CommandArgs
 import os
 
@@ -176,6 +176,7 @@ if __name__ == "__main__":
                video_name=StringProperty()                                             
                output_args=StringProperty()      
                output_annotations=StringProperty()                              
+               tensorflow_loaded=StringProperty("Loading")                              
                
                tb=ListProperty([])                              
                
@@ -189,10 +190,12 @@ if __name__ == "__main__":
                          #Collect video queue
                          MM.create_queue()
                          
+                         self.tensorflow_loaded="Complete"
                          #set total number
                          self.video_count=len(MM.queue)
                          
                          if MM.args.threaded:
+                              self.tensorflow_loaded="Multithreaded version"
                               from multiprocessing import Pool
                               from multiprocessing.dummy import Pool as ThreadPool 
                               pool = ThreadPool(2)         
@@ -204,7 +207,7 @@ if __name__ == "__main__":
                               for vid in MM.queue:
                                    self.video_id+=1
                                    self.video_name=vid
-                                   MM.run(vid=vid) 
+                                   MM.run(vid=vid,sess=MM.sess) 
                               
                          #save outputs
                          self.total_min=MM.video_instance.total_min

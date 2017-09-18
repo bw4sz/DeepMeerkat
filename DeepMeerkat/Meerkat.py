@@ -38,7 +38,7 @@ class DeepMeerkat:
             raise ValueError("No videos in the supplied folder. If videos exist, ensure that they can be read by standard video CODEC libraries.")
         
         #if running in non-threaded environment, only open model once between batches
-        if self.args.threaded:
+        if not self.args.threaded:
             #load tensorflow model
             if self.args.tensorflow:
                 import tensorflow as tf
