@@ -33,8 +33,8 @@ Source: "C:\FFmpeg\bin\ffmpeg.exe";DestDir: "{app}\FFmpeg"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
                                                                 
 [Icons]
-Name: "{group}\DeepMeerkat"; Filename: "{app}\DeepMeerkat.exe"; IconFileName: "{app}\thumbnail.ico"
-Name: "{commondesktop}\DeepMeerkat"; IconFileName: "{app}\Lib\images\thumbnail.ico"; Filename: "{app}\DeepMeerkat.exe"; Tasks: desktopicon
+Name: "{group}\DeepMeerkat"; Filename: "{app}\DeepMeerkat.exe"; IconFileName: "{app}\images\thumbnail.ico"
+Name: "{commondesktop}\DeepMeerkat"; IconFileName: "{app}\images\thumbnail.ico"; Filename: "{app}\DeepMeerkat.exe"; Tasks: desktopicon
 
 [Registry]
 Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}\FFmpeg";

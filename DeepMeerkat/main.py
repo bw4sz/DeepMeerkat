@@ -82,6 +82,9 @@ if __name__ == "__main__":
      
                     #Instantiate Command line args
                     MM.process_args()
+                    
+                    #set default video, assuming its been installed in the default location
+                    MM.input="C:/Program Files (x86)/DeepMeerkat/Hummingbird.avi"
                                         
                except Exception as e:
                     traceback.print_exc()
@@ -242,12 +245,9 @@ if __name__ == "__main__":
                def gotoMain(self,screenmanage):
                     screenmanage.transition.direction='right'          
                     screenmanage.current='GUI'   
-                    
-               def openannonationsfile(self,MM):
-                    subprocess.call(["start", self.output_annotations])
                                         
                def openparfile(self,MM):
-                    subprocess.call(["start", self.output_args])
+                    subprocess.call(["start", MM.args.output])
           
           class ErrorScreen(Screen):
                em=StringProperty()

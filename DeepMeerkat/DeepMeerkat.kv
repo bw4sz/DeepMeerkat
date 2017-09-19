@@ -194,7 +194,7 @@
             Label:
                 text: "[b]Classification Model:[/b] " + str(root.tensorflow_loaded)
                 font_size:20
-                color:(1,0,0,1.5) if root.tensorflow_loaded == 'Loading' else (0,1,0,1)
+                color:(1,1,0,1) if root.tensorflow_loaded == 'Loading' else (1,1,1,1)
                 markup:True
             Label:
                 text: "[b]Running File:[/b] " + str(root.video_name) + " (%d/%d)" % (root.video_id,root.video_count)
@@ -231,13 +231,9 @@
             text: "Returned " + str(root.len_annotations) + " frames " + "from " + str(root.frame_count) + " (" + str(root.hitrate) + "%)" 
             font_size:20
         Button:
-            text: "Parameter File"
+            text: "Open Output Folder"
             size_hint:(1,0.5)
-            on_press: root.openparfile(app.MM)   
-        Button:
-            text: "Annotation File"
-            size_hint:(1,0.5)
-            on_press: root.openannonationsfile(app.MM)   
+            on_press: root.openparfile(app.MM)    
 <ErrorScreen>
     on_enter:root.getMessage(app.root)
     BoxLayout:
@@ -252,11 +248,7 @@
         TextInput:
             id:"emessage'
             text: root.em
-            size_hint:(1,2)
-        Button:
-            text: "Parameter Log"
-            size_hint:(1,0.5)
-            on_press: root.openfile(app.MM)           
+            size_hint:(1,2)       
         Label:
             text: "If you believe this is a bug, submit the parameter log,\na copy of your error, and a description of your video to the link below."            
         Button:
