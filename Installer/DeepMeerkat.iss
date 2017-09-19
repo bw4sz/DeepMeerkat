@@ -18,7 +18,8 @@ LicenseFile=C:\Users\Ben\Documents\DeepMeerkat\License.txt
 OutputBaseFilename=DeepMeerkatSetup
 Compression=lzma
 SolidCompression=yes
-                                                   
+DisableDirPage=no
+                                                  
 [Languages]                                                                           
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
@@ -26,20 +27,20 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
          
 [Files]
-Source: "C:\Users\Ben\Documents\DeepMeerkat\Installer\dist\main\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs ignoreversion
+Source: "C:\Users\Ben\Documents\DeepMeerkat\Installer\dist\Lib\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs ignoreversion
 Source: "C:\FFmpeg\bin\ffmpeg.exe";DestDir: "{app}\FFmpeg"; Flags: ignoreversion
 
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
                                                                 
 [Icons]
-Name: "{group}\DeepMeerkat"; Filename: "{app}\main.exe"; IconFileName: "{app}\thumbnail.ico"
-Name: "{commondesktop}\DeepMeerkat"; IconFileName: "{app}\thumbnail.ico"; Filename: "{app}\main.exe"; Tasks: desktopicon
+Name: "{group}\DeepMeerkat"; Filename: "{app}\DeepMeerkat.exe"; IconFileName: "{app}\thumbnail.ico"
+Name: "{commondesktop}\DeepMeerkat"; IconFileName: "{app}\Lib\images\thumbnail.ico"; Filename: "{app}\DeepMeerkat.exe"; Tasks: desktopicon
 
 [Registry]
 Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}\FFmpeg";
 
 [Run]
-Filename: "{app}\main.exe"; Description: "{cm:LaunchProgram,DeepMeerkat}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\DeepMeerkat.exe"; Description: "{cm:LaunchProgram,DeepMeerkat}"; Flags: nowait postinstall skipifsilent
 Filename: "https://github.com/bw4sz/DeepMeerkat/wiki"; Flags: shellexec runasoriginaluser postinstall; Description: "Open the Wiki."
              
  

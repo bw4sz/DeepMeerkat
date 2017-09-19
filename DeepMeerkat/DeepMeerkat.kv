@@ -192,8 +192,10 @@
             pos_hint:{'center_y':1}
             orientation:'vertical'
             Label:
-                text: "[b]Loading Classification Model:[/b] " + str(root.tensorflow_loaded)
+                text: "[b]Classification Model:[/b] " + str(root.tensorflow_loaded)
                 font_size:20
+                color:(1,0,0,1.5) if root.tensorflow_loaded == 'Loading' else (0,1,0,1)
+                markup:True
             Label:
                 text: "[b]Running File:[/b] " + str(root.video_name) + " (%d/%d)" % (root.video_id,root.video_count)
                 markup: True
