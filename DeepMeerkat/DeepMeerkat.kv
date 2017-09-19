@@ -198,6 +198,7 @@
                 text: "[b]Classification Model:[/b] " + str(root.tensorflow_loaded)
                 markup: True
                 font_size:20
+                color: (1,1,0,1) if root.tensorflow_loaded == 'Loading' else (1,1,1,1)
             Label:
                 text: "[b]Running File:[/b] " + str(root.video_name) + " (%d/%d)" % (root.video_id,root.video_count)
                 markup: True
