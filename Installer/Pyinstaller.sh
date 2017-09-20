@@ -1,5 +1,6 @@
 #!/bin/bash
 rm -rf C:/Users/Ben/Documents/DeepMeerkat/Installer/dist 
+rm -rf C:/Users/Ben/Documents/DeepMeerkat/Installer/build 
 
 /c/Python35/Scripts/pyinstaller --onefile -y --clean --windowed DeepMeerkat.spec
 

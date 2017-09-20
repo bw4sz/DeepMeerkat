@@ -97,14 +97,14 @@
             dirselect:"True"
             on_selection: text_input.text = self.selection and self.selection[0] or ''
             size_hint_y:1.5
+            filters:["*.TLV","*.tlv","*.avi",".AVI","*.mpg","*.MPG","*.mp4","*.MP4","*.mod","*.MOD","*.mts","*.MTS","*.wmv","*.WMV","*.mov","*.MOV","*.mpeg-4","*.MPEG-4","*.DTS","*.VOB","*.MJPEG","*.MPEG","*.mpeg","*.mkv","*.MKV"]
         Label:
             text: "Select above or type path below"
             size_hint_y:0.25
         TextInput:
             id: text_input
             size_hint_y:0.3
-            text_input: text_input
-            on_text:app.input_file=str(text_input.text)
+            on_text_validate: filechooser.path=root.change_path(text_input.text,filechooser.path)
             font_size: 30
             multiline: False
     BoxLayout:
@@ -134,6 +134,7 @@
             id: text_input
             size_hint_y:0.3
             text_input: text_input
+            on_text_validate: filechooser.path=root.change_path(text_input.text,filechooser.path)
             on_text:app.output_file=str(text_input.text)
             font_size: 30
             multiline: False
@@ -146,7 +147,7 @@
         Button:
             text: "Select"
             on_release: app.MM.args.output=text_input.text; root.gotoMain(app.root)
-            
+
 <AdvancedScreen>
     on_enter:app.MM.mode='advanced'
     BoxLayout:

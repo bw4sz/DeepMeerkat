@@ -148,7 +148,13 @@ if __name__ == "__main__":
                from pathlib import Path
                home = str(Path.home())               
                wd=home
-                                   
+               
+               def change_path(self,text,current):
+                    if os.path.exists(text): 
+                         return text
+                    else:
+                         return current  
+                    
                def gotoMain(self,screenmanage):
                     screenmanage.transition.direction='right'          
                     screenmanage.current='GUI'   
@@ -157,6 +163,13 @@ if __name__ == "__main__":
                from pathlib import Path
                home = str(Path.home())               
                wd=home+"/DeepMeerkat"
+               
+               def change_path(self,text,current):
+                    if os.path.exists(text): 
+                         return text
+                    else:
+                         return current  
+                    
                def gotoMain(self,screenmanage):
                     screenmanage.transition.direction='right'          
                     screenmanage.current='GUI' 
@@ -247,7 +260,7 @@ if __name__ == "__main__":
                     screenmanage.current='GUI'   
                                         
                def openparfile(self,MM):
-                    subprocess.call(["explorer", MM.args.output])
+                    subprocess.call([r'explorer /select,' + MM.args.output])
           
           class ErrorScreen(Screen):
                em=StringProperty()
