@@ -142,12 +142,23 @@ if __name__ == "__main__":
                
                wd=os.getenv("HOME")
                                    
+               def change_path(self,text,current):
+                    if os.path.exists(text): 
+                         return text
+                    else:
+                         return current
                def gotoMain(self,screenmanage):
                     screenmanage.transition.direction='right'          
                     screenmanage.current='GUI'   
           
           class Outdir(Screen):
                
+               def change_path(self,text,current):
+                    if os.path.exists(text): 
+                         return text
+                    else:
+                         return current  
+                    
                wd=os.getenv("HOME")+"/DeepMeerkat"
                def gotoMain(self,screenmanage):
                     screenmanage.transition.direction='right'          
@@ -237,12 +248,9 @@ if __name__ == "__main__":
                def gotoMain(self,screenmanage):
                     screenmanage.transition.direction='right'          
                     screenmanage.current='GUI'   
-                    
-               def openannonationsfile(self,MM):
-                    subprocess.call(["open", self.output_annotations])
                                         
-               def openparfile(self,MM):
-                    subprocess.call(["open", self.output_args])
+               def openoutdir(self,MM):
+                    subprocess.call(["open", MM.args.output])
           
           class ErrorScreen(Screen):
                em=StringProperty()
