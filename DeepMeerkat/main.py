@@ -260,7 +260,7 @@ if __name__ == "__main__":
                     screenmanage.current='GUI'   
                                         
                def openparfile(self,MM):
-                    subprocess.call([r'explorer /select,' + MM.args.output])
+                    subprocess.call('explorer /n,/e,' + os.path.normpath(MM.args.output))
           
           class ErrorScreen(Screen):
                em=StringProperty()

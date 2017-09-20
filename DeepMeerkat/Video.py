@@ -314,28 +314,28 @@ class Video:
             fname=self.file_destination + "/"+str(self.frame_count)+".jpg"
             cv2.imwrite(fname,self.original_image)
 
-            ##write padding frames, if they don't exist
-            #if WritePadding:
-                #for x in range(0,len(self.padding_frames)):
-                    #filenm=self.file_destination + "/"+str(self.frame_count-(x+1))+".jpg"
-                    #if not os.path.exists(filenm):
-                        #cv2.imwrite(filenm,self.padding_frames[x])
+            #write padding frames, if they don't exist
+            if WritePadding:
+                for x in range(0,len(self.padding_frames)):
+                    filenm=self.file_destination + "/"+str(self.frame_count-(x+1))+".jpg"
+                    if not os.path.exists(filenm):
+                        cv2.imwrite(filenm,self.padding_frames[x])
 
-            ##write post-motion frames
-            #for x in range(self.args.buffer):
-                ##read frame, check if its the last frame in video
-                #ret,self.read_image=self.read_frame()
-                #if not ret:
-                    #self.end_time=time.time()
-                    #break
-                ##add to frame count and apply background
-                #self.frame_count+=1
-                #self.background_apply()
+            #write post-motion frames
+            for x in range(self.args.buffer):
+                #read frame, check if its the last frame in video
+                ret,self.read_image=self.read_frame()
+                if not ret:
+                    self.end_time=time.time()
+                    break
+                #add to frame count and apply background
+                self.frame_count+=1
+                self.background_apply()
 
-                ##write frame
-                #fname=self.file_destination + "/"+str(self.frame_count)+".jpg"
-                #if not os.path.exists(fname):
-                    #cv2.imwrite(fname,self.original_image)
+                #write frame
+                fname=self.file_destination + "/"+str(self.frame_count)+".jpg"
+                if not os.path.exists(fname):
+                    cv2.imwrite(fname,self.original_image)
 
     def cluster_bounding_boxes(self, contours):
         bounding_boxes = []
