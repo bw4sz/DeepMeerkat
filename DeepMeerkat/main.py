@@ -90,9 +90,10 @@ if __name__ == "__main__":
                     #Instantiate Command line args
                     MM.process_args()
                     
-                    #set default video, assuming its been installed in the default location
+                    #set default video and tensorflow model, assuming its been installed in the default location
                     MM.input="C:/Program Files (x86)/DeepMeerkat/Hummingbird.avi"
-                                        
+                    MM.path_to_model="C:/Program Files (x86)/DeepMeerkat/model/"      
+                    
                except Exception as e:
                     traceback.print_exc()
                     if len(sys.argv)<= 2:          
@@ -169,7 +170,7 @@ if __name__ == "__main__":
           class Outdir(Screen):
                from pathlib import Path
                home = str(Path.home())               
-               wd=home+"/DeepMeerkat"
+               wd=home+"\DeepMeerkat"
                
                def change_path(self,text,current):
                     if os.path.exists(text): 

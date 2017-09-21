@@ -15,7 +15,7 @@ def CommandArgs(argv=None):
     parser.add_argument("--show", help="Show frames as you process",action='store_true')
     parser.add_argument("--threaded", help="Run two instances simultaneously on different cores",action='store_true')    
     parser.add_argument("--tensorflow", help="Process model with a tensorflow image trained on google cloud machine learning engine",action='store_false')
-    parser.add_argument("--path_to_model", help="Path to model/ directory",default="C:/Users/ben/Dropbox/GoogleCloud/DeepMeerkat_20170913_095609/model")
+    parser.add_argument("--path_to_model", help="Path to model/ directory",default="C:/Users/ben/Dropbox/GoogleCloud/DeepMeerkat_20170920_211010/model")
     parser.add_argument("--write_text", help="Write tensorflow label on image",action='store_true')    
     
     #if additional args were passed by string from CloudDataFlow

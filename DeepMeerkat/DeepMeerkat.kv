@@ -115,7 +115,7 @@
             on_release: text_input.text="";root.gotoMain(app.root)
         Button:
             text: "Select"
-            on_release: app.MM.args.input=text_input.text; root.gotoMain(app.root)
+            on_release: app.input_file=text_input.text; app.MM.args.input=text_input.text; root.gotoMain(app.root)
 <Outdir>:
     name:"Outdir"
     text_input:root.wd
@@ -133,7 +133,7 @@
         TextInput:
             id: text_input
             size_hint_y:0.3
-            text_input: text_input
+            text:root.wd
             on_text_validate: filechooser.path=root.change_path(text_input.text,filechooser.path)
             on_text:app.output_file=str(text_input.text)
             font_size: 30
@@ -146,7 +146,7 @@
             on_release: text_input.text=""; root.gotoMain(app.root)
         Button:
             text: "Select"
-            on_release: app.input_file=text_input.test; app.MM.args.output=text_input.text; root.gotoMain(app.root)
+            on_release: app.output_file=text_input.text; app.MM.args.output=text_input.text; root.gotoMain(app.root)
 
 <AdvancedScreen>
     on_enter:app.MM.mode='advanced'
@@ -185,7 +185,7 @@
             size_hint_y:0.5
             text:str(app.MM.args.path_to_model)
             on_text: app.MM.args.path_to_model=self.text
-            font_size:20
+            font_size:22
             multiline:False
 
 <ProgressScreen>
