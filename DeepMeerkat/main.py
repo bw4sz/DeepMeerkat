@@ -18,9 +18,20 @@ if __name__ == "__main__":
      if len(sys.argv)>= 2:
           
           print("Entering Command Line")
-          MM=Meerkat.DeepMeerkat()  
-          MM.process_args() 
-          MM.run()
+          DM=DeepMeerkat()
+          DM.process_args()
+          DM.create_queue()
+          if DM.args.threaded:
+               from multiprocessing import Pool
+               from multiprocessing.dummy import Pool as ThreadPool 
+               pool = ThreadPool(2)         
+               results = pool.map(DM.run_threaded,DM.queue)
+               pool.close()
+               pool.join()
+     
+          else:
+               for vid in DM.queue:
+                    DM.run(vid=vid,sess=DM.sess)
                     
      else:            
 
@@ -79,7 +90,12 @@ if __name__ == "__main__":
      
                     #Instantiate Command line args
                     MM.process_args()
-                                        
+                    
+                    #set GUI defaults
+                    #MM.args.input=""
+                      
+                    #MM.args.path_to_model   
+                    
                except Exception as e:
                     traceback.print_exc()
                     if len(sys.argv)<= 2:          

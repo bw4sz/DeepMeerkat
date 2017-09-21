@@ -41,18 +41,19 @@ eval=$(gsutil cat gs://api-project-773889352370-ml/Hummingbirds/testingdata.csv 
     #--deploy_model_name "DeepMeerkat" \
     #--gcs_bucket ${BUCKET} \
     #--output_dir "${GCS_PATH}/"  \
-    #--eval_set_size  ${eval} 
+    #--eval_set_size  ${eval} \
+    --maxNumWorkers=50
 
-    
 
 #already preprocessed
 python pipeline.py \
     --project ${PROJECT} \
     --cloud \
-    --preprocessed_train_set gs://api-project-773889352370-ml/DeepMeerkat/DeepMeerkat_20170913_075525/preprocessed/train* \
-    --preprocessed_eval_set gs://api-project-773889352370-ml/DeepMeerkat/DeepMeerkat_20170913_075525/preprocessed/eval* \
+    --preprocessed_train_set gs://api-project-773889352370-ml/DeepMeerkat/DeepMeerkat_20170920_121941/preprocessed/train* \
+    --preprocessed_eval_set gs://api-project-773889352370-ml/DeepMeerkat/DeepMeerkat_20170920_121941/preprocessed/eval* \
     --input_dict gs://api-project-773889352370-ml/Hummingbirds/dict.txt \
     --deploy_model_name "DeepMeerkat" \
     --gcs_bucket ${BUCKET} \
     --output_dir "${GCS_PATH}/" \
-    --eval_set_size  ${eval} 
+    --eval_set_size  ${eval} \
+    --maxNumWorkers=50

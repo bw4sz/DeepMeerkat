@@ -15,6 +15,4 @@ python run_clouddataflow.py \
     --job_name $PROJECT-deepmeerkat-$(date +%Y%m%d-%H%M%S) \
     --setup_file ./setup.py \
     --write_text \
-    --draw_box \
-    --autoscaling_algorithm 'NONE' \
-    --num_workers 40
+    --draw_box 
