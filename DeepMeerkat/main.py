@@ -33,12 +33,9 @@ if __name__ == "__main__":
      
           else:
                for vid in DM.queue:
-                    DM.run(vid=vid,sess=DM.sess)
-                    
+                    DM.run(vid=vid,sess=DM.sess)                    
      else:            
-
           #run GUI
-          #Kivy
           from kivy.app import App
           from kivy.uix.scatter import Scatter
           from kivy.uix.label import Label

@@ -99,7 +99,8 @@ class DeepMeerkat:
         self.args.mogvariance=mogvariance
         
         #close tensorflow session
-        sess.close()
+        if self.args.tensorflow:
+            sess.close()
         
 if __name__ == "__main__":
     DM=DeepMeerkat()

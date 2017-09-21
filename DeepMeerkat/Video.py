@@ -242,7 +242,7 @@ class Video:
                             else:
                                 tensorflow_check=True
             
-                ##did we pass tensorflow? A bit ugly from the nested loop
+                ##Tensorflow check
                 if tensorflow_check:
                     pass
                 else:
@@ -383,7 +383,7 @@ class Video:
             self.w = rect.width
             self.h = rect.height
             self.time=None
-            self.label=None
+            self.label=(None,None)
 
         def __init__(self, rect):
             self.update_rect(rect)
