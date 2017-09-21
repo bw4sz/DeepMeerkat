@@ -122,7 +122,11 @@ class Video:
 
         #create if directory does not exist
         if not os.path.exists(self.file_destination):
-            os.makedirs(self.file_destination)
+            try: 
+                os.makedirs(self.file_destination)
+            except:
+                print("Multithreaded, multiple threads creating at once?")
+                pass
 
         #read video
         self.cap=cv2.VideoCapture(self.args.video)
@@ -233,7 +237,7 @@ class Video:
                             WritePadding=True
                             tensorflow_check=True
                         else:
-                            if score > 1:
+                            if score > 0.95:
                                 tensorflow_check=False
                             else:
                                 tensorflow_check=True
@@ -316,26 +320,26 @@ class Video:
 
             #write padding frames, if they don't exist
             if WritePadding:
+                #write frames before
                 for x in range(0,len(self.padding_frames)):
                     filenm=self.file_destination + "/"+str(self.frame_count-(x+1))+".jpg"
                     if not os.path.exists(filenm):
                         cv2.imwrite(filenm,self.padding_frames[x])
-
-            #write post-motion frames
-            for x in range(self.args.buffer):
-                #read frame, check if its the last frame in video
-                ret,self.read_image=self.read_frame()
-                if not ret:
-                    self.end_time=time.time()
-                    break
-                #add to frame count and apply background
-                self.frame_count+=1
-                self.background_apply()
-
-                #write frame
-                fname=self.file_destination + "/"+str(self.frame_count)+".jpg"
-                if not os.path.exists(fname):
-                    cv2.imwrite(fname,self.original_image)
+                ##write frames after
+                for x in range(self.args.buffer):
+                    #read frame, check if its the last frame in video
+                    ret,self.read_image=self.read_frame()
+                    if not ret:
+                        self.end_time=time.time()
+                        break
+                    #add to frame count and apply background
+                    self.frame_count+=1
+                    self.background_apply()
+    
+                    #write frame
+                    fname=self.file_destination + "/"+str(self.frame_count)+".jpg"
+                    if not os.path.exists(fname):
+                        cv2.imwrite(fname,self.original_image)
 
     def cluster_bounding_boxes(self, contours):
         bounding_boxes = []
@@ -391,68 +395,39 @@ class Video:
         self.output_args=self.file_destination + "/parameters.csv"
         
         #report statistics
-        self.total_min=(self.end_time-self.start_time)/60.0
-        
-        if sys.version_info >= (3, 0):
-            with open(self.output_args, 'w',newline="") as f:
-                writer = csv.writer(f,)
-                writer.writerows(self.args.__dict__.items())
+        try:
+            self.total_min=(self.end_time-self.start_time)/60.0
+        except:
+            self.total_min="Error in calculating time"
 
-                #Total time
-                writer.writerow(["Minutes",self.total_min])
+        with open(self.output_args, 'w',newline="") as f:
+            writer = csv.writer(f,)
+            writer.writerows(self.args.__dict__.items())
 
-                #Frames in file
-                writer.writerow(["Total Frames",self.frame_count])
+            #Total time
+            writer.writerow(["Minutes",self.total_min])
 
-                #Frames returned to file
-                writer.writerow(["Motion Events",len(self.annotations)])
+            #Frames in file
+            writer.writerow(["Total Frames",self.frame_count])
 
-                #Hit rate
-                writer.writerow(["Return rate",float(len(self.annotations))/self.frame_count])
+            #Frames returned to file
+            writer.writerow(["Motion Events",len(self.annotations)])
 
-                #Frames per second
-                writer.writerow(["Frame processing rate",round(float(self.frame_count)/(self.total_min*60),2)])
-        else:
-            with open(self.output_args, 'wb') as f:
-                writer = csv.writer(f,)
-                writer.writerows(self.args.__dict__.items())
+            #Hit rate
+            writer.writerow(["Return rate",float(len(self.annotations))/self.frame_count])
 
-                #Total time
-                writer.writerow(["Minutes",self.total_min])
-
-                #Frames in file
-                writer.writerow(["Total Frames",self.frame_count])
-
-                #Frames returned to file
-                writer.writerow(["Motion Events",len(self.annotations)])
-
-                #Hit rate
-                len(self.annotations)
-                writer.writerow(["Return rate",float(len(self.annotations))/self.frame_count])
-
-                #Frames per second
-                writer.writerow(["Frame processing rate",round(float(self.frame_count)/(self.total_min*60),2)])
+            #Frames per second
+            writer.writerow(["Frame processing rate",round(float(self.frame_count)/(self.total_min*60),2)])
          
-         #TODO sort rows  by frame order     
         #Write frame annotations
         self.output_annotations=self.file_destination + "/annotations.csv"
-        if sys.version_info >= (3, 0):
-            with open(self.output_annotations, 'w',newline="") as f:
-                writer = csv.writer(f,)
-                writer.writerow(["Frame","x","y","h","w","label","score"])
-                for x in self.annotations.keys():
-                    bboxes=self.annotations[x]
-                    for bbox in bboxes:
-                        writer.writerow([x,bbox.x,bbox.y,bbox.h,bbox.w,bbox.label[0],bbox.label[1]])
-        else:
-            with open(self.output_annotations, 'wb') as f:
-                writer = csv.writer(f,)
-                writer.writerow(["Frame","x","y","h","w","label","score"])
-                for x in self.annotations.keys():
-                    bboxes=self.annotations[x]
-                    for bbox in bboxes:
-                        writer.writerow([x,bbox.x,bbox.y,bbox.h,bbox.w,bbox.label[0],bbox.label[1]])
-
+        with open(self.output_annotations, 'w',newline="") as f:
+            writer = csv.writer(f,)
+            writer.writerow(["Frame","x","y","h","w","label","score"])
+            for x in sorted(self.annotations.keys()):
+                bboxes=self.annotations[x]
+                for bbox in bboxes:
+                    writer.writerow([x,bbox.x,bbox.y,bbox.h,bbox.w,bbox.label[0],bbox.label[1]])
     def adapt(self):
 
             #If current frame is a multiple of the 1000 frames

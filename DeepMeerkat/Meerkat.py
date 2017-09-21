@@ -115,4 +115,4 @@ if __name__ == "__main__":
 
     else:
         for vid in DM.queue:
-            DM.run(vid=vid,sess=self.sess)
+            DM.run(vid=vid,sess=DM.sess)
