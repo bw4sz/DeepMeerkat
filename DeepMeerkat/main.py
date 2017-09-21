@@ -20,7 +20,7 @@ if __name__ == "__main__":
      #if system arg, command line version, skip the GUI
      if len(sys.argv)>= 2:
           
-          DM=DeepMeerkat()
+          DM=Meerkat.DeepMeerkat()
           DM.process_args()
           DM.create_queue()
           if DM.args.threaded:
