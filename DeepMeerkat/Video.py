@@ -237,7 +237,7 @@ class Video:
                             WritePadding=True
                             tensorflow_check=True
                         else:
-                            if score > 0.95:
+                            if score > 1:
                                 tensorflow_check=False
                             else:
                                 tensorflow_check=True
@@ -398,7 +398,7 @@ class Video:
         try:
             self.total_min=(self.end_time-self.start_time)/60.0
         except:
-            self.total_min="Error in calculating time"
+            self.total_min=1
 
         with open(self.output_args, 'w',newline="") as f:
             writer = csv.writer(f,)

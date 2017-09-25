@@ -91,8 +91,8 @@ if __name__ == "__main__":
                     MM.process_args()
                     
                     #set default video and tensorflow model, assuming its been installed in the default location
-                    MM.input="C:/Program Files (x86)/DeepMeerkat/Hummingbird.avi"
-                    MM.path_to_model="C:/Program Files (x86)/DeepMeerkat/model/"      
+                    MM.args.input="C:/Program Files (x86)/DeepMeerkat/Hummingbird.avi"
+                    MM.args.path_to_model="C:/Program Files (x86)/DeepMeerkat/model/"      
                     
                except Exception as e:
                     traceback.print_exc()
