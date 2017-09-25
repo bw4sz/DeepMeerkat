@@ -19,7 +19,7 @@ OutputBaseFilename=DeepMeerkatSetup
 Compression=lzma
 SolidCompression=yes
 DisableDirPage=no
-                                                  
+                                                   
 [Languages]                                                                           
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
@@ -30,7 +30,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Source: "C:\Users\Ben\Documents\DeepMeerkat\Installer\dist\Lib\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs ignoreversion
 Source: "C:\FFmpeg\bin\ffmpeg.exe";DestDir: "{app}\FFmpeg"; Flags: ignoreversion
 
-; NOTE: Don't use "Flags: ignoreversion" on any shared system files
+; NOTE: Don't use "Flags: ignoreversion" on any shared system files      
                                                                 
 [Icons]
 Name: "{group}\DeepMeerkat"; Filename: "{app}\DeepMeerkat.exe"; IconFileName: "{app}\images\thumbnail.ico"

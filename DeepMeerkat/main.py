@@ -81,7 +81,7 @@ if __name__ == "__main__":
                from pathlib import Path
                home = str(Path.home())
                input_file=StringProperty("")               
-               output_file=StringProperty(home +"/DeepMeerkat/")    
+               output_file=StringProperty(home +"\DeepMeerkat")    
                dirselect=StringProperty("False")
                try:
                     #Create motion instance class
@@ -286,6 +286,9 @@ if __name__ == "__main__":
                
           #run app  
           if __name__=="__main__":
-               DeepMeerkatApp().run()
+               try:
+                    DeepMeerkatApp().run()
+               except:
+                    input("Hit any key to exit")
                cv2.destroyAllWindows()
      
