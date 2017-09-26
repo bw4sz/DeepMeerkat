@@ -237,7 +237,7 @@ class Video:
                             WritePadding=True
                             tensorflow_check=True
                         else:
-                            if score > 1:
+                            if score > 0.95:
                                 tensorflow_check=False
                             else:
                                 tensorflow_check=True

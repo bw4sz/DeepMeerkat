@@ -135,7 +135,6 @@
             size_hint_y:0.3
             text:root.wd
             on_text_validate: filechooser.path=root.change_path(text_input.text,filechooser.path)
-            on_text:app.output_file=str(text_input.text)
             font_size: 30
             multiline: False
     BoxLayout:
@@ -209,7 +208,7 @@
                 markup: True
                 font_size:20
             Label:
-                text: "[b]Output Directory:[/b] " + str(app.MM.args.output)
+                text: "[b]Output Directory:[/b] " + str(app.output_file)
                 markup: True
                 font_size:20
         BoxLayout:
@@ -228,7 +227,7 @@
             markup: True
             font_size:20
         Label:
-            text: "[b]Output Directory:[/b] " + str(app.MM.args.output)
+            text: "[b]Output Directory:[/b] " + str(app.output_file)
             markup: True
             font_size:22
         Label:

@@ -95,6 +95,7 @@ try:
                          #set default video and tensorflow model, assuming its been installed in the default location
                          MM.args.input="C:/Program Files/DeepMeerkat/Hummingbird.avi"
                          MM.args.path_to_model="C:/Program Files/DeepMeerkat/model/"      
+                         MM.args.output=home +"\DeepMeerkat"      
                          
                     except Exception as e:
                          traceback.print_exc()
