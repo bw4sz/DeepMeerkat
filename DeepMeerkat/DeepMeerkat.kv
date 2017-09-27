@@ -166,13 +166,6 @@
         BoxLayout:
             size_hint_x:0.75
             Label:
-                text: "Training mode"
-            CheckBox:
-                active: False
-                on_active:app.MM.args.training=self.active
-        BoxLayout:
-            size_hint_x:0.75
-            Label:
                 text: "Overlay annotations on image"
             CheckBox:
                 active: False
@@ -184,6 +177,13 @@
             CheckBox:
                 active: False
                 on_active:app.MM.args.threaded=self.active
+        BoxLayout:
+            size_hint_x:0.75
+            Label:
+                text: "Training mode"
+            CheckBox:
+                active: False
+                on_active:app.MM.args.training=self.active;app.MM.args.tensorflow=not self.active
         BoxLayout:
             orientation:"horizontal"
         Label:

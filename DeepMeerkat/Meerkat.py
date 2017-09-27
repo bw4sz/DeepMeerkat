@@ -99,7 +99,6 @@ class DeepMeerkat:
         #reset mog variance if adapting during run.
         self.args.mogvariance=mogvariance
         
-
         
 if __name__ == "__main__":
     DM=DeepMeerkat()
