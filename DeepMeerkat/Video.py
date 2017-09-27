@@ -47,17 +47,17 @@ the list size is fixed. overflow items will be discarded
     def insert(self):
         pass
 
-def mult(p,x):
-    return(int(p+p*x))
-
-def check_bounds(img,axis,p):
-    if p > img.shape[axis]:
-        p=img.shape[axis]
-    if p < 0:
-        p=0
-    return(p)
-
-def resize_box(img,bbox,m=math.sqrt(2)-1):
+    def mult(p,x):
+        return(int(p+p*x))
+    
+    def check_bounds(img,axis,p):
+        if p > img.shape[axis]:
+            p=img.shape[axis]
+        if p < 0:
+            p=0
+        return(p)
+    
+def resize_box(img,bbox,m=(math.sqrt(2)-1)/2):
 
     #expand box by multiplier m, limit to image edge
 
@@ -237,10 +237,20 @@ class Video:
                             WritePadding=True
                             tensorflow_check=True
                         else:
-                            if score > 0.95:
+                            if score > float(self.args.tensorflow_threshold):
                                 tensorflow_check=False
                             else:
                                 tensorflow_check=True
+                #if training, just spit out clips
+                if self.args.training:
+                    clip_counter=0                    
+                    for box in labels:
+                        clip_to_write=resize_box(self.original_image, box)
+                        fname=self.file_destination + "/"+str(self.frame_count) + "_" + str(clip_counter)+".jpg"                            
+                        cv2.imwrite(fname, clip_to_write)   
+                        clip_counter+=1
+                    #don't write full frames
+                    continue    
             
                 ##Tensorflow check
                 if tensorflow_check:

@@ -166,6 +166,13 @@
         BoxLayout:
             size_hint_x:0.75
             Label:
+                text: "Training mode"
+            CheckBox:
+                active: False
+                on_active:app.MM.args.training=self.active
+        BoxLayout:
+            size_hint_x:0.75
+            Label:
                 text: "Overlay annotations on image"
             CheckBox:
                 active: False
@@ -177,14 +184,25 @@
             CheckBox:
                 active: False
                 on_active:app.MM.args.threaded=self.active
+        BoxLayout:
+            orientation:"horizontal"
         Label:
-            font_size:15
+            font_size:25
+            text:"Tensorflow threshold"
+        TextInput:
+            size_hint_y:0.5
+            text:str(0.95)
+            on_text: app.MM.args.tensorflow_threshold=self.text
+            font_size:25
+            multiline:False
+        Label:
+            font_size:25
             text:"Path to tensorflow model"
         TextInput:
             size_hint_y:0.5
             text:str(app.MM.args.path_to_model)
             on_text: app.MM.args.path_to_model=self.text
-            font_size:22
+            font_size:25
             multiline:False
 
 <ProgressScreen>

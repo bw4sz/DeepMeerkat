@@ -79,7 +79,8 @@ class DeepMeerkat:
         self.args.mogvariance=mogvariance
         
         #close tensorflow session
-        sess.close()
+        if self.args.tensorflow:
+            sess.close()
 
     def run(self,vid,sess):
 
@@ -98,9 +99,7 @@ class DeepMeerkat:
         #reset mog variance if adapting during run.
         self.args.mogvariance=mogvariance
         
-        #close tensorflow session
-        if self.args.tensorflow:
-            sess.close()
+
         
 if __name__ == "__main__":
     DM=DeepMeerkat()
