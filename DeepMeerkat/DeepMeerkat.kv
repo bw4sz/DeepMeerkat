@@ -230,7 +230,7 @@
             text: "Returned " + str(root.len_annotations) + " frames " + "from " + str(root.frame_count) + " (" + str(root.hitrate) + "%)" 
             font_size:20 
         Button:
-            text: "[b]Output Directory:[/b] " + str(app.MM.args.output)
+            text: "[b]Output Directory:[/b] " + str(app.output_file)
             markup: True
             font_size:22
             on_press: root.openoutdir(app.MM)  

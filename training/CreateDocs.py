@@ -72,13 +72,13 @@ class Organizer:
                 self.train_negatives_files.append("gs://" + f.bucket.name + "/" + f.name)
                     
         #shuffle negatives and take a sample equal to the size of the positives
-        #random.shuffle(self.train_negatives_files)
+        random.shuffle(self.train_negatives_files)
         
         #add the rest of the files to testing
         #add_to_negative_train=self.train_negatives_files[len(self.train_positives_files):]
         
         #cut the file to match positives
-        #self.train_negatives_files=self.train_negatives_files[:len(self.train_positives_files)]
+        self.train_negatives_files=self.train_negatives_files[:len(self.train_positives_files)]
         
         print( "Found %d results" % (len( self.train_negatives_files)))          
         
@@ -114,8 +114,7 @@ class Organizer:
             for f in page:
                 self.test_negatives_files.append("gs://" + f.bucket.name + "/" + f.name)
             
-        
-        #add in thhe negatives
+        #add in the negatives
         #self.test_negatives_files=add_to_negative_train + self.test_negatives_files
        
         print( "Found %d results" % (len( self.test_negatives_files)))    

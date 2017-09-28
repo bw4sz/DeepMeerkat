@@ -7,6 +7,7 @@ import traceback
 import Meerkat
 import CommandArgs
 import os
+import tensorflow
 
 #Entry Point
 
@@ -221,7 +222,7 @@ if __name__ == "__main__":
                               from multiprocessing import Pool
                               from multiprocessing.dummy import Pool as ThreadPool 
                               pool = ThreadPool(2)         
-                              results = pool.map(MM.run,MM.queue)
+                              results = pool.map(MM.run_threaded,MM.queue)
                               pool.close()
                               pool.join()
                          else:

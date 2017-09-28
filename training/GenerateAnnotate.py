@@ -2,9 +2,9 @@ import glob
 import cv2
 import random
 import os
-
+2
 cv2.namedWindow("image")
-images=glob.glob("/Users/ben/Dropbox/GoogleCloud/TestCrops/*.jpg")
+images=glob.glob("/Users/ben/Dropbox/GoogleCloud/TestCrops/Negatives/*.jpg")
 position=0
 
 pfilename=[random.randint(0,1000000) for r in range(len(images))] 

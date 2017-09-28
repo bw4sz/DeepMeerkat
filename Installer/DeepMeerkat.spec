@@ -1,14 +1,12 @@
 # -*- mode: python -*-
 
-import cv2
-
 block_cipher = None
 
 a = Analysis(['/Users/Ben/Documents/DeepMeerkat/DeepMeerkat/main.py'],
              pathex=['/Users/ben/Documents/DeepMeerkat/DeepMeerkat/'],
              binaries=[],
              datas=[],
-             hiddenimports=['setuptools.msvc','setuptools',"google","pbr"],
+             hiddenimports=["tensorflow"],
              hookspath=[],
              runtime_hooks=[],
              excludes=[ 'enchant', 'twisted'],
