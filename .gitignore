@@ -2,3 +2,5 @@
 Installer/dist/*
 Installer/build/*
 env/*
+tests/dist/*
+tests/build/*
