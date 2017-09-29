@@ -1,3 +1,4 @@
+#Declare Screens
 <MyScreenManager>:
     id:screen_manager
     name:"screen_manager"
@@ -38,9 +39,6 @@
         BoxLayout:
             size_hint_y:0.75 
             orientation:'horizontal'
-            Image:
-                size_hint:(0.5,0.75)
-                source:"images/thumbnail.png"
             BoxLayout:
                 orientation:"vertical"
                 Label:
@@ -134,10 +132,9 @@
             size_hint_y:0.25
         TextInput:
             id: text_input
-            text:root.wd
             size_hint_y:0.3
+            text:root.wd
             on_text_validate: filechooser.path=root.change_path(text_input.text,filechooser.path)
-            on_text:app.output_file=str(text_input.text)
             font_size: 30
             multiline: False
     BoxLayout:
@@ -148,8 +145,8 @@
             on_release: text_input.text=""; root.gotoMain(app.root)
         Button:
             text: "Select"
-            on_release: app.MM.args.output=text_input.text; root.gotoMain(app.root)
-            
+            on_release: app.output_file=text_input.text; app.MM.args.output=text_input.text; root.gotoMain(app.root)
+
 <AdvancedScreen>
     on_enter:app.MM.mode='advanced'
     BoxLayout:
@@ -160,27 +157,52 @@
             pos_hint:{'top':0}
             on_press:root.gotoMain(app.root)
         BoxLayout:
-            size_hint_x:0.5
+            size_hint_x:0.75
             Label:
                 text: "Draw Motion Objects"
             CheckBox:
                 active: False
                 on_active:app.MM.args.draw_box=self.active
         BoxLayout:
-            size_hint_x:0.5
+            size_hint_x:0.75
+            Label:
+                text: "Overlay annotations on image"
+            CheckBox:
+                active: False
+                on_active:app.MM.args.write_text=self.active
+        BoxLayout:
+            size_hint_x:0.75
             Label:
                 text: "Multithreaded"
             CheckBox:
                 active: False
                 on_active:app.MM.args.threaded=self.active
+        BoxLayout:
+            size_hint_x:0.75
+            Label:
+                text: "Training mode"
+            CheckBox:
+                active: False
+                on_active:app.MM.args.training=self.active;app.MM.args.tensorflow=not self.active
+        BoxLayout:
+            orientation:"horizontal"
         Label:
-            font_size:20
+            font_size:25
+            text:"Tensorflow threshold"
+        TextInput:
+            size_hint_y:0.5
+            text:str(0.95)
+            on_text: app.MM.args.tensorflow_threshold=self.text
+            font_size:25
+            multiline:False
+        Label:
+            font_size:25
             text:"Path to tensorflow model"
         TextInput:
             size_hint_y:0.5
             text:str(app.MM.args.path_to_model)
             on_text: app.MM.args.path_to_model=self.text
-            font_size:20
+            font_size:25
             multiline:False
 
 <ProgressScreen>
@@ -196,15 +218,16 @@
             orientation:'vertical'
             Label:
                 text: "[b]Classification Model:[/b] " + str(root.tensorflow_loaded)
-                markup: True
                 font_size:20
-                color: (1,1,0,1) if root.tensorflow_loaded == 'Loading' else (1,1,1,1)
+                color:(1,1,0,1) if root.tensorflow_loaded == 'Loading' else (1,1,1,1)
+                markup:True
             Label:
                 text: "[b]Running File:[/b] " + str(root.video_name) + " (%d/%d)" % (root.video_id,root.video_count)
                 markup: True
                 font_size:20
+                color: (1,1,0,1) if root.tensorflow_loaded == 'Loading' else (1,1,1,1)
             Label:
-                text: "[b]Output Directory:[/b] " + str(app.MM.args.output)
+                text: "[b]Output Directory:[/b] " + str(app.output_file)
                 markup: True
                 font_size:20
         BoxLayout:
@@ -221,19 +244,22 @@
         Label:
             text: "[b]Input File:[/b] " + str(app.MM.args.input)
             markup: True
-            font_size:20 
+            font_size:20
+        Label:
+            text: "[b]Output Directory:[/b] " + str(app.output_file)
+            markup: True
+            font_size:22
         Label:
             text: "[b]Run time:[/b] " + str(round(root.total_min,2)) + " min"
             markup: True
             font_size:22
         Label:
             text: "Returned " + str(root.len_annotations) + " frames " + "from " + str(root.frame_count) + " (" + str(root.hitrate) + "%)" 
-            font_size:20 
+            font_size:20
         Button:
-            text: "[b]Output Directory:[/b] " + str(app.output_file)
-            markup: True
-            font_size:22
-            on_press: root.openoutdir(app.MM)  
+            text: "Open Output Folder"
+            size_hint:(1,0.5)
+            on_press: root.openparfile(app.MM)    
 <ErrorScreen>
     on_enter:root.getMessage(app.root)
     BoxLayout:
@@ -248,11 +274,7 @@
         TextInput:
             id:"emessage'
             text: root.em
-            size_hint:(1,2)
-        Button:
-            text: "Parameter Log"
-            size_hint:(1,0.5)
-            on_press: root.openfile(app.MM)           
+            size_hint:(1,2)       
         Label:
             text: "If you believe this is a bug, submit the parameter log,\na copy of your error, and a description of your video to the link below."            
         Button:

@@ -1,6 +1,4 @@
 setup.py
-predict/__init__.py
-predict/images_to_json.py
 trainer/__init__.py
 trainer/model.py
 trainer/preprocess.py

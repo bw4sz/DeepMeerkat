@@ -53,8 +53,8 @@ def check_bounds(img,axis,p):
     if p < 0:
         p=0
     return(p)
-
-def resize_box(img,bbox,m=math.sqrt(2)-1):
+    
+def resize_box(img,bbox,m=(math.sqrt(2)-1)/2):
 
     #expand box by multiplier m, limit to image edge
 
@@ -119,11 +119,12 @@ class Video:
 
         #create if directory does not exist
         if not os.path.exists(self.file_destination):
-            try:
+            try: 
                 os.makedirs(self.file_destination)
             except:
-                print("Directory already created")
-                
+                print("Multithreaded, multiple threads creating at once?")
+                pass
+
         #read video
         self.cap=cv2.VideoCapture(self.args.video)
 
@@ -232,12 +233,24 @@ class Video:
                             WritePadding=True
                             tensorflow_check=True
                         else:
-                            if score > 0.95:
+                            if score > float(self.args.tensorflow_threshold):
                                 tensorflow_check=False
                             else:
                                 tensorflow_check=True
+                                
+                #if training, just spit out clips
+                if self.args.training:
+                    clip_counter=0    
+                    self.annotations[self.frame_count] = remaining_bounding_box                    
+                    for box in remaining_bounding_box:
+                        clip_to_write=resize_box(self.original_image, box)
+                        fname=self.file_destination + "/"+str(self.frame_count) + "_" + str(clip_counter)+".jpg"                            
+                        cv2.imwrite(fname, clip_to_write)   
+                        clip_counter+=1
+                    #don't write full frames
+                    continue    
             
-                ##did we pass tensorflow threshold?
+                ##Tensorflow check
                 if tensorflow_check:
                     pass
                 else:
@@ -315,12 +328,12 @@ class Video:
 
             ##write padding frames, if they don't exist
             if WritePadding:
+                #write frames before
                 for x in range(0,len(self.padding_frames)):
                     filenm=self.file_destination + "/"+str(self.frame_count-(x+1))+".jpg"
                     if not os.path.exists(filenm):
                         cv2.imwrite(filenm,self.padding_frames[x])
-
-                #write post-motion frames
+                ##write frames after
                 for x in range(self.args.buffer):
                     #read frame, check if its the last frame in video
                     ret,self.read_image=self.read_frame()
@@ -330,11 +343,11 @@ class Video:
                     #add to frame count and apply background
                     self.frame_count+=1
                     self.background_apply()
-
-                ##write frame
-                fname=self.file_destination + "/"+str(self.frame_count)+".jpg"
-                if not os.path.exists(fname):
-                    cv2.imwrite(fname,self.original_image)
+    
+                    #write frame
+                    fname=self.file_destination + "/"+str(self.frame_count)+".jpg"
+                    if not os.path.exists(fname):
+                        cv2.imwrite(fname,self.original_image)
 
     def cluster_bounding_boxes(self, contours):
         bounding_boxes = []
@@ -390,9 +403,12 @@ class Video:
         self.output_args=self.file_destination + "/parameters.csv"
         
         #report statistics
-        self.total_min=(self.end_time-self.start_time)/60.0
-        
-        with open(self.output_args, 'wb') as f:
+        try:
+            self.total_min=(self.end_time-self.start_time)/60.0
+        except:
+            self.total_min=1
+
+        with open(self.output_args, 'w',newline="") as f:
             writer = csv.writer(f,)
             writer.writerows(self.args.__dict__.items())
 
@@ -410,18 +426,16 @@ class Video:
 
             #Frames per second
             writer.writerow(["Frame processing rate",round(float(self.frame_count)/(self.total_min*60),2)])
-     
+         
         #Write frame annotations
         self.output_annotations=self.file_destination + "/annotations.csv"
-
-        with open(self.output_annotations, 'wb') as f:
+        with open(self.output_annotations, 'w',newline="") as f:
             writer = csv.writer(f,)
             writer.writerow(["Frame","x","y","h","w","label","score"])
             for x in sorted(self.annotations.keys()):
                 bboxes=self.annotations[x]
                 for bbox in bboxes:
                     writer.writerow([x,bbox.x,bbox.y,bbox.h,bbox.w,bbox.label[0],bbox.label[1]])
-
     def adapt(self):
 
             #If current frame is a multiple of the 1000 frames

@@ -51,7 +51,7 @@ class DeepMeerkat:
                 self.sess=None
         
     def run_threaded(self,vid):
-        
+
         #hold on to original mog variance
         mogvariance=self.args.mogvariance
 

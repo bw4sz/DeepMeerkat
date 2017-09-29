@@ -13,7 +13,7 @@ import datetime
 import argparse
 
 parser = argparse.ArgumentParser(description='Create bounding boxes for the machine learning model')
-parser.add_argument('--date', help='Date Since Last Run',default="2017-09-20")
+parser.add_argument('--date', help='Date Since Last Run',default="2017-09-18")
 args, _ = parser.parse_known_args()
 
 def creation_date(path_to_file):
@@ -34,7 +34,7 @@ def creation_date(path_to_file):
             return stat.st_mtime
 
 csvs = []
-for root, dirnames, filenames in os.walk("/Users/ben/Dropbox/HummingbirdProject/Data/"):
+for root, dirnames, filenames in os.walk("/Users/ben/Dropbox/HummingbirdProject/Data"):
     for filename in fnmatch.filter(filenames, '*Frames.csv'):
         csvs.append(os.path.join(root, filename))
 

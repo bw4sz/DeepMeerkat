@@ -1,12 +1,17 @@
 #!/usr/bin/env python
+
+#try:
+import traceback
 import sys
 import cv2
-import traceback
 
 #DeepMeerkat
 import Meerkat
 import CommandArgs
 import os
+
+from pathlib import Path
+home = str(Path.home())
 
 #Entry Point
 
@@ -17,8 +22,7 @@ if __name__ == "__main__":
      #if system arg, command line version, skip the GUI
      if len(sys.argv)>= 2:
           
-          print("Entering Command Line")
-          DM=DeepMeerkat()
+          DM=Meerkat.DeepMeerkat()
           DM.process_args()
           DM.create_queue()
           if DM.args.threaded:
@@ -31,12 +35,9 @@ if __name__ == "__main__":
      
           else:
                for vid in DM.queue:
-                    DM.run(vid=vid,sess=DM.sess)
-                    
+                    DM.run(vid=vid,sess=DM.sess)                    
      else:            
-
           #run GUI
-          #Kivy
           from kivy.app import App
           from kivy.uix.scatter import Scatter
           from kivy.uix.label import Label
@@ -79,11 +80,11 @@ if __name__ == "__main__":
                     self.current='ProgressScreen'
      
           class DeepMeerkatApp(App):
-               
+               from pathlib import Path
+               home = str(Path.home())
                input_file=StringProperty("")               
-               output_file=StringProperty(os.getenv("HOME")+"/DeepMeerkat/")               
-               dirselect=StringProperty("False")   
-               
+               output_file=StringProperty(home +"\DeepMeerkat")    
+               dirselect=StringProperty("False")
                try:
                     #Create motion instance class
                     MM=Meerkat.DeepMeerkat()
@@ -91,15 +92,17 @@ if __name__ == "__main__":
                     #Instantiate Command line args
                     MM.process_args()
                     
-                    #set GUI defaults
-                    #MM.args.input=""
-                      
-                    #MM.args.path_to_model   
+                    #TODO OS dependent paths
+                    
+                    #set default video and tensorflow model, assuming its been installed in the default location
+                    MM.args.input="C:/Program Files/DeepMeerkat/Hummingbird.avi"
+                    MM.args.path_to_model="C:/Program Files/DeepMeerkat/model/"      
+                    MM.args.output=home +"\DeepMeerkat"      
                     
                except Exception as e:
                     traceback.print_exc()
                     if len(sys.argv)<= 2:          
-                         k=raw_input("Enter any key to exit:")
+                         k=input("Enter any key to exit:")
                          sys.exit(0)
                          
                def build(self):
@@ -155,19 +158,9 @@ if __name__ == "__main__":
                     screenmanage.current='Outdir'                  
           
           class FileOpen(Screen):
-               
-               wd=os.getenv("HOME")
-                                   
-               def change_path(self,text,current):
-                    if os.path.exists(text): 
-                         return text
-                    else:
-                         return current
-               def gotoMain(self,screenmanage):
-                    screenmanage.transition.direction='right'          
-                    screenmanage.current='GUI'   
-          
-          class Outdir(Screen):
+               from pathlib import Path
+               home = str(Path.home())               
+               wd=home
                
                def change_path(self,text,current):
                     if os.path.exists(text): 
@@ -175,7 +168,21 @@ if __name__ == "__main__":
                     else:
                          return current  
                     
-               wd=os.getenv("HOME")+"/DeepMeerkat"
+               def gotoMain(self,screenmanage):
+                    screenmanage.transition.direction='right'          
+                    screenmanage.current='GUI'   
+          
+          class Outdir(Screen):
+               from pathlib import Path
+               home = str(Path.home())               
+               wd=home+"\DeepMeerkat"
+               
+               def change_path(self,text,current):
+                    if os.path.exists(text): 
+                         return text
+                    else:
+                         return current  
+                    
                def gotoMain(self,screenmanage):
                     screenmanage.transition.direction='right'          
                     screenmanage.current='GUI' 
@@ -217,7 +224,7 @@ if __name__ == "__main__":
                          self.video_count=len(MM.queue)
                          
                          if MM.args.threaded:
-                              self.tensorflow_loaded="Multithreaded"
+                              self.tensorflow_loaded="Multithreaded version"
                               from multiprocessing import Pool
                               from multiprocessing.dummy import Pool as ThreadPool 
                               pool = ThreadPool(2)         
@@ -265,8 +272,10 @@ if __name__ == "__main__":
                     screenmanage.transition.direction='right'          
                     screenmanage.current='GUI'   
                                         
-               def openoutdir(self,MM):
-                    subprocess.call(["open", MM.args.output])
+               def openparfile(self,MM):
+                    
+                    #TODO OS dependent
+                    subprocess.call('explorer /n,/e,' + os.path.normpath(MM.args.output))
           
           class ErrorScreen(Screen):
                em=StringProperty()
@@ -284,6 +293,13 @@ if __name__ == "__main__":
                
           #run app  
           if __name__=="__main__":
-               DeepMeerkatApp().run()
-               cv2.destroyAllWindows()
-     
+               try:
+                    DeepMeerkatApp().run()
+                    cv2.destroyAllWindows()                         
+               except Exception as e:
+                    traceback.print_exc()
+                    if len(sys.argv)<= 2:          
+                         k=input("Enter any key to exit:")
+                         sys.exit(0)
+#except Exception as e:
+#     traceback.print_exc()
