@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-#try:
 import traceback
 import sys
 import cv2
@@ -10,6 +9,7 @@ import Meerkat
 import CommandArgs
 import os
 
+import os
 from pathlib import Path
 home = str(Path.home())
 
@@ -93,10 +93,16 @@ if __name__ == "__main__":
                     MM.process_args()
                     
                     #TODO OS dependent paths
-                    
-                    #set default video and tensorflow model, assuming its been installed in the default location
-                    MM.args.input="C:/Program Files/DeepMeerkat/Hummingbird.avi"
-                    MM.args.path_to_model="C:/Program Files/DeepMeerkat/model/"      
+                    if os.name()=="nt":
+                         #set default video and tensorflow model, assuming its been installed in the default location
+                         MM.args.input="C:/Program Files/DeepMeerkat/Hummingbird.avi"
+                         MM.args.path_to_model="C:/Program Files/DeepMeerkat/model/"
+                    else:
+                         #TODO where to put default applications materials?
+                         pass
+                         #MM.args.input="/Users/:/Program Files/DeepMeerkat/Hummingbird.avi"
+                         #MM.args.path_to_model="C:/Program Files/DeepMeerkat/model/"                         
+
                     MM.args.output=home +"\DeepMeerkat"      
                     
                except Exception as e:
@@ -273,9 +279,11 @@ if __name__ == "__main__":
                     screenmanage.current='GUI'   
                                         
                def openparfile(self,MM):
-                    
-                    #TODO OS dependent
-                    subprocess.call('explorer /n,/e,' + os.path.normpath(MM.args.output))
+                    #platform dependent
+                    if os.name()=="nt":
+                         subprocess.call('explorer /n,/e,' + os.path.normpath(MM.args.output))
+                    else:
+                         subprocess.call(["open", MM.args.output])
           
           class ErrorScreen(Screen):
                em=StringProperty()
@@ -301,5 +309,3 @@ if __name__ == "__main__":
                     if len(sys.argv)<= 2:          
                          k=input("Enter any key to exit:")
                          sys.exit(0)
-#except Exception as e:
-#     traceback.print_exc()

@@ -1,4 +1,5 @@
 .Rproj.user
-Installer/dist/*
-Installer/build/*
+Installer/*/dist/*
+Installer/*/build/*
 Installer/Output/*
+env/*

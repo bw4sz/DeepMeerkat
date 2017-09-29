@@ -1,12 +1,27 @@
 #!/bin/bash
-rm -rf C:/Users/Ben/Documents/DeepMeerkat/Installer/dist 
-rm -rf C:/Users/Ben/Documents/DeepMeerkat/Installer/build 
-rm -rf C:/Users/Ben/Documents/DeepMeerkat/Installer/Output 
 
-/c/Python35/Scripts/pyinstaller -c DeepMeerkat.spec
+rm -rf /Users/Ben/Documents/DeepMeerkat/Installer/dist 
+rm -rf /Users/Ben/Documents/DeepMeerkat/Installer/build 
+rm -rf /Users/Ben/Documents/DeepMeerkat/Installer/main.exe 
+rm -rf /Users/Ben/Documents/DeepMeerkat/Installer/DeepMeerkat.exe
 
-#copy model
-cp -r C:/Users/ben/Dropbox/GoogleCloud/DeepMeerkat_20170924_105144/model dist/Lib/
+pyinstaller -c --onedir DeepMeerkat.spec
 
-#Copy FFmpeg binary
-cp C:/Python35/Lib/site-packages/opencv_ffmpeg320_64.dll dist/Lib/
+#Somehow the wrong libpng gets pulled, replace it
+#grab from homebrew
+cp -f /usr/local/Cellar/libpng/1.6.32/lib/libpng16.16.dylib /Users/ben/Documents/DeepMeerkat/Installer/dist/Lib/libpng16.16.dylib
+
+#copy model across
+cp -r /Users/ben/Dropbox/GoogleCloud/DeepMeerkat_20170924_105144/model dist/Lib/
+
+#copy tensorflow across?
+cp -R /Library/Python/2.7/site-packages/tensorflow dist/Lib/
+
+#pushd dist
+
+#hdiutil create ./DeepMeerkat.dmg -srcfolder main.app -ov
+
+#popd
+
+#test if it works
+open /Users/ben/Documents/DeepMeerkat/Installer/dist/Lib/main
