@@ -407,35 +407,66 @@ class Video:
             self.total_min=(self.end_time-self.start_time)/60.0
         except:
             self.total_min=1
-
-        with open(self.output_args, 'w',newline="") as f:
-            writer = csv.writer(f,)
-            writer.writerows(self.args.__dict__.items())
-
-            #Total time
-            writer.writerow(["Minutes",self.total_min])
-
-            #Frames in file
-            writer.writerow(["Total Frames",self.frame_count])
-
-            #Frames returned to file
-            writer.writerow(["Motion Events",len(self.annotations)])
-
-            #Hit rate
-            writer.writerow(["Return rate",float(len(self.annotations))/self.frame_count])
-
-            #Frames per second
-            writer.writerow(["Frame processing rate",round(float(self.frame_count)/(self.total_min*60),2)])
-         
-        #Write frame annotations
-        self.output_annotations=self.file_destination + "/annotations.csv"
-        with open(self.output_annotations, 'w',newline="") as f:
-            writer = csv.writer(f,)
-            writer.writerow(["Frame","x","y","h","w","label","score"])
-            for x in sorted(self.annotations.keys()):
-                bboxes=self.annotations[x]
-                for bbox in bboxes:
-                    writer.writerow([x,bbox.x,bbox.y,bbox.h,bbox.w,bbox.label[0],bbox.label[1]])
+        
+        if os.name=="nt":
+            with open(self.output_args, 'w',newline="") as f:
+                writer = csv.writer(f,)
+                writer.writerows(self.args.__dict__.items())
+    
+                #Total time
+                writer.writerow(["Minutes",self.total_min])
+    
+                #Frames in file
+                writer.writerow(["Total Frames",self.frame_count])
+    
+                #Frames returned to file
+                writer.writerow(["Motion Events",len(self.annotations)])
+    
+                #Hit rate
+                writer.writerow(["Return rate",float(len(self.annotations))/self.frame_count])
+    
+                #Frames per second
+                writer.writerow(["Frame processing rate",round(float(self.frame_count)/(self.total_min*60),2)])
+             
+            #Write frame annotations
+            self.output_annotations=self.file_destination + "/annotations.csv"
+            with open(self.output_annotations, 'w',newline="") as f:
+                writer = csv.writer(f,)
+                writer.writerow(["Frame","x","y","h","w","label","score"])
+                for x in sorted(self.annotations.keys()):
+                    bboxes=self.annotations[x]
+                    for bbox in bboxes:
+                        writer.writerow([x,bbox.x,bbox.y,bbox.h,bbox.w,bbox.label[0],bbox.label[1]])
+        else:
+            with open(self.output_args, 'wb') as f:
+                writer = csv.writer(f,)
+                writer.writerows(self.args.__dict__.items())
+    
+                #Total time
+                writer.writerow(["Minutes",self.total_min])
+    
+                #Frames in file
+                writer.writerow(["Total Frames",self.frame_count])
+    
+                #Frames returned to file
+                writer.writerow(["Motion Events",len(self.annotations)])
+    
+                #Hit rate
+                writer.writerow(["Return rate",float(len(self.annotations))/self.frame_count])
+    
+                #Frames per second
+                writer.writerow(["Frame processing rate",round(float(self.frame_count)/(self.total_min*60),2)])
+             
+            #Write frame annotations
+            self.output_annotations=self.file_destination + "/annotations.csv"
+            with open(self.output_annotations, 'wb') as f:
+                writer = csv.writer(f,)
+                writer.writerow(["Frame","x","y","h","w","label","score"])
+                for x in sorted(self.annotations.keys()):
+                    bboxes=self.annotations[x]
+                    for bbox in bboxes:
+                        writer.writerow([x,bbox.x,bbox.y,bbox.h,bbox.w,bbox.label[0],bbox.label[1]])
+                        
     def adapt(self):
 
             #If current frame is a multiple of the 1000 frames
