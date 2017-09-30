@@ -11,7 +11,12 @@ import os
 
 import os
 from pathlib import Path
-home = str(Path.home())
+
+#OS specific path home
+if os.name=="nt":
+     home = str(Path.home())
+else:
+     home=os.path.expanduser("~")
 
 #Entry Point
 
@@ -80,10 +85,21 @@ if __name__ == "__main__":
                     self.current='ProgressScreen'
      
           class DeepMeerkatApp(App):
+               
+               #OS specific home directory
                from pathlib import Path
-               home = str(Path.home())
+               import os
+               
+               if os.name=="nt":
+                    home = str(Path.home())
+                    output_file=StringProperty(home +"\DeepMeerkat")    
+                    
+               else:
+                    home=os.path.expanduser("~")
+                    output_file=StringProperty(home +"/DeepMeerkat")    
+                    
+                    
                input_file=StringProperty("")               
-               output_file=StringProperty(home +"\DeepMeerkat")    
                dirselect=StringProperty("False")
                try:
                     #Create motion instance class
@@ -93,17 +109,18 @@ if __name__ == "__main__":
                     MM.process_args()
                     
                     #TODO OS dependent paths
-                    if os.name()=="nt":
+                    if os.name=="nt":
                          #set default video and tensorflow model, assuming its been installed in the default location
                          MM.args.input="C:/Program Files/DeepMeerkat/Hummingbird.avi"
                          MM.args.path_to_model="C:/Program Files/DeepMeerkat/model/"
+                         MM.args.output=home +"\DeepMeerkat"      
+                         
                     else:
                          #TODO where to put default applications materials?
                          pass
                          #MM.args.input="/Users/:/Program Files/DeepMeerkat/Hummingbird.avi"
                          #MM.args.path_to_model="C:/Program Files/DeepMeerkat/model/"                         
-
-                    MM.args.output=home +"\DeepMeerkat"      
+                         #MM.args.output=home +"\DeepMeerkat"      
                     
                except Exception as e:
                     traceback.print_exc()
@@ -165,8 +182,13 @@ if __name__ == "__main__":
           
           class FileOpen(Screen):
                from pathlib import Path
-               home = str(Path.home())               
-               wd=home
+               import os
+               
+               #OS specific directory
+               if os.name=="nt":
+                    wd = str(Path.home())
+               else:
+                    wd=os.path.expanduser("~")
                
                def change_path(self,text,current):
                     if os.path.exists(text): 
@@ -180,9 +202,17 @@ if __name__ == "__main__":
           
           class Outdir(Screen):
                from pathlib import Path
-               home = str(Path.home())               
-               wd=home+"\DeepMeerkat"
+               import os
                
+               #OS specific directory
+               if os.name=="nt":
+                    home = str(Path.home())
+                    wd=home+"\DeepMeerkat"
+                    
+               else:
+                    home=os.path.expanduser("~")
+                    wd=home+"/DeepMeerkat"
+                    
                def change_path(self,text,current):
                     if os.path.exists(text): 
                          return text
@@ -280,7 +310,7 @@ if __name__ == "__main__":
                                         
                def openparfile(self,MM):
                     #platform dependent
-                    if os.name()=="nt":
+                    if os.name=="nt":
                          subprocess.call('explorer /n,/e,' + os.path.normpath(MM.args.output))
                     else:
                          subprocess.call(["open", MM.args.output])
