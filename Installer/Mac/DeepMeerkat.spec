@@ -31,6 +31,6 @@ coll = COLLECT(exe, Tree('/Users/ben/Documents/DeepMeerkat/DeepMeerkat'),
                upx=True,
                name='Lib')
 app = BUNDLE(coll,
-             name='main.app',
+             name='DeepMeerkat.app',
              icon='/Users/ben/Documents/DeepMeerkat/DeepMeerkat/images/thumbnail.png',
              bundle_identifier=None)

@@ -119,11 +119,9 @@ if __name__ == "__main__":
                          MM.args.output=home +"\DeepMeerkat"      
                          
                     else:
-                         #TODO where to put default applications materials?
-                         pass
-                         #MM.args.input="/Users/:/Program Files/DeepMeerkat/Hummingbird.avi"
-                         #MM.args.path_to_model="C:/Program Files/DeepMeerkat/model/"                         
-                         #MM.args.output=home +"\DeepMeerkat"      
+                         MM.args.input="/Applications/DeepMeerkat/Contents/Resources/Hummingbird.avi"
+                         MM.args.path_to_model="/Applications/DeepMeerkat/Contents/Resources/model/"
+                         MM.args.output=home +"/DeepMeerkat"      
                     
                except Exception as e:
                     traceback.print_exc()
