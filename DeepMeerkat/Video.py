@@ -1,6 +1,5 @@
 import cv2
 import sys
-from urlparse import urlparse
 import math
 from datetime import datetime, timedelta
 import os

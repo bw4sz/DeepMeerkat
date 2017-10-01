@@ -28,7 +28,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
                 
 [Files]
-Source: "C:\Users\Ben\Documents\DeepMeerkat\Installer\dist\Lib\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs ignoreversion
+Source: "C:\Users\Ben\Documents\DeepMeerkat\Installer\Windows\dist\Lib\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs ignoreversion
 Source: "C:\FFmpeg\bin\ffmpeg.exe";DestDir: "{app}\FFmpeg"; Flags: ignoreversion
 Source: "vc_redist.x64.exe"; DestDir: "{app}"; Check: Is64BitInstallMode
 
