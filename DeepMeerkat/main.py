@@ -119,8 +119,8 @@ if __name__ == "__main__":
                          MM.args.output=home +"\DeepMeerkat"      
                          
                     else:
-                         MM.args.input="/Applications/DeepMeerkat/Contents/Resources/Hummingbird.avi"
-                         MM.args.path_to_model="/Applications/DeepMeerkat/Contents/Resources/model/"
+                         MM.args.input="/Applications/DeepMeerkat.app/Contents/Resources/Hummingbird.avi"
+                         MM.args.path_to_model="/Applications/DeepMeerkat.app/Contents/Resources/model/"
                          MM.args.output=home +"/DeepMeerkat"      
                     
                except Exception as e:

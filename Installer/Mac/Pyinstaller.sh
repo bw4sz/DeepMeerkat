@@ -19,4 +19,4 @@ hdiutil create ./DeepMeerkat.dmg -srcfolder DeepMeerkat.app -ov
 popd
 
 #test if it works
-open /Users/ben/Documents/DeepMeerkat/Installer/Mac/dist/Lib/main
+open /Users/ben/Documents/DeepMeerkat/Installer/Mac/dist/DeepMeerkat.app
