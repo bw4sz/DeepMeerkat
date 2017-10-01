@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 
+import os
+
+#export pbr version for tensorflow user
+os.environ["PBR_VERSION"]='3.1.1'
+
 import traceback
 import sys
 import cv2
@@ -7,9 +12,7 @@ import cv2
 #DeepMeerkat
 import Meerkat
 import CommandArgs
-import os
 
-import os
 from pathlib import Path
 
 #OS specific path home
