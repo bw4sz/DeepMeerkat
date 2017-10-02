@@ -1,7 +1,7 @@
 .Rproj.user
 Installer/*/dist/
 Installer/*/build/
-Installer/Output/
+Installer/*/Output/
 env/
 tests/dist/
 tests/build/
