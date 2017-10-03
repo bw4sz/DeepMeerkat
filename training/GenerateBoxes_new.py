@@ -6,7 +6,7 @@ import fnmatch
 import pandas
 
 class BoundingBox:
-    def__init__(self,x,y,h,w,label,score):
+    def __init__(self,x,y,h,w,label,score):
         self.x=x
         self.y=y
         self.w=w
@@ -39,6 +39,9 @@ for f in csvs:
     df=pandas.read_csv(f)
     counter=0
     
+    if df.shape[0] == 1:
+        df.loc[0,"Clip"]=0		
+        
     for x in range(1,df.shape[0]):		
             if df.loc[x,"Frame"]==df.loc[x-1,"Frame"]:		
                 counter+=1            		
@@ -56,6 +59,7 @@ for f in csvs:
         #set box parameters
         box=BoundingBox(x=row.x,y=row.y,h=row.h,w=row.w,label=row.label,score=row.score)
         cropped_image=img[box.y:box.y+box.h,box.x:box.x+box.w]
+        frame_number=os.path.splitext(fname)[0].split("/")[-1]		
         
         #Save image for scoring		
         video_name=f.split("/")[-2]		
