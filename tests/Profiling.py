@@ -9,7 +9,7 @@ subprocess.check_output(['python', '-m','cProfile','-o','output.txt', '../DeepMe
 #subprocess.check_output(['python', '-m','cProfile','-o','output.txt', '../DeepMeerkat/Predict.py'])
 
 p = pstats.Stats("output.txt")
-p.sort_stats("tottime").strip_dirs().print_stats()
+p.strip_dirs().sort_stats("tottime").print_stats()
 
 #gprof2dot -f pstats output.txt| dot -Tpng -o output.png
 
