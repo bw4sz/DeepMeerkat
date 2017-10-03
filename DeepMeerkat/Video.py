@@ -178,9 +178,6 @@ class Video:
             #background subtraction
             self.background_apply()
 
-            #Gather clips and compute hog features for new background
-            self.bg_image=self.fgbg.getBackgroundImage()
-
             #contour analysis
             self.countours=self.find_contour()
 

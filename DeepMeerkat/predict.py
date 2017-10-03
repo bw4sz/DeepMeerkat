@@ -116,7 +116,7 @@ if __name__ == "__main__":
     print("Model loaded")
     
     #Interactive
-    #interactive("/Users/ben/DeepMeerkat/FFH110_02/*_clip.jpg")
+    #interactive("/Users/ben/Dropbox/GoogleCloud/TestCrops/*.jpg")
     
     print("Testing")
     #Testing
@@ -125,5 +125,5 @@ if __name__ == "__main__":
     
     print("Training")
     #Training
-    check_negatives(path="/Users/Ben/Dropbox/GoogleCloud/Training/Negatives/*.jpg", output="/Users/Ben/Dropbox/GoogleCloud/Training/Training_Negatives.csv")
-    check_positives(path="/Users/Ben/Dropbox/GoogleCloud/Training/Positives/*.jpg", output="/Users/Ben/Dropbox/GoogleCloud/Training/Training_Positives.csv")    
+    #check_negatives(path="/Users/Ben/Dropbox/GoogleCloud/Training/Negatives/*.jpg", output="/Users/Ben/Dropbox/GoogleCloud/Training/Training_Negatives.csv")
+    #check_positives(path="/Users/Ben/Dropbox/GoogleCloud/Training/Positives/*.jpg", output="/Users/Ben/Dropbox/GoogleCloud/Training/Training_Positives.csv")    
