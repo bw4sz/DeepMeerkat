@@ -1,11 +1,5 @@
 #!/bin/bash 
 
-#ssh if needed
-#gcloud compute ssh cloudml 
-
-#Start docker instance
-#sudo docker run -it --privileged -- gcr.io/api-project-773889352370/cloudmlengine 
-
 #Startup script
 #git clone https://github.com/bw4sz/DeepMeerkat.git
 #cd DeepMeerkat/training
@@ -32,27 +26,25 @@ eval=$(gsutil cat gs://api-project-773889352370-ml/Hummingbirds/testingdata.csv 
 #Train Model
 ############
 
-#python pipeline.py \
-    #--project ${PROJECT} \
-    #--cloud \
-    #--train_input_path gs://api-project-773889352370-ml/Hummingbirds/trainingdata.csv \
-    #--eval_input_path gs://api-project-773889352370-ml/Hummingbirds/testingdata.csv \
-    #--input_dict gs://api-project-773889352370-ml/Hummingbirds/dict.txt \
-    #--deploy_model_name "DeepMeerkat" \
-    #--gcs_bucket ${BUCKET} \
-    #--output_dir "${GCS_PATH}/"  \
-    #--eval_set_size  ${eval} 
-
-    
-
-#already preprocessed
 python pipeline.py \
     --project ${PROJECT} \
     --cloud \
-    --preprocessed_train_set gs://api-project-773889352370-ml/DeepMeerkat/DeepMeerkat_20170913_075525/preprocessed/train* \
-    --preprocessed_eval_set gs://api-project-773889352370-ml/DeepMeerkat/DeepMeerkat_20170913_075525/preprocessed/eval* \
+    --train_input_path gs://api-project-773889352370-ml/Hummingbirds/trainingdata.csv \
+    --eval_input_path gs://api-project-773889352370-ml/Hummingbirds/testingdata.csv \
     --input_dict gs://api-project-773889352370-ml/Hummingbirds/dict.txt \
     --deploy_model_name "DeepMeerkat" \
     --gcs_bucket ${BUCKET} \
-    --output_dir "${GCS_PATH}/" \
+    --output_dir "${GCS_PATH}/"  \
     --eval_set_size  ${eval} 
+
+#already preprocessed
+#python pipeline.py \
+    #--project ${PROJECT} \
+    #--cloud \
+    #--preprocessed_train_set gs://api-project-773889352370-ml/DeepMeerkat/DeepMeerkat_20170913_075525/preprocessed/train* \
+    #--preprocessed_eval_set gs://api-project-773889352370-ml/DeepMeerkat/DeepMeerkat_20170913_075525/preprocessed/eval* \
+    #--input_dict gs://api-project-773889352370-ml/Hummingbirds/dict.txt \
+    #--deploy_model_name "DeepMeerkat" \
+    #--gcs_bucket ${BUCKET} \
+    #--output_dir "${GCS_PATH}/" \
+    #--eval_set_size  ${eval} 

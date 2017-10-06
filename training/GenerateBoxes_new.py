@@ -75,4 +75,4 @@ for f in csvs:
                 cv2.imwrite("/Users/Ben/Dropbox/GoogleCloud/TestCrops/Negatives/"+ clipname, cropped_image)                
         new_images+=1
         
-        print("%s new images added" %(new_images)) 		
+    print("%s new images added" %(new_images)) 		

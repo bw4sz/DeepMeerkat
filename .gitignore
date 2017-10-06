@@ -5,3 +5,4 @@ Installer/*/Output/
 env/
 tests/dist/
 tests/build/
+Training/env/*
