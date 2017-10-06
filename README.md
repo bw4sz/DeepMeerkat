@@ -15,7 +15,7 @@ Command line arguments can be found [here](https://github.com/bw4sz/DeepMeerkat/
 
 # Use
 
-1. Retrain a neural network for a two class classification. DeepMeerkat requires a tensorflow model in the SavedModel format. These classes correspond to "positive" and "negative". Positive are frames that the user is interested in reviewing, negative are frames that can be ignored. I suggest following this (tutorial)[https://cloud.google.com/blog/big-data/2016/12/how-to-classify-images-with-tensorflow-using-google-cloud-machine-learning-and-cloud-dataflow]. A starter (scripts)[https://github.com/bw4sz/DeepMeerkat/blob/master/training/Training.sh] can be found under the /Training directory
+1. Retrain a neural network for a two class classification. DeepMeerkat requires a tensorflow model in the SavedModel format. These classes correspond to "positive" and "negative". Positive are frames that the user is interested in reviewing, negative are frames that can be ignored. I suggest following this [tutorial](https://cloud.google.com/blog/big-data/2016/12/how-to-classify-images-with-tensorflow-using-google-cloud-machine-learning-and-cloud-dataflow). A starter [scripts](https://github.com/bw4sz/DeepMeerkat/blob/master/training/Training.sh) can be found under the /Training directory
 
 2. Run DeepMeerkat locally after supplying the path to the SavedModel in the advanced settings (GUI) or --path_to_model from command line.
 
