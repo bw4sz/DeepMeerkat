@@ -1,14 +1,14 @@
 # DeepMeerkat
 Background subtraction and image classification for stationary cameras in ecological videos.
 
-<img src="https://www.dropbox.com/s/2wb6gqxg40try9z/Hummingbird.png?dl=1" />
+![](https://github.com/bw4sz/DeepMeerkat/blob/master/images/DeepMeerkatFrontScreen.png)
 
 # Installation
 
 DeepMeerkat has been tested on Windows 10, OSX Sierra 10.12.16, and Linux (Debian)
 
 * Installers for a GUI interface are available for Mac and Windows
-<img src="https://www.dropbox.com/s/7qg2w3spbawnaa0/DeepMeerkatFrontScreen.png?dl=1" />
+![](https://github.com/bw4sz/DeepMeerkat/blob/master/images/Hummingbird.png)
 
 # Source Dependencies
 
