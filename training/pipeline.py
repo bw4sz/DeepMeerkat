@@ -225,6 +225,7 @@ class FlowersE2E(object):
         'extra_packages': [trainer_uri],
         'save_main_session':
             True,
+          'maxNumWorkers': 40,
     }
     if dataflow_sdk_location:
       options['sdk_location'] = dataflow_sdk_location

@@ -6,3 +6,4 @@ env/
 tests/dist/
 tests/build/
 Training/env/*
+Training/Detection/detection/*
