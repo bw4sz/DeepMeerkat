@@ -38,8 +38,8 @@ failed_images = create(
     dataset=training,
   dataset_name="train",
   output_directory="/Users/Ben/Dropbox/GoogleCloud/Detection/tfrecords",
-  num_shards=10,
-  num_threads=5
+  num_shards=1,
+  num_threads=1
 )
 
 print("%d images failed." % (len(failed_images),))
@@ -51,8 +51,8 @@ failed_images = create(
     dataset=evaluation,
   dataset_name="eval",
   output_directory="/Users/Ben/Dropbox/GoogleCloud/Detection/tfrecords",
-  num_shards=10,
-  num_threads=5
+  num_shards=1,
+  num_threads=1
 )
 
 print("%d images failed." % (len(failed_images),))

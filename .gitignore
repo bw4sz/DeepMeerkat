@@ -7,3 +7,4 @@ tests/dist/
 tests/build/
 Training/env/*
 Training/Detection/detection/*
+Training/Detection/checkpoint/
