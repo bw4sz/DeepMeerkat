@@ -8,7 +8,7 @@ import os
 
 paths = glob.glob("/Users/Ben/Dropbox/GoogleCloud/Detection/Positives/annotations/*.json")
 
-train_dataset=[]
+dataset=[]
 
 #The json does not have full path
 
@@ -22,12 +22,34 @@ for path in paths:
     data['filename']= '/Users/ben/Dropbox/GoogleCloud/Detection/Positives/' + data['filename']
     #add an ID path
     data['id']=0
-    train_dataset.append(data)
+    dataset.append(data)
 
-#Convert
+#Split into training and eval 80-20
+sp=int(len(dataset)*.8)
+
+training=dataset[:sp]
+evaluation=dataset[sp:]
+
+print("{}  training images".format(len(training)))
+print("{}  evaluation images".format(len(evaluation)))
+      
+#Convert training
 failed_images = create(
-    dataset=train_dataset,
+    dataset=training,
   dataset_name="train",
+  output_directory="/Users/Ben/Dropbox/GoogleCloud/Detection/tfrecords",
+  num_shards=10,
+  num_threads=5
+)
+
+print("%d images failed." % (len(failed_images),))
+for image_data in failed_images:
+    print("Image %s: %s" % (image_data['filename'], image_data['error_msg']))
+    
+#convert evaluation
+failed_images = create(
+    dataset=evaluation,
+  dataset_name="eval",
   output_directory="/Users/Ben/Dropbox/GoogleCloud/Detection/tfrecords",
   num_shards=10,
   num_threads=5
