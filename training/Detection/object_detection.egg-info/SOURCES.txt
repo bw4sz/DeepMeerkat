@@ -1,0 +1,5 @@
+object_detection.egg-info/PKG-INFO
+object_detection.egg-info/SOURCES.txt
+object_detection.egg-info/dependency_links.txt
+object_detection.egg-info/requires.txt
+object_detection.egg-info/top_level.txt

@@ -1,0 +1,8 @@
+slim.egg-info/PKG-INFO
+slim.egg-info/SOURCES.txt
+slim.egg-info/dependency_links.txt
+slim.egg-info/top_level.txt
+tfrecords/__init__.py
+tfrecords/create_tfrecords.py
+tfrecords/iterate_tfrecords.py
+tfrecords/stat_tfrecords.py
