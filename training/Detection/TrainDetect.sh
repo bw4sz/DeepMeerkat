@@ -15,6 +15,10 @@ python PrepareData.py
 gsutil cp -r /Users/Ben/Dropbox/GoogleCloud/Detection/tfrecords/ ${FOLDER}
 gsutil cp faster_rcnn_inception_resnet_v2_atrous_coco.config ${FOLDER}
 gsutil cp cloud.yml ${FOLDER}
+gsutil cp label.pbtxt ${FOLDER}/tfrecords
+
+#not clear if it should go in records folder
+gsutil cp label.pbtxt ${FOLDER}
 
 #upload checkpoint if it doesn't exist
 gsutil cp -n -r checkpoint/ ${FOLDER}
