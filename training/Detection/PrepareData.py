@@ -1,12 +1,9 @@
-# this should be your array of image data dictionaries. 
-# Don't forget that you'll want to separate your training and testing data.
-
-from tfrecords.create_tfrecords import create
 import glob
 import json
 import os
-
-paths = glob.glob("/Users/Ben/Dropbox/GoogleCloud/Detection/Positives/annotations/*.json")
+import tensorflow as tf
+from GenerateTFRecords import create_tf_example
+paths = glob.glob("/Users/Ben/Dropbox/GoogleCloud/Detection/images/training/annotations/*.json")
 
 dataset=[]
 
@@ -18,10 +15,9 @@ os.getcwd()
 for path in paths:
     js = open(path).read()
     data = json.loads(js)
+    
     #append the full path
-    data['filename']= '/Users/ben/Dropbox/GoogleCloud/Detection/Positives/' + data['filename']
-    #add an ID path
-    data['id']=0
+    data['filename']= '/Users/ben/Dropbox/GoogleCloud/Detection/images/training/' + data['filename']
     dataset.append(data)
 
 #Split into training and eval 80-20
@@ -34,27 +30,20 @@ print("{}  training images".format(len(training)))
 print("{}  evaluation images".format(len(evaluation)))
       
 #Convert training
-failed_images = create(
-    dataset=training,
-  dataset_name="train",
-  output_directory="/Users/Ben/Dropbox/GoogleCloud/Detection/tfrecords",
-  num_shards=1,
-  num_threads=1
-)
+writer = tf.python_io.TFRecordWriter("/Users/ben/Dropbox/GoogleCloud/Detection/tfrecords/train.record") #output path
 
-print("%d images failed." % (len(failed_images),))
-for image_data in failed_images:
-    print("Image %s: %s" % (image_data['filename'], image_data['error_msg']))
-    
-#convert evaluation
-failed_images = create(
-    dataset=evaluation,
-  dataset_name="eval",
-  output_directory="/Users/Ben/Dropbox/GoogleCloud/Detection/tfrecords",
-  num_shards=1,
-  num_threads=1
-)
+for data in training:
+    tf_example = create_tf_example(data)
+    writer.write(tf_example.SerializeToString())
 
-print("%d images failed." % (len(failed_images),))
-for image_data in failed_images:
-    print("Image %s: %s" % (image_data['filename'], image_data['error_msg']))
+writer.close()
+print('Successfully created the training TFRecords')
+
+#Convert evaluation
+writer = tf.python_io.TFRecordWriter("/Users/ben/Dropbox/GoogleCloud/Detection/tfrecords/eval.record") #output path
+for data in evaluation:
+    tf_example = create_tf_example(data)
+    writer.write(tf_example.SerializeToString())
+
+writer.close()
+print('Successfully created the evaluation TFRecords')

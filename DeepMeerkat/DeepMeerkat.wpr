@@ -35,4 +35,7 @@ proj.launch-config = {loc('../CreateManifest.py'): ('project',
          '')),
                       loc('Video.py'): ('project',
         (u'--input C:/Users/Ben/Desktop/MeerkatTest/130710AA.TLV',
+         '')),
+                      loc('../training/Detection/PrepareData.py'): ('project',
+        (u' ${WING:PROJECT_DIR}/training/Detection',
          ''))}

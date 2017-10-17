@@ -16,11 +16,8 @@ declare  PIPELINE_YAML="/Users/Ben/Documents/DeepMeerkat/training/Detection/clou
 python PrepareData.py
 
 #copy tfrecords and config file to the cloud
-gsutil cp -r /Users/Ben/Dropbox/GoogleCloud/Detection/tfrecords/ ${FOLDER}
+gsutil cp -r /Users/Ben/Dropbox/GoogleCloud/Detection/tfrecords ${FOLDER}
 gsutil cp faster_rcnn_inception_resnet_v2_atrous_coco_cloud.config ${FOLDER}
-gsutil cp label.pbtxt ${FOLDER}
-
-#not clear if it should go in records folder
 gsutil cp label.pbtxt ${FOLDER}
 
 #upload checkpoint if it doesn't exist
@@ -37,29 +34,29 @@ python setup.py sdist
 ##Local
 ##source env
 
-##set build
-#protoc object_detection/protos/*.proto --python_out=.
+#set build
+protoc object_detection/protos/*.proto --python_out=.
 
-##add path
-#export PYTHONPATH=$PYTHONPATH:`pwd`:`pwd`/slim
-#python object_detection/builders/model_builder_test.py
+#add path
+export PYTHONPATH=$PYTHONPATH:`pwd`:`pwd`/slim
+python object_detection/builders/model_builder_test.py
 
-##train
-#python object_detection/train.py \
-    #--logtostderr \
-    #--pipeline_config_path=/Users/ben/Documents/DeepMeerkat/training/Detection/faster_rcnn_inception_resnet_v2_atrous_coco.config \
-    #--train_dir=/Users/Ben/Dropbox/GoogleCloud/Detection/train/
+#train
+python object_detection/train.py \
+    --logtostderr \
+    --pipeline_config_path=/Users/ben/Documents/DeepMeerkat/training/Detection/faster_rcnn_inception_resnet_v2_atrous_coco.config \
+    --train_dir=/Users/Ben/Dropbox/GoogleCloud/Detection/train/
     
-##eval
-## From the tensorflow/models/research/ directory
-#python object_detection/eval.py \
-    #--logtostderr \
-    #--pipeline_config_path=/Users/ben/Documents/DeepMeerkat/training/Detection/faster_rcnn_inception_resnet_v2_atrous_coco.config \
-    #--checkpoint_dir=/Users/Ben/Dropbox/GoogleCloud/Detection/train/ \
-    #--eval_dir=/Users/Ben/Dropbox/GoogleCloud/Detection/eval/
+#eval
+# From the tensorflow/models/research/ directory
+python object_detection/eval.py \
+    --logtostderr \
+    --pipeline_config_path=/Users/ben/Documents/DeepMeerkat/training/Detection/faster_rcnn_inception_resnet_v2_atrous_coco.config \
+    --checkpoint_dir=/Users/Ben/Dropbox/GoogleCloud/Detection/train/ \
+    --eval_dir=/Users/Ben/Dropbox/GoogleCloud/Detection/eval/
 
-##local tensorflow
-#tensorboard --logdir /Users/Ben/Dropbox/GoogleCloud/Detection/
+#local tensorflow
+tensorboard --logdir /Users/Ben/Dropbox/GoogleCloud/Detection/
     
 #Cloud
 gcloud ml-engine jobs submit training "${JOB_ID}_train" \

@@ -55,6 +55,8 @@ from object_detection.protos import input_reader_pb2
 from object_detection.protos import model_pb2
 from object_detection.protos import pipeline_pb2
 from object_detection.utils import label_map_util
+import logging
+logging.basicConfig(level=logging.INFO)
 
 tf.logging.set_verbosity(tf.logging.INFO)
 

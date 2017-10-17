@@ -5,8 +5,8 @@ from shutil import copyfile
 import glob
 
 #get processed photos
-processed=glob.glob("/Users/Ben/Dropbox/GoogleCloud/Detection/Positives/*.jpg")
-
+processed=glob.glob("/Users/Ben/Dropbox/GoogleCloud/Detection/images/training/*.jpg")
+processed = [os.path.basename(x) for x in processed]
 
 photos=[]
 
@@ -23,8 +23,8 @@ for photo in photos:
     path = os.path.normpath(photo)
     path=path.split(os.sep)[-3:]
     path="_".join(path)
-    dest="/Users/Ben/Dropbox/GoogleCloud/Detection/Positives/" + path
-    if not dest in processed:    
+    dest="/Users/Ben/Dropbox/GoogleCloud/Detection/images/evaluation/" + path
+    if not path in processed:    
         print(dest)        
         copyfile(photo,dest)
     else:
