@@ -8,8 +8,8 @@ declare JOB_ID="${MODEL_NAME}_$(date +%Y%m%d_%H%M%S)"
 declare TRAIN_DIR="${FOLDER}/${JOB_ID}"
 declare EVAL_DIR="${BUCKET}/${MODEL_NAME}/${JOB_ID}_eval"
 #Switch from local to cloud config files
-declare  PIPELINE_CONFIG_PATH="/Users/ben/Documents/DeepMeerkat/training/Detection/faster_rcnn_inception_resnet_v2_atrous_coco.config"
-#declare  PIPELINE_CONFIG_PATH="${FOLDER}/faster_rcnn_inception_resnet_v2_atrous_coco_cloud.config"
+#declare  PIPELINE_CONFIG_PATH="/Users/ben/Documents/DeepMeerkat/training/Detection/faster_rcnn_inception_resnet_v2_atrous_coco.config"
+declare  PIPELINE_CONFIG_PATH="${FOLDER}/faster_rcnn_inception_resnet_v2_atrous_coco_cloud.config"
 declare  PIPELINE_YAML="/Users/Ben/Documents/DeepMeerkat/training/Detection/cloud.yml"
 
 #Converted labeled records to TFrecords format
@@ -21,7 +21,7 @@ gsutil cp faster_rcnn_inception_resnet_v2_atrous_coco_cloud.config ${FOLDER}
 gsutil cp label.pbtxt ${FOLDER}
 
 #upload checkpoint if it doesn't exist
-gsutil cp -n -r checkpoint/ ${FOLDER}
+gsutil cp  -r checkpoint/ ${FOLDER}
     
 #package to send to the cloud
 python setup.py sdist
@@ -86,4 +86,4 @@ python object_detection/export_inference_graph.py \
     --input_type image_tensor \
     --pipeline_config_path ${PIPELINE_CONFIG_PATH} \
     --trained_checkpoint_prefix /Users/Ben/Dropbox/GoogleCloud/Detection/train/model.ckpt-186\
-    --output_directory /Users/Ben/Dropbox/GoogleCloud/Detection/SavedModel/output_inference_graph.pb
+    --output_directory /Users/Ben/Dropbox/GoogleCloud/Detection/SavedModel/
