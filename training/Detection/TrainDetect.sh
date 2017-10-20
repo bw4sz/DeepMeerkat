@@ -5,11 +5,11 @@ declare BUCKET="gs://${PROJECT}-ml"
 declare MODEL_NAME="DeepMeerkatDetection"
 declare FOLDER="${BUCKET}/${MODEL_NAME}"
 declare JOB_ID="${MODEL_NAME}_$(date +%Y%m%d_%H%M%S)"
-declare TRAIN_DIR="${FOLDER}/${JOB_ID}"
-declare EVAL_DIR="${BUCKET}/${MODEL_NAME}/${JOB_ID}_eval"
+declare TRAIN_DIR="${FOLDER}/${JOB_ID}/train"
+declare EVAL_DIR="${BUCKET}/${MODEL_NAME}/${JOB_ID}/eval"
 #Switch from local to cloud config files
 #declare  PIPELINE_CONFIG_PATH="/Users/ben/Documents/DeepMeerkat/training/Detection/faster_rcnn_inception_resnet_v2_atrous_coco.config"
-declare  PIPELINE_CONFIG_PATH="${FOLDER}/faster_rcnn_inception_resnet_v2_atrous_coco_cloud.config"
+declare  PIPELINE_CONFIG_PATH="${FOLDER}/pipeline.config"
 declare  PIPELINE_YAML="/Users/Ben/Documents/DeepMeerkat/training/Detection/cloud.yml"
 
 #Converted labeled records to TFrecords format
@@ -17,7 +17,7 @@ python PrepareData.py
 
 #copy tfrecords and config file to the cloud
 gsutil cp -r /Users/Ben/Dropbox/GoogleCloud/Detection/tfrecords ${FOLDER}
-gsutil cp faster_rcnn_inception_resnet_v2_atrous_coco_cloud.config ${FOLDER}
+gsutil cp pipeline.config ${FOLDER}
 gsutil cp label.pbtxt ${FOLDER}
 
 #upload checkpoint if it doesn't exist
@@ -62,10 +62,10 @@ gcloud ml-engine jobs submit training "${JOB_ID}_train" \
     --packages dist/object_detection-0.1.tar.gz,slim/dist/slim-0.1.tar.gz \
     --module-name object_detection.train \
     --region us-central1 \
-    --config ${PIPELINE_YAML} \
+    --config object_detection/samples/cloud/cloud.yml \
     -- \
     --train_dir=${TRAIN_DIR} \
-    --pipeline_config_path= ${PIPELINE_CONFIG_PATH}
+    --pipeline_config_path=gs://api-project-773889352370-ml/DeepMeerkatDetection/pipeline.config
 
 #evalution job
 gcloud ml-engine jobs submit training object_detection_eval_`date +%s` \
@@ -77,7 +77,7 @@ gcloud ml-engine jobs submit training object_detection_eval_`date +%s` \
     -- \
     --checkpoint_dir=${TRAIN_DIR} \
     --eval_dir=${EVAL_DIR} \
-    --pipeline_config_path=${PIPELINE_CONFIG_PATH}
+    --pipeline_config_path=gs://api-project-773889352370-ml/DeepMeerkatDetection/pipeline.config
     
 tensorboard --logdir=${TRAIN_DIR}
 
