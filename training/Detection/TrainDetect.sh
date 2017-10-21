@@ -9,7 +9,7 @@ declare TRAIN_DIR="${FOLDER}/${JOB_ID}/train"
 declare EVAL_DIR="${BUCKET}/${MODEL_NAME}/${JOB_ID}/eval"
 #Switch from local to cloud config files
 #declare  PIPELINE_CONFIG_PATH="/Users/ben/Documents/DeepMeerkat/training/Detection/faster_rcnn_inception_resnet_v2_atrous_coco.config"
-declare  PIPELINE_CONFIG_PATH="${FOLDER}/pipeline.config"
+declare  PIPELINE_CONFIG_PATH="${FOLDER}/faster_rcnn_resnet101_coco.config"
 declare  PIPELINE_YAML="/Users/Ben/Documents/DeepMeerkat/training/Detection/cloud.yml"
 
 #Converted labeled records to TFrecords format
@@ -17,11 +17,11 @@ python PrepareData.py
 
 #copy tfrecords and config file to the cloud
 gsutil cp -r /Users/Ben/Dropbox/GoogleCloud/Detection/tfrecords ${FOLDER}
-gsutil cp pipeline.config ${FOLDER}
+gsutil cp ${PIPELINE_CONFIG_PATH} ${FOLDER}
 gsutil cp label.pbtxt ${FOLDER}
 
 #upload checkpoint if it doesn't exist
-gsutil cp  -r checkpoint/ ${FOLDER}
+gsutil cp -n  -r checkpoint/ ${FOLDER}
     
 #package to send to the cloud
 python setup.py sdist
@@ -39,22 +39,22 @@ protoc object_detection/protos/*.proto --python_out=.
 export PYTHONPATH=$PYTHONPATH:`pwd`:`pwd`/slim
 python object_detection/builders/model_builder_test.py
 
-#train
-python object_detection/train.py \
-    --logtostderr \
-    --pipeline_config_path=/Users/ben/Documents/DeepMeerkat/training/Detection/faster_rcnn_inception_resnet_v2_atrous_coco.config \
-    --train_dir=/Users/Ben/Dropbox/GoogleCloud/Detection/train/
+##train
+#python object_detection/train.py \
+    #--logtostderr \
+    #--pipeline_config_path=/Users/ben/Documents/DeepMeerkat/training/Detection/faster_rcnn_inception_resnet_v2_atrous_coco.config \
+    #--train_dir=/Users/Ben/Dropbox/GoogleCloud/Detection/train/
     
-#eval
-# From the tensorflow/models/research/ directory
-python object_detection/eval.py \
-    --logtostderr \
-    --pipeline_config_path=/Users/ben/Documents/DeepMeerkat/training/Detection/faster_rcnn_inception_resnet_v2_atrous_coco.config \
-    --checkpoint_dir=/Users/Ben/Dropbox/GoogleCloud/Detection/train/ \
-    --eval_dir=/Users/Ben/Dropbox/GoogleCloud/Detection/eval/
+##eval
+## From the tensorflow/models/research/ directory
+#python object_detection/eval.py \
+    #--logtostderr \
+    #--pipeline_config_path=/Users/ben/Documents/DeepMeerkat/training/Detection/faster_rcnn_inception_resnet_v2_atrous_coco.config \
+    #--checkpoint_dir=/Users/Ben/Dropbox/GoogleCloud/Detection/train/ \
+    #--eval_dir=/Users/Ben/Dropbox/GoogleCloud/Detection/eval/
 
 #local tensorflow
-tensorboard --logdir /Users/Ben/Dropbox/GoogleCloud/Detection/
+#tensorboard --logdir /Users/Ben/Dropbox/GoogleCloud/Detection/
     
 #Cloud
 gcloud ml-engine jobs submit training "${JOB_ID}_train" \
@@ -84,6 +84,6 @@ tensorboard --logdir=${TRAIN_DIR}
 #export graph, need to update checkpoint number
 python object_detection/export_inference_graph.py \
     --input_type image_tensor \
-    --pipeline_config_path ${PIPELINE_CONFIG_PATH} \
-    --trained_checkpoint_prefix /Users/Ben/Dropbox/GoogleCloud/Detection/train/model.ckpt-186\
+    --pipeline_config_path /Users/ben/Documents/DeepMeerkat/training/Detection/faster_rcnn_inception_resnet_v2_atrous_coco.config \
+    --trained_checkpoint_prefix /Users/Ben/Dropbox/GoogleCloud/Detection/train/model.ckpt-1882\
     --output_directory /Users/Ben/Dropbox/GoogleCloud/Detection/SavedModel/
