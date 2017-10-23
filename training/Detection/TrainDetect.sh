@@ -7,9 +7,7 @@ declare FOLDER="${BUCKET}/${MODEL_NAME}"
 declare JOB_ID="${MODEL_NAME}_$(date +%Y%m%d_%H%M%S)"
 declare TRAIN_DIR="${FOLDER}/${JOB_ID}/train"
 declare EVAL_DIR="${BUCKET}/${MODEL_NAME}/${JOB_ID}/eval"
-#Switch from local to cloud config files
-#declare  PIPELINE_CONFIG_PATH="/Users/ben/Documents/DeepMeerkat/training/Detection/faster_rcnn_inception_resnet_v2_atrous_coco.config"
-declare  PIPELINE_CONFIG_PATH="${FOLDER}/faster_rcnn_resnet101_coco.config"
+declare  PIPELINE_CONFIG_PATH="${FOLDER}/configs/rfcn_resnet101_coco.config"
 declare  PIPELINE_YAML="/Users/Ben/Documents/DeepMeerkat/training/Detection/cloud.yml"
 
 #Converted labeled records to TFrecords format
@@ -17,7 +15,7 @@ python PrepareData.py
 
 #copy tfrecords and config file to the cloud
 gsutil cp -r /Users/Ben/Dropbox/GoogleCloud/Detection/tfrecords ${FOLDER}
-gsutil cp ${PIPELINE_CONFIG_PATH} ${FOLDER}
+gsutil cp -r /Users/ben/Documents/DeepMeerkat/training/Detection/configs/  ${FOLDER}
 gsutil cp label.pbtxt ${FOLDER}
 
 #upload checkpoint if it doesn't exist
@@ -29,7 +27,6 @@ python setup.py sdist
 
 #Training
 
-##Local
 ##source env
 
 #set build
@@ -65,7 +62,7 @@ gcloud ml-engine jobs submit training "${JOB_ID}_train" \
     --config object_detection/samples/cloud/cloud.yml \
     -- \
     --train_dir=${TRAIN_DIR} \
-    --pipeline_config_path=gs://api-project-773889352370-ml/DeepMeerkatDetection/pipeline.config
+    --pipeline_config_path=${PIPELINE_CONFIG_PATH}
 
 #evalution job
 gcloud ml-engine jobs submit training object_detection_eval_`date +%s` \
@@ -77,13 +74,15 @@ gcloud ml-engine jobs submit training object_detection_eval_`date +%s` \
     -- \
     --checkpoint_dir=${TRAIN_DIR} \
     --eval_dir=${EVAL_DIR} \
-    --pipeline_config_path=gs://api-project-773889352370-ml/DeepMeerkatDetection/pipeline.config
+    --pipeline_config_path=${PIPELINE_CONFIG_PATH}
     
-tensorboard --logdir=${TRAIN_DIR}
+tensorboard --logdir ${BUCKET}/${MODEL_NAME}/${JOB_ID}/
+
+gsutil cp ${BUCKET}/${MODEL_NAME}/${JOB_ID}/train/model.ckpt-8213 /Users/Ben/Dropbox/GoogleCloud/Detection/train/resnet/
 
 #export graph, need to update checkpoint number
 python object_detection/export_inference_graph.py \
     --input_type image_tensor \
-    --pipeline_config_path /Users/ben/Documents/DeepMeerkat/training/Detection/faster_rcnn_inception_resnet_v2_atrous_coco.config \
-    --trained_checkpoint_prefix /Users/Ben/Dropbox/GoogleCloud/Detection/train/model.ckpt-1882\
+    --pipeline_config_path /Users/ben/Documents/DeepMeerkat/training/Detection/configs/faster_rcnn_resnet101_coco.config \
+    --trained_checkpoint_prefix /Users/Ben/Dropbox/GoogleCloud/Detection/train/test/model.ckpt-8213\
     --output_directory /Users/Ben/Dropbox/GoogleCloud/Detection/SavedModel/

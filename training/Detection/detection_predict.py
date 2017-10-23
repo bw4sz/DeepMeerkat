@@ -12,7 +12,7 @@ import os
 import datetime
 
 # If you want to test the code with your images, just add path to the images to the TEST_IMAGE_PATHS.
-TEST_IMAGE_PATHS = glob.glob("/Users/Ben/Dropbox/GoogleCloud/Detection/images/validation/*.jpg")[:3]
+TEST_IMAGE_PATHS = glob.glob("/Users/Ben/Dropbox/GoogleCloud/Detection/images/validation/*.jpg")
 
 # Size, in inches, of the output images. ?
 IMAGE_SIZE = (6, 4)
