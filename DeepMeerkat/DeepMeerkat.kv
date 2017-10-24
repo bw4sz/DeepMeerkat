@@ -1,4 +1,19 @@
 #Declare Screens
+
+<Label>:
+    color:  (0,0,0,1) 
+
+<Button>:
+    background_color:(0,0.5,0.5,0.4)
+    
+<Screen>:
+    canvas.before:
+        Color:
+            rgba: 1, 1, 1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
 <MyScreenManager>:
     id:screen_manager
     name:"screen_manager"
@@ -37,33 +52,37 @@
         padding:[10,10,10,10]
         orientation:'vertical'
         BoxLayout:
-            size_hint_y:0.75 
             orientation:'horizontal'
             BoxLayout:
-                orientation:"vertical"
+                orientation:"horizontal"
+                Image:
+                    source:"images/DeepMeerkatLogo.png"
+                    allow_stretch: True
                 Label:
                     text:"DeepMeerkat"
-                    font_size:40
+                    font_size:45
                 Label:
                     size_hint_y:0.2
+                    size_hint_x:0.5
                     text_size: self.size
                     halign:"right"
                     text:"v0.0.1"
                     font_size:12
-            Button:
-                size_hint_x:0.32
-                text:"Advanced \n settings"
-                markup:True
-                on_press: root.gotoAdvanced(app.root)
-            Button:
-                text:"Help"
+            BoxLayout:
                 size_hint_x:0.25
-                on_press: root.help_site()   
+                orientation: 'vertical'
+                Button:
+                    text:"Advanced \n settings"
+                    markup:True
+                    on_press: root.gotoAdvanced(app.root)
+                Button:
+                    text:"Help"
+                    on_press: root.help_site()   
         BoxLayout:
             orientation:"horizontal"
             Button:
                 size_hint_x:0.5
-                text:"Choose input"
+                text:"Select input"
                 font_size:25
                 on_press:root.gotoFileOpen(app.root)
             Label:
@@ -74,7 +93,7 @@
             orientation:"horizontal"
             Button:
                 size_hint_x:0.5
-                text:"Choose output"
+                text:"Output Directory"
                 font_size:25
                 on_press:root.gotoOutdir(app.root)
             Label:
@@ -85,7 +104,7 @@
             text:"Run"
             font_size:45
             size_hint:(1,0.8)
-            background_color: (1,0,0,1.5) if self.state == 'normal' else (0,1,0,1)
+            background_color: (1,1,0,0.5) if self.state == 'normal' else (0,0,0,1)
             on_release:root.run_press(app.root)
 <FileOpen>:
     name:"FileOpen"
@@ -153,7 +172,7 @@
         orientation:'vertical'
         Button:
             text: "Back"
-            size_hint:(0.2,.3)
+            size_hint:(0.5,.5)
             pos_hint:{'top':0}
             on_press:root.gotoMain(app.root)
         BoxLayout:
@@ -202,7 +221,7 @@
             size_hint_y:0.5
             text:str(app.MM.args.path_to_model)
             on_text: app.MM.args.path_to_model=self.text
-            font_size:25
+            font_size:20
             multiline:False
 
 <ProgressScreen>
@@ -219,13 +238,13 @@
             Label:
                 text: "[b]Classification Model:[/b] " + str(root.tensorflow_loaded)
                 font_size:20
-                color:(1,1,0,1) if root.tensorflow_loaded == 'Loading' else (1,1,1,1)
+                color:(1,0,0,0.5) if root.tensorflow_loaded == 'Loading' else (0,0,0,1)
                 markup:True
             Label:
                 text: "[b]Running File:[/b] " + str(root.video_name) + " (%d/%d)" % (root.video_id,root.video_count)
                 markup: True
                 font_size:20
-                color: (1,1,0,1) if root.tensorflow_loaded == 'Loading' else (1,1,1,1)
+                color: (1,0,0,0.5) if root.tensorflow_loaded == 'Loading' else (0,0,0,1)
             Label:
                 text: "[b]Output Directory:[/b] " + str(app.output_file)
                 markup: True

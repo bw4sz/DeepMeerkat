@@ -21,10 +21,10 @@ def CommandArgs(argv=None):
     
     #couple OS specific paths
     if os.name=="nt":
-        parser.add_argument("--path_to_model", help="Path to model/ directory",default="C:/Users/ben/Dropbox/GoogleCloud/DeepMeerkat_20170924_105144/model")
+        parser.add_argument("--path_to_model", help="Path to model/ directory",default="C:/Users/ben/Dropbox/GoogleCloud/DeepMeerkat_20171011_134826/model")
         parser.add_argument("--output", help="output directory",default="C:/Users/Ben/DeepMeerkat")        
     else:
-        parser.add_argument("--path_to_model", help="Path to model/ directory",default="/Users/ben/Dropbox/GoogleCloud/DeepMeerkat_20170924_105144/model")
+        parser.add_argument("--path_to_model", help="Path to model/ directory",default="/Users/ben/Dropbox/GoogleCloud/DeepMeerkat_20171011_134826/model")
         parser.add_argument("--output", help="output directory",default="/Users/Ben/DeepMeerkat")
         
     #if additional args were passed by string from CloudDataFlow

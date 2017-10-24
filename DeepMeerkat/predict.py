@@ -112,16 +112,16 @@ def interactive(path):
 if __name__ == "__main__":
     sess=tf.Session()
     print("Loading tensorflow model. May take several minutes.")
-    tf.saved_model.loader.load(sess,[tf.saved_model.tag_constants.SERVING], "/Users/ben/Dropbox/GoogleCloud/DeepMeerkat_20170913_181821/model/")    
+    tf.saved_model.loader.load(sess,[tf.saved_model.tag_constants.SERVING], "/Users/ben/Dropbox/GoogleCloud/DeepMeerkat_20171011_134826/model/")    
     print("Model loaded")
     
     #Interactive
-    #interactive("/Users/ben/Dropbox/GoogleCloud/TestCrops/*.jpg")
+    interactive("/Users/ben/Dropbox/GoogleCloud/TestCrops/*.jpg")
     
     print("Testing")
     #Testing
-    check_negatives(path="/Users/Ben/Dropbox/GoogleCloud/Testing/Negatives/*.jpg", output="/Users/Ben/Dropbox/GoogleCloud/Training/Testing_Negatives.csv")
-    check_positives(path="/Users/Ben/Dropbox/GoogleCloud/Testing/Positives/*.jpg", output="/Users/Ben/Dropbox/GoogleCloud/Training/Testing_Positives.csv")
+    #check_negatives(path="/Users/Ben/Dropbox/GoogleCloud/Testing/Negatives/*.jpg", output="/Users/Ben/Dropbox/GoogleCloud/Testing/Testing_Negatives.csv")
+    #check_positives(path="/Users/Ben/Dropbox/GoogleCloud/Testing/Positives/*.jpg", output="/Users/Ben/Dropbox/GoogleCloud/Testing/Testing_Positives.csv")
     
     print("Training")
     #Training
