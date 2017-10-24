@@ -19,7 +19,7 @@ IMAGE_SIZE = (6, 4)
 NUM_CLASSES = 1
 
 sess=tf.Session()
-tf.saved_model.loader.load(sess,[tf.saved_model.tag_constants.SERVING], "/Users/ben/Dropbox/GoogleCloud/Detection/SavedModel/saved_model/")  
+tf.saved_model.loader.load(sess,[tf.saved_model.tag_constants.SERVING], "/Users/ben/Dropbox/GoogleCloud/Detection/SavedModel/ssd_inception_v2_coco/saved_model/")  
         
 label_map = label_map_util.load_labelmap("label.pbtxt")
 categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=NUM_CLASSES, use_display_name=True)

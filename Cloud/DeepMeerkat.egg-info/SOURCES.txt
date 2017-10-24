@@ -1,6 +1,0 @@
-setup.py
-DeepMeerkat.egg-info/PKG-INFO
-DeepMeerkat.egg-info/SOURCES.txt
-DeepMeerkat.egg-info/dependency_links.txt
-DeepMeerkat.egg-info/requires.txt
-DeepMeerkat.egg-info/top_level.txt

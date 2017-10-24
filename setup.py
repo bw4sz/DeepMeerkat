@@ -46,7 +46,7 @@ REQUIRED_PACKAGES = ['numpy','tensorflow']
 setuptools.setup(
     name='DeepMeerkat',
     version='0.0.1',
-    description='Running MotionMeerkat in the Cloud',
+    description='Running DeepMeerkat in the Cloud',
     install_requires=REQUIRED_PACKAGES,
     packages=setuptools.find_packages(),
     cmdclass={

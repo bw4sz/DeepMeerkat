@@ -1,0 +1,15 @@
+README.md
+setup.py
+DeepMeerkat/CommandArgs.py
+DeepMeerkat/Crop.py
+DeepMeerkat/Geometry.py
+DeepMeerkat/Meerkat.py
+DeepMeerkat/Video.py
+DeepMeerkat/__init__.py
+DeepMeerkat/main.py
+DeepMeerkat/predict.py
+DeepMeerkat.egg-info/PKG-INFO
+DeepMeerkat.egg-info/SOURCES.txt
+DeepMeerkat.egg-info/dependency_links.txt
+DeepMeerkat.egg-info/requires.txt
+DeepMeerkat.egg-info/top_level.txt

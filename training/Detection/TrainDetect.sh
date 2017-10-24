@@ -7,7 +7,7 @@ declare FOLDER="${BUCKET}/${MODEL_NAME}"
 declare JOB_ID="${MODEL_NAME}_$(date +%Y%m%d_%H%M%S)"
 declare TRAIN_DIR="${FOLDER}/${JOB_ID}/train"
 declare EVAL_DIR="${BUCKET}/${MODEL_NAME}/${JOB_ID}/eval"
-declare  PIPELINE_CONFIG_PATH="${FOLDER}/configs/rfcn_resnet101_coco.config"
+declare  PIPELINE_CONFIG_PATH="${FOLDER}/configs/ssd_mobilenet_v1_coco.config"
 declare  PIPELINE_YAML="/Users/Ben/Documents/DeepMeerkat/training/Detection/cloud.yml"
 
 #Converted labeled records to TFrecords format
@@ -78,11 +78,11 @@ gcloud ml-engine jobs submit training object_detection_eval_`date +%s` \
     
 tensorboard --logdir ${BUCKET}/${MODEL_NAME}/${JOB_ID}/
 
-gsutil cp ${BUCKET}/${MODEL_NAME}/${JOB_ID}/train/model.ckpt-8213 /Users/Ben/Dropbox/GoogleCloud/Detection/train/resnet/
+gsutil cp ${BUCKET}/${MODEL_NAME}/${JOB_ID}/train/model.ckpt-8716.* /Users/Ben/Dropbox/GoogleCloud/Detection/train/ssd_mobilenet_v1_coco/
 
 #export graph, need to update checkpoint number
 python object_detection/export_inference_graph.py \
     --input_type image_tensor \
-    --pipeline_config_path /Users/ben/Documents/DeepMeerkat/training/Detection/configs/faster_rcnn_resnet101_coco.config \
-    --trained_checkpoint_prefix /Users/Ben/Dropbox/GoogleCloud/Detection/train/test/model.ckpt-8213\
-    --output_directory /Users/Ben/Dropbox/GoogleCloud/Detection/SavedModel/
+    --pipeline_config_path /Users/ben/Documents/DeepMeerkat/training/Detection/configs/ssd_mobilenet_v1_coco.config \
+    --trained_checkpoint_prefix /Users/Ben/Dropbox/GoogleCloud/Detection/train/ssd_mobilenet_v1_coco/model.ckpt-8716 \
+    --output_directory /Users/Ben/Dropbox/GoogleCloud/Detection/SavedModel/ssd_mobilenet_v1_coco
