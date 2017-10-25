@@ -180,6 +180,7 @@
             Label:
                 text: "Draw Motion Objects"
             CheckBox:
+                color:(0,0,0,1)
                 active: False
                 on_active:app.MM.args.draw_box=self.active
         BoxLayout:
@@ -187,6 +188,7 @@
             Label:
                 text: "Overlay annotations on image"
             CheckBox:
+                color:(0,0,0,1)
                 active: False
                 on_active:app.MM.args.write_text=self.active
         BoxLayout:
@@ -194,6 +196,7 @@
             Label:
                 text: "Multithreaded"
             CheckBox:
+                color:(0,0,0,1)
                 active: False
                 on_active:app.MM.args.threaded=self.active
         BoxLayout:
@@ -201,6 +204,7 @@
             Label:
                 text: "Training mode"
             CheckBox:
+                color:(0,0,0,1)
                 active: False
                 on_active:app.MM.args.training=self.active;app.MM.args.tensorflow=not self.active
         BoxLayout:
@@ -209,7 +213,7 @@
             font_size:25
             text:"Tensorflow threshold"
         TextInput:
-            size_hint_y:0.5
+            size_hint_y:0.6
             text:str(0.95)
             on_text: app.MM.args.tensorflow_threshold=self.text
             font_size:25
