@@ -7,7 +7,7 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{5C784574-7162-4518-849C-B2C13F88B122}
 AppName=DeepMeerkat
-AppVersion=0.0.1
+AppVersion=0.0.2
 AppPublisher=Ben Weinstein                                   
 AppPublisherURL=benweinstein.weebly.com
 AppSupportURL=benweinstein.weebly.com
