@@ -1,0 +1,41 @@
+#!wing
+#!version=6.0
+##################################################################
+# Wing IDE project file                                          #
+##################################################################
+[project attributes]
+proj.directory-list = [{'dirloc': loc('../../model'),
+                        'excludes': (),
+                        'filter': '*',
+                        'include_hidden': True,
+                        'recursive': True,
+                        'watch_for_changes': True},
+                       {'dirloc': loc('..'),
+                        'excludes': [u'Installer/env',
+                                     u'Installer/Mac',
+                                     u'Installer/dist',
+                                     u'training/env',
+                                     u'env'],
+                        'filter': '*',
+                        'include_hidden': False,
+                        'recursive': True,
+                        'watch_for_changes': True}]
+proj.file-type = 'shared'
+proj.launch-config = {loc('../CreateManifest.py'): ('project',
+        (u'-limit 4',
+         '')),
+                      loc('CommandArgs.py'): ('project',
+        (u'--buffer 1\n',
+         '')),
+                      loc('DeepMeerkat.py'): ('project',
+        (u'--input /Users/ben/Dropbox/Videos/rosada/170713AA.TLV --draw_box --write_text',
+         '')),
+                      loc('MotionMeerkat.py'): ('project',
+        (u'--buffer 2',
+         '')),
+                      loc('Video.py'): ('project',
+        (u'--input C:/Users/Ben/Desktop/MeerkatTest/130710AA.TLV',
+         '')),
+                      loc('../training/Detection/PrepareData.py'): ('project',
+        (u' ${WING:PROJECT_DIR}/training/Detection',
+         ''))}
