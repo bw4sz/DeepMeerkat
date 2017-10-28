@@ -12,14 +12,16 @@ import os
 import datetime
 
 # If you want to test the code with your images, just add path to the images to the TEST_IMAGE_PATHS.
-TEST_IMAGE_PATHS = glob.glob("/Users/Ben/Dropbox/GoogleCloud/Detection/images/validation/*.jpg")
+#TEST_IMAGE_PATHS = glob.glob("/Users/Ben/Dropbox/GoogleCloud/Detection/images/validation/*.jpg")
+
+TEST_IMAGE_PATHS = glob.glob("/Users/ben/DeepMeerkat/DeepMeerkat/FH102_02/*.jpg")
 
 # Size, in inches, of the output images. ?
 IMAGE_SIZE = (6, 4)
 NUM_CLASSES = 1
 
 sess=tf.Session()
-tf.saved_model.loader.load(sess,[tf.saved_model.tag_constants.SERVING], "/Users/ben/Dropbox/GoogleCloud/Detection/SavedModel/ssd_inception_v2_coco/saved_model/")  
+tf.saved_model.loader.load(sess,[tf.saved_model.tag_constants.SERVING], "/Users/ben/Dropbox/GoogleCloud/Detection/SavedModel/rfcn_resnet101_coco/saved_model/")  
         
 label_map = label_map_util.load_labelmap("label.pbtxt")
 categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=NUM_CLASSES, use_display_name=True)

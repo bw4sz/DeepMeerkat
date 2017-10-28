@@ -8,7 +8,7 @@ images=glob.glob("/Users/ben/Dropbox/GoogleCloud/TestCrops/Negatives/*.jpg")
 position=0
 
 for path in images:
-    
+    000
     #read and show image
     img=cv2.imread(path)
     cv2.imshow("image", img)    

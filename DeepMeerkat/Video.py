@@ -222,7 +222,7 @@ class Video:
                     for index,label in enumerate(labels):
                         cv2.putText(self.original_image,str(label),(30,30+20*index),cv2.FONT_HERSHEY_SIMPLEX,0.75,(0,0,255),2)
                                  
-                #next frame if negative label that has score greater than 0.9
+                #next frame if negative label that has score greater than user threshold
                 for box in labels:
                     for label,score in box:
                         if label == 'Positive':
@@ -276,14 +276,9 @@ class Video:
 
         if not ret:
             return((ret,self.original_image))
-
-        #set crop settings if first frame
-        if self.IS_FIRST_FRAME:
-            if self.args.crop:
-                self.roi=Crop.Crop(self.original_image,"Crop")
-            return((ret,self.original_image))
-        if self.args.crop:
-            image=self.original_image[self.roi[1]:self.roi[3], self.roi[0]:self.roi[2]]
+        
+        if self.args.resize:
+            image=cv2.resize(self.original_image, (0,0), fx=0.75, fy=0.75) 
         else:
             image=self.original_image
             
@@ -329,7 +324,8 @@ class Video:
                     filenm=self.file_destination + "/"+str(self.frame_count-(x+1))+".jpg"
                     if not os.path.exists(filenm):
                         cv2.imwrite(filenm,self.padding_frames[x])
-                ##write frames after
+                
+                ##write frames after motion event
                 for x in range(self.args.buffer):
                     #read frame, check if its the last frame in video
                     ret,self.read_image=self.read_frame()
