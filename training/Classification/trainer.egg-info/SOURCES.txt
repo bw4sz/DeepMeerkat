@@ -1,4 +1,3 @@
-README.md
 setup.py
 predict/__init__.py
 predict/images_to_json.py
