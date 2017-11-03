@@ -6,7 +6,7 @@ import os
 cv2.namedWindow("image")
 images=glob.glob("/Users/ben/Dropbox/GoogleCloud/TestCrops/Negatives/*.jpg")
 position=0
-
+000
 for path in images:
     
     #read and show image
