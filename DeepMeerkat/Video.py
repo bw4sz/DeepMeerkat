@@ -142,7 +142,6 @@ class Video:
         self.IS_FIRST_FRAME = True
 
     def analyze(self):
-
         if self.args.show:
             print(self.args.show)
             cv2.namedWindow("Motion_Event")
@@ -205,6 +204,18 @@ class Video:
             if len(remaining_bounding_box)==0:
                 self.end_sequence(Motion=False)
                 continue
+            
+            #if training, just spit out clips
+            if self.args.training:
+                clip_counter=0    
+                self.annotations[self.frame_count] = remaining_bounding_box                    
+                for box in remaining_bounding_box:
+                    clip_to_write=resize_box(self.original_image, box)
+                    fname=self.file_destination + "/"+str(self.frame_count) + "_" + str(clip_counter)+".jpg"                            
+                    cv2.imwrite(fname, clip_to_write)   
+                    clip_counter+=1
+                #don't write full frames
+                continue                
 
             if self.args.tensorflow:
                 labels=[]
@@ -234,18 +245,6 @@ class Video:
                             else:
                                 tensorflow_check=True
                                 
-                #if training, just spit out clips
-                if self.args.training:
-                    clip_counter=0    
-                    self.annotations[self.frame_count] = remaining_bounding_box                    
-                    for box in remaining_bounding_box:
-                        clip_to_write=resize_box(self.original_image, box)
-                        fname=self.file_destination + "/"+str(self.frame_count) + "_" + str(clip_counter)+".jpg"                            
-                        cv2.imwrite(fname, clip_to_write)   
-                        clip_counter+=1
-                    #don't write full frames
-                    continue    
-            
                 ##Tensorflow check
                 if tensorflow_check:
                     pass

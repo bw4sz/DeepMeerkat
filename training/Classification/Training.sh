@@ -6,11 +6,11 @@ source env/bin/activate
 #make sure all requirements are upgraded
 pip install -r requirements.txt
 
-declare -r PROJECT=$(gcloud config list project --format "value(core.project)")
-declare -r BUCKET="gs://${PROJECT}-ml"
-declare -r MODEL_NAME="DeepMeerkat"
-declare -r JOB_ID="${MODEL_NAME}_$(date +%Y%m%d_%H%M%S)"
-declare -r GCS_PATH="${BUCKET}/${MODEL_NAME}/${JOB_ID}"
+declare  PROJECT=$(gcloud config list project --format "value(core.project)")
+declare  BUCKET="gs://${PROJECT}-ml"
+declare  MODEL_NAME="DeepMeerkat"
+declare  JOB_ID="${MODEL_NAME}_$(date +%Y%m%d_%H%M%S)"
+declare  GCS_PATH="${BUCKET}/${MODEL_NAME}/${JOB_ID}"
 
 #make sure paths are updated
 gsutil rsync -d /Users/Ben/Dropbox/GoogleCloud/Training/Positives/ gs://api-project-773889352370-ml/Hummingbirds/Training/Positives
@@ -36,6 +36,9 @@ python pipeline.py \
     --gcs_bucket ${BUCKET} \
     --output_dir "${GCS_PATH}/"  \
     --eval_set_size  ${eval} 
+
+#Monitor
+tensorboard --logdir ${GCS_PATH} 
 
 #already preprocessed
 #python pipeline.py \
