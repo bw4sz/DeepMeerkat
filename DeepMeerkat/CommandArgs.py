@@ -7,7 +7,7 @@ def CommandArgs(argv=None):
     parser.add_argument("--input", help="path of single video",type=str,default='Hummingbird.avi')
     parser.add_argument("--draw_size", help="'Draw' or 'enter' object size",type=str,default='enter')
     parser.add_argument("--size", help="Minimum size of contour",default=0.02,type=float)
-    parser.add_argument("--tensorflow_threshold", help="Confidence level to ignore frames",default=0.95,type=float)    
+    parser.add_argument("--tensorflow_threshold", help="Confidence level to ignore frames",default=0.9, type=float)    
     parser.add_argument("--buffer", help="Frames to auto write on either side of tensorflow event",default=1,type=int)
     parser.add_argument("--moglearning", help="Speed of MOG background detector, lowering values are more sensitive to movement",default=0.10,type=float)
     parser.add_argument("--mogvariance", help="Variance in MOG to select background",default=20,type=int)

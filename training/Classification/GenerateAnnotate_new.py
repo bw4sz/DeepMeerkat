@@ -2,13 +2,13 @@ import glob
 import cv2
 import random
 import os
-2
+
 cv2.namedWindow("image")
 images=glob.glob("/Users/ben/Dropbox/GoogleCloud/TestCrops/Negatives/*.jpg")
 position=0
-000
+
 for path in images:
-    000
+    
     #read and show image
     img=cv2.imread(path)
     cv2.imshow("image", img)    

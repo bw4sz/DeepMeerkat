@@ -26,7 +26,7 @@ eval=$(gsutil cat gs://api-project-773889352370-ml/Hummingbirds/testingdata.csv 
 #Train Model
 ############
 
-python pipeline.py \
+#python pipeline.py \
     --project ${PROJECT} \
     --cloud \
     --train_input_path gs://api-project-773889352370-ml/Hummingbirds/trainingdata.csv \
@@ -40,14 +40,14 @@ python pipeline.py \
 #Monitor
 tensorboard --logdir ${GCS_PATH} 
 
-#already preprocessed
-#python pipeline.py \
-    #--project ${PROJECT} \
-    #--cloud \
-    #--preprocessed_train_set gs://api-project-773889352370-ml/DeepMeerkat/DeepMeerkat_20171005_135726/preprocessed/train* \
-    #--preprocessed_eval_set gs://api-project-773889352370-ml/DeepMeerkat/DeepMeerkat_20171005_135726/preprocessed/eval* \
-    #--input_dict gs://api-project-773889352370-ml/Hummingbirds/dict.txt \
-    #--deploy_model_name "DeepMeerkat" \
-    #--gcs_bucket ${BUCKET} \
-    #--output_dir "${GCS_PATH}/" \
-    #--eval_set_size  ${eval} 
+already preprocessed
+python pipeline.py \
+    --project ${PROJECT} \
+    --cloud \
+    --preprocessed_train_set gs://api-project-773889352370-ml/DeepMeerkat/DeepMeerkat_20171217_164338/preprocessed/train* \
+    --preprocessed_eval_set gs://api-project-773889352370-ml/DeepMeerkat/DeepMeerkat_20171217_164338/preprocessed/eval* \
+    --input_dict gs://api-project-773889352370-ml/Hummingbirds/dict.txt \
+    --deploy_model_name "DeepMeerkat" \
+    --gcs_bucket ${BUCKET} \
+    --output_dir "${GCS_PATH}/" \
+    --eval_set_size  ${eval} 

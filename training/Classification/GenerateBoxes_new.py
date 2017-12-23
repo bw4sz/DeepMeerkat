@@ -15,7 +15,7 @@ class BoundingBox:
         self.score=score
         
 csvs=[]
-for root, dirnames,filenames in os.walk("/Users/ben/Dropbox/HummingbirdProject/Data"):
+for root, dirnames,filenames in os.walk("/Users/ben/Dropbox/HummingbirdProject/Data/"):
     for filename in fnmatch.filter(filenames, 'annotations.csv'):
         csvs.append(os.path.join(root, filename))
 

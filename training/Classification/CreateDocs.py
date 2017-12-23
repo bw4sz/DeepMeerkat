@@ -46,41 +46,29 @@ class Organizer:
         iterator=self.bucket.list_blobs(prefix="/".join(train_positives_folder_name))        
         
         self.train_positives_files=[]        
-        for page in iterator.pages:
-            print('    Page number: %d' % (iterator.page_number,))
-            print('  Items in page: %d' % (page.num_items,))
-            print('     First item: %r' % (next(page),))
-            print('Items remaining: %d' % (page.remaining,))
-            print('Next page token: %s' % (iterator.next_page_token,))        
-            for f in page:
-                self.train_positives_files.append("gs://" + f.bucket.name + "/" + f.name)
+        for item in iterator:
+            self.train_positives_files.append("gs://" + item.bucket.name + "/" + item.name)
             
-        print( "Found %d results" %(len( self.train_positives_files)))  
+        print( "Positive training samples: %d" %(len( self.train_positives_files)))  
         
         #negatives
         train_negatives_folder_name=args.train_negatives.split("/")[3:]
         iterator=self.bucket.list_blobs(prefix="/".join(train_negatives_folder_name))        
         
         self.train_negatives_files=[]        
-        for page in iterator.pages:
-            print('    Page number: %d' % (iterator.page_number,))
-            print('  Items in page: %d' % (page.num_items,))
-            print('     First item: %r' % (next(page),))
-            print('Items remaining: %d' % (page.remaining,))
-            print('Next page token: %s' % (iterator.next_page_token,))        
-            for f in page:
-                self.train_negatives_files.append("gs://" + f.bucket.name + "/" + f.name)
+        for f in iterator:
+            self.train_negatives_files.append("gs://" + f.bucket.name + "/" + f.name)
                     
         #shuffle negatives and take a sample equal to the size of the positives
-        #random.shuffle(self.train_negatives_files)
+        random.shuffle(self.train_negatives_files)
         
         #add the rest of the files to testing
         #add_to_negative_train=self.train_negatives_files[len(self.train_positives_files):]
         
         #cut the file to match positives
-        #self.train_negatives_files=self.train_negatives_files[:len(self.train_positives_files)]
+        self.train_negatives_files=self.train_negatives_files[:len(self.train_positives_files)]
         
-        print( "Found %d results" % (len( self.train_negatives_files)))          
+        print( "Negative Training Samples: %d" % (len( self.train_negatives_files)))          
         
         ##Testing - comes from a different folder
         
@@ -89,36 +77,23 @@ class Organizer:
         iterator=self.bucket.list_blobs(prefix="/".join(test_positives_folder_name))        
         
         self.test_positives_files=[]        
-        for page in iterator.pages:
-            print('    Page number: %d' % (iterator.page_number,))
-            print('  Items in page: %d' % (page.num_items,))
-            print('     First item: %r' % (next(page),))
-            print('Items remaining: %d' % (page.remaining,))
-            print('Next page token: %s' % (iterator.next_page_token,))        
-            for f in page:
-                self.test_positives_files.append("gs://" + f.bucket.name + "/" + f.name)
+        for f in iterator:     
+            self.test_positives_files.append("gs://" + f.bucket.name + "/" + f.name)
             
-        print( "Found %d results" %(len( self.test_positives_files)))  
+        print( "Positive Testing samples: %d" %(len( self.test_positives_files)))  
         
         #negatives
         test_negatives_folder_name=args.test_negatives.split("/")[3:]
         iterator=self.bucket.list_blobs(prefix="/".join(test_negatives_folder_name))        
         
         self.test_negatives_files=[]        
-        for page in iterator.pages:
-            print('    Page number: %d' % (iterator.page_number,))
-            print('  Items in page: %d' % (page.num_items,))
-            print('     First item: %r' % (next(page),))
-            print('Items remaining: %d' % (page.remaining,))
-            print('Next page token: %s' % (iterator.next_page_token,))        
-            for f in page:
+        for f in iterator:   
                 self.test_negatives_files.append("gs://" + f.bucket.name + "/" + f.name)
             
-        
         #add in thhe negatives
         #self.test_negatives_files=add_to_negative_train + self.test_negatives_files
        
-        print( "Found %d results" % (len( self.test_negatives_files)))    
+        print( "Negative testing samples: %d" % (len( self.test_negatives_files)))    
         
     def write_data(self):
         

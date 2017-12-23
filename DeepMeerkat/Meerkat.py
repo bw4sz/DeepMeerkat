@@ -107,8 +107,9 @@ if __name__ == "__main__":
     if DM.args.threaded:
         from multiprocessing import Pool
         from multiprocessing.dummy import Pool as ThreadPool 
-        pool = ThreadPool(2)         
+        pool = ThreadPool(3)         
         results = pool.map(DM.run_threaded,DM.queue)
+        print(results)
         pool.close()
         pool.join()
 
