@@ -56,7 +56,7 @@ class PRTensorBoard(TensorBoard):
             predictions = self.model.predict(self.validation_data[:-2])
             # Build the dictionary mapping the tensor to the data.
             val_data = [self.validation_data[-2], predictions]
-            feed_dict = dict(zip(tensors, val_data))
+            feed_dict = dict(zip(tensors, val_data)) 
             # Run and add summary.
             result = self.sess.run([self.pr_summary], feed_dict=feed_dict)
             self.writer.add_summary(result[0], epoch)
@@ -89,7 +89,6 @@ def add_new_last_layer(base_model, nb_classes=2):
     #TODO xDropout
     model = Model(input=base_model.input, output=predictions)
     return model
-
 
 def setup_to_finetune(model):
     """Freeze the bottom NB_IV3_LAYERS and retrain the remaining top layers.
