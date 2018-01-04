@@ -7,7 +7,7 @@ os.environ["PBR_VERSION"]='3.1.1'
 
 import traceback
 import sys
-import cv2
+from functools import partial
 
 #DeepMeerkat
 import Meerkat
@@ -30,20 +30,8 @@ if __name__ == "__main__":
      #if system arg, command line version, skip the GUI
      if len(sys.argv)>= 2:
           
-          DM=Meerkat.DeepMeerkat()
-          DM.process_args()
-          DM.create_queue()
-          if DM.args.threaded:
-               from multiprocessing import Pool
-               from multiprocessing.dummy import Pool as ThreadPool 
-               pool = ThreadPool(2)         
-               results = pool.map(DM.run_threaded,DM.queue)
-               pool.close()
-               pool.join()
-     
-          else:
-               for vid in DM.queue:
-                    DM.run(vid=vid,sess=DM.sess)                    
+          Meerkat.runMeerkat()
+              
      else:            
           #run GUI
           from kivy.app import App
@@ -101,27 +89,46 @@ if __name__ == "__main__":
                     home=os.path.expanduser("~")
                     output_file=StringProperty(home +"/DeepMeerkat")    
                     
-                    
                input_file=StringProperty("")               
                dirselect=StringProperty("False")
+               
                try:
-                    #Create motion instance class
-                    MM=Meerkat.DeepMeerkat()
-     
-                    #Instantiate Command line args
-                    MM.process_args()
+                    
+                    #Run Meerkat
+                    #Peek at the args to see if threaded, if not, we can make a new tensorflow session
+                    args=CommandArgs.CommandArgs(argv=None) 
+               
+                    if not args.threaded:
+                         if args.tensorflow:   
+                              #add tensorflow flag for kivy
+                              tensorflow_status="Loading"                  
+                              sess=Meerkat.start_tensorflow(args)
+               
+                    #Create queue of videos to run
+                    queue=Meerkat.create_queue(args=args)
                     
                     #TODO OS dependent paths
                     if os.name=="nt":
                          #set default video and tensorflow model, assuming its been installed in the default location
-                         MM.args.input="C:/Program Files/DeepMeerkat/Hummingbird.avi"
-                         MM.args.path_to_model="C:/Program Files/DeepMeerkat/model/"
-                         MM.args.output=home +"\DeepMeerkat"      
+                         args.input="C:/Program Files/DeepMeerkat/Hummingbird.avi"
+                         args.path_to_model="C:/Program Files/DeepMeerkat/model/"
+                         args.output=home +"\DeepMeerkat"      
                          
                     else:
-                         MM.args.input="/Applications/DeepMeerkat.app/Contents/Resources/Hummingbird.avi"
-                         MM.args.path_to_model="/Applications/DeepMeerkat.app/Contents/Resources/model/"
-                         MM.args.output=home +"/DeepMeerkat"      
+                         args.input="/Applications/DeepMeerkat.app/Contents/Resources/Hummingbird.avi"
+                         args.path_to_model="/Applications/DeepMeerkat.app/Contents/Resources/model/"
+                         args.output=home +"/DeepMeerkat"                          
+               
+                    if args.threaded:
+                         from multiprocessing.dummy import Pool
+                         pool = Pool(3)         
+                         mapfunc = partial(DeepMeerkat, args=args)        
+                         results = pool.map(mapfunc, queue)
+                         pool.close()
+                         pool.join()
+                    else:
+                         for vid in queue:
+                              results=DeepMeerkat(vid=vid,args=args,sess=sess)
                     
                except Exception as e:
                     traceback.print_exc()
@@ -253,35 +260,43 @@ if __name__ == "__main__":
 
                def worker(self,MM):
                     try:
-                         #Collect video queue
-                         MM.create_queue()
                          
-                         self.tensorflow_loaded="Complete"
-                         #set total number
-                         self.video_count=len(MM.queue)
+                         #Peek at the args to see if threaded, if not, we can make a new tensorflow session
+                         args=CommandArgs.CommandArgs(argv=None) 
+                    
+                         if not args.threaded:
+                              if args.tensorflow:   
+                                   #add tensorflow flag for kivy
+                                   tensorflow_status="Loading"                  
+                                   sess=start_tensorflow()
+                                   self.tensorflow_loaded="Complete"                                   
+                    
+                         #Create queue of videos to run
+                         queue=Meerkat.create_queue(args=args)
+                         self.video_count=len(queue)
                          
-                         if MM.args.threaded:
-                              self.tensorflow_loaded="Multithreaded version"
-                              from multiprocessing import Pool
-                              from multiprocessing.dummy import Pool as ThreadPool 
-                              pool = ThreadPool(2)         
-                              results = pool.map(MM.run_threaded,MM.queue)
+                         if args.threaded:
+                              self.tensorflow_loaded="Multithreaded version"                              
+                              from multiprocessing.dummy import Pool
+                              pool = Pool(3)
+                              mapfunc = partial(DeepMeerkat, args=args)        
+                              results = pool.map(mapfunc, queue)                              
                               pool.close()
                               pool.join()
                          else:
-                              self.video_id=0
-                              for vid in MM.queue:
+                              self.video_id=0                              
+                              for vid in queue:
                                    self.video_id+=1
-                                   self.video_name=vid
-                                   MM.run(vid=vid,sess=MM.sess) 
-                              
+                                   self.video_name=vid                                   
+                                   results=DeepMeerkat(vid=vid,args=args,sess=sess)                              
+                         
                          #save outputs
-                         self.total_min=MM.video_instance.total_min
-                         self.frame_count=MM.video_instance.frame_count
-                         self.len_annotations=len(MM.video_instance.annotations)
+                         self.total_min=results.video_instance.total_min
+                         self.frame_count=results.video_instance.frame_count
+                         self.len_annotations=len(results.video_instance.annotations)
                          self.hitrate=round(float(self.len_annotations)/self.frame_count,3) * 100         
-                         self.output_annotations=MM.video_instance.output_annotations
-                         self.output_args=MM.video_instance.output_args
+                         self.output_annotations=results.video_instance.output_annotations
+                         self.output_args=results.video_instance.output_args
                          self.waitflag=1
                                                   
                     except Exception as e:
@@ -334,7 +349,6 @@ if __name__ == "__main__":
           if __name__=="__main__":
                try:
                     DeepMeerkatApp().run()
-                    cv2.destroyAllWindows()                         
                except Exception as e:
                     traceback.print_exc()
                     if len(sys.argv)<= 2:          

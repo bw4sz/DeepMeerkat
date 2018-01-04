@@ -60,7 +60,7 @@ class Organizer:
             self.train_negatives_files.append("gs://" + f.bucket.name + "/" + f.name)
                     
         #shuffle negatives and take a sample equal to the size of the positives
-        random.shuffle(self.train_negatives_files)
+        #random.shuffle(self.train_negatives_files)
         
         #add the rest of the files to testing
         #add_to_negative_train=self.train_negatives_files[len(self.train_positives_files):]

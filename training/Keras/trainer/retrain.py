@@ -2,7 +2,6 @@ import os
 import sys
 import glob
 import argparse
-import matplotlib.pyplot as plt
 
 from keras import __version__
 from keras.applications.inception_v3 import InceptionV3, preprocess_input
@@ -14,54 +13,22 @@ from keras.callbacks import TensorBoard
 from keras.optimizers import SGD
 
 IM_WIDTH, IM_HEIGHT = 299, 299 #fixed size for InceptionV3
-NB_EPOCHS = 3
+NB_EPOCHS = 1
 BAT_SIZE = 32
 FC_SIZE = 1024
 NB_IV3_LAYERS_TO_FREEZE = 172
+#RUN NAME
 
 from keras.callbacks import TensorBoard
-from tensorboard.plugins.pr_curve import summary as pr_summary
 
-# Check complete example in:
-# https://github.com/akionakamura/pr-tensorboard-keras-example
-class PRTensorBoard(TensorBoard):
-    def __init__(self, *args, **kwargs):
-        # One extra argument to indicate whether or not to use the PR curve summary.
-        self.pr_curve = kwargs.pop('pr_curve', True)
-        super(PRTensorBoard, self).__init__(*args, **kwargs)
+#If running on google cloud, copy locally and reset the arguments
+def download(args):
+    if args.train_dir[0:2]=="gs":   
+        subprocess.check_call(['gsutil', '-m' , 'cp', '-r', args.train_dir, '/tmp/train'])
+        subprocess.check_call(['gsutil', '-m' , 'cp', '-r', args.val_dir, '/tmp/val'])
+        args.train_dir='/tmp/train'
+        args.val_dir='/tmp/val'
 
-        global tf
-        import tensorflow as tf
-
-    def set_model(self, model):
-        super(PRTensorBoard, self).set_model(model)
-
-        if self.pr_curve:
-            # Get the prediction and label tensor placeholders.
-            predictions = self.model._feed_outputs[0]
-            labels = tf.cast(self.model._feed_targets[0], tf.bool)
-            # Create the PR summary OP.
-            self.pr_summary = pr_summary.op(tag='pr_curve',
-                                            predictions=predictions,
-                                            labels=labels,
-                                            display_name='Precision-Recall Curve')
-
-    def on_epoch_end(self, epoch, logs=None):
-        super(PRTensorBoard, self).on_epoch_end(epoch, logs)
-
-        if self.pr_curve and self.validation_data:
-            # Get the tensors again.
-            tensors = self.model._feed_targets + self.model._feed_outputs
-            # Predict the output.
-            predictions = self.model.predict(self.validation_data[:-2])
-            # Build the dictionary mapping the tensor to the data.
-            val_data = [self.validation_data[-2], predictions]
-            feed_dict = dict(zip(tensors, val_data)) 
-            # Run and add summary.
-            result = self.sess.run([self.pr_summary], feed_dict=feed_dict)
-            self.writer.add_summary(result[0], epoch)
-        self.writer.flush()
-        
 def get_nb_files(directory):
     """Get number of files by searching directory recursively"""
     if not os.path.exists(directory):
@@ -157,13 +124,13 @@ def train(args):
     base_model = InceptionV3(weights='imagenet', include_top=False) #include_top=False excludes final FC layer
     model = add_new_last_layer(base_model, nb_classes)
 
-    #transfer learning
+    #transfer learning initial layers
     setup_to_transfer_learn(model, base_model)
     
-    # fine-tuning
+    # fine-tuning layers 
     setup_to_finetune(model)
     
-    #Tensorboard
+    #Tensorboard Callback
     tbcallback=TensorBoard(log_dir='./logs', histogram_freq=0, batch_size=32, write_graph=True, write_grads=False, write_images=False, embeddings_freq=0, embeddings_layer_names=None, embeddings_metadata=None)        
     
     #TODO alter class weights
@@ -172,35 +139,17 @@ def train(args):
     
     history_ft = model.fit_generator(
       train_generator,
-    samples_per_epoch=nb_train_samples,
+    #samples_per_epoch=nb_train_samples/BAT_SIZE,
+    steps_per_epoch=10,    
     nb_epoch=nb_epoch,
     validation_data=validation_generator,
-    nb_val_samples=nb_val_samples,
+    #validation_steps=nb_val_samples/BAT_SIZE,
+    validation_steps=10,    
     class_weight='auto',
     callbacks=[tbcallback])
     
     #TODO, saved model loader type?
     model.save(args.output_model_file)
-
-    if args.plot:
-        plot_training(history_ft)
-
-def plot_training(history):
-    acc = history.history['acc']
-    val_acc = history.history['val_acc']
-    loss = history.history['loss']
-    val_loss = history.history['val_loss']
-    epochs = range(len(acc))
-
-    plt.plot(epochs, acc, 'r.')
-    plt.plot(epochs, val_acc, 'r')
-    plt.title('Training and validation accuracy')
-
-    plt.figure()
-    plt.plot(epochs, loss, 'r.')
-    plt.plot(epochs, val_loss, 'r-')
-    plt.title('Training and validation loss')
-    plt.show()
 
 if __name__=="__main__":
     a = argparse.ArgumentParser()
@@ -209,7 +158,6 @@ if __name__=="__main__":
     a.add_argument("--nb_epoch", default=NB_EPOCHS)
     a.add_argument("--batch_size", default=BAT_SIZE)
     a.add_argument("--output_model_file", default="inceptionv3-ft.model")
-    a.add_argument("--plot", action="store_true")
 
     args = a.parse_args()
     if args.train_dir is None or args.val_dir is None:
@@ -220,5 +168,10 @@ if __name__=="__main__":
         print("directories do not exist")
         sys.exit(1)
         
+if __name__=="__main__":
+    #Check if running on google cloud
+    download(args)
+    
+    #Run model
     train(args)
     

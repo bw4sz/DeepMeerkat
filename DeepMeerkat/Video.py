@@ -10,39 +10,6 @@ import time
 import Crop
 import predict
 
-#general functions
-class FixedlenList(list):
-    '''
-subclass from list, providing all features list has
-the list size is fixed. overflow items will be discarded
-
-    '''
-    def __init__(self,l=0):
-        super(FixedlenList,self).__init__()
-        self.__length__=l #fixed length
-
-    def pop(self,index=-1):
-        super(FixedlenList, self).pop(index)
-
-    def remove(self,item):
-        self.__delitem__(item)
-
-    def __delitem__(self,item):
-        super(FixedlenList, self).__delitem__(item)
-        #self.__length__-=1
-
-    def append(self,item):
-        if len(self) >= self.__length__:
-            super(FixedlenList, self).pop(0)
-        super(FixedlenList, self).append(item)
-
-    def extend(self,aList):
-        super(FixedlenList, self).extend(aList)
-        self.__delslice__(0,len(self)-self.__length__)
-
-    def insert(self):
-        pass
-
 def mult(p,x):
     return(int(p+p*x))
 
@@ -100,9 +67,6 @@ class Video:
         #MotionHistory
         self.MotionHistory=[]
 
-        #Frame Padding
-        self.padding_frames=FixedlenList(l=self.args.buffer)
-
         #create output directory
         normFP=os.path.normpath(vid)
         (filepath, filename)=os.path.split(normFP)
@@ -140,6 +104,12 @@ class Video:
 
         #Detector almost always returns first frame
         self.IS_FIRST_FRAME = True
+        
+        #Analyze Video
+        self.analyze()
+        
+        #Write Video Files
+        self.write()
 
     def analyze(self):
         if self.args.show:
@@ -147,9 +117,6 @@ class Video:
             cv2.namedWindow("Motion_Event")
 
         while True:
-
-            #Reset padding frames, for debugging.
-            WritePadding=False
 
             #read frame
             ret,self.read_image=self.read_frame()
@@ -209,11 +176,13 @@ class Video:
             if self.args.training:
                 clip_counter=0    
                 self.annotations[self.frame_count] = remaining_bounding_box                    
+                
                 for box in remaining_bounding_box:
                     clip_to_write=resize_box(self.original_image, box)
                     fname=self.file_destination + "/"+str(self.frame_count) + "_" + str(clip_counter)+".jpg"                            
                     cv2.imwrite(fname, clip_to_write)   
                     clip_counter+=1
+                
                 #don't write full frames
                 continue                
 
@@ -237,7 +206,6 @@ class Video:
                 for box in labels:
                     for label,score in box:
                         if label == 'Positive':
-                            WritePadding=True
                             tensorflow_check=True
                         else:
                             if score > float(self.args.tensorflow_threshold):
@@ -249,7 +217,7 @@ class Video:
                 if tensorflow_check:
                     pass
                 else:
-                    self.end_sequence(Motion=False,WritePadding=WritePadding)                
+                    self.end_sequence(Motion=False)                
                     continue
             
             self.annotations[self.frame_count] = remaining_bounding_box
@@ -264,7 +232,7 @@ class Video:
 
             #Motion Frame! passed all filters.
             else:
-                self.end_sequence(Motion=True,WritePadding=WritePadding)
+                self.end_sequence(Motion=True)
 
         cv2.destroyAllWindows()
 
@@ -301,43 +269,15 @@ class Video:
             _,self.contours,hierarchy = cv2.findContours(self.image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE )
             self.contours = [contour for contour in self.contours if cv2.contourArea(contour) > 50]
 
-    def end_sequence(self,Motion,WritePadding=False):        #When frame hits the end of processing
+    def end_sequence(self,Motion):        #When frame hits the end of processing
 
         #write history
         self.MotionHistory.append(Motion)
 
-        if not Motion:
-            #Capture Frame
-            self.padding_frames.append(self.original_image)
-
-        else:
-
+        if Motion:
             #write current frame
             fname=self.file_destination + "/"+str(self.frame_count)+".jpg"
             cv2.imwrite(fname,self.original_image)
-
-            ##write padding frames, if they don't exist
-            #if WritePadding:
-                ##write frames before
-                #for x in range(0,len(self.padding_frames)):
-                    #filenm=self.file_destination + "/"+str(self.frame_count-(x+1))+".jpg"
-                    #if not os.path.exists(filenm):
-                        #cv2.imwrite(filenm,self.padding_frames[x])
-                ###write frames after
-                #for x in range(self.args.buffer):
-                    ##read frame, check if its the last frame in video
-                    #ret,self.read_image=self.read_frame()
-                    #if not ret:
-                        #self.end_time=time.time()
-                        #break
-                    ##add to frame count and apply background
-                    #self.frame_count+=1
-                    #self.background_apply()
-                    
-                    ##write frame
-                    #fname=self.file_destination + "/"+str(self.frame_count)+".jpg"
-                    #if not os.path.exists(fname):
-                        #cv2.imwrite(fname,self.original_image)
 
     def cluster_bounding_boxes(self, contours):
         bounding_boxes = []
@@ -391,7 +331,7 @@ class Video:
 
         #write parameter logs
         self.output_args=self.file_destination + "/parameters.csv"
-        
+            
         #report statistics
         try:
             self.total_min=(self.end_time-self.start_time)/60.0
@@ -417,6 +357,8 @@ class Video:
     
                 #Frames per second
                 writer.writerow(["Frame processing rate",round(float(self.frame_count)/(self.total_min*60),2)])
+
+                f.flush()
              
             #Write frame annotations
             self.output_annotations=self.file_destination + "/annotations.csv"
@@ -427,7 +369,9 @@ class Video:
                     bboxes=self.annotations[x]
                     for bbox in bboxes:
                         writer.writerow([x,bbox.x,bbox.y,bbox.h,bbox.w,bbox.label[0],bbox.label[1]])
+                f.flush()
         else:
+
             with open(self.output_args, 'wb') as f:
                 writer = csv.writer(f,)
                 writer.writerows(self.args.__dict__.items())
@@ -446,7 +390,10 @@ class Video:
     
                 #Frames per second
                 writer.writerow(["Frame processing rate",round(float(self.frame_count)/(self.total_min*60),2)])
-             
+                
+                #Ensure write
+                f.flush()
+                
             #Write frame annotations
             self.output_annotations=self.file_destination + "/annotations.csv"
             with open(self.output_annotations, 'wb') as f:
@@ -456,7 +403,9 @@ class Video:
                     bboxes=self.annotations[x]
                     for bbox in bboxes:
                         writer.writerow([x,bbox.x,bbox.y,bbox.h,bbox.w,bbox.label[0],bbox.label[1]])
-                        
+                f.flush()
+                
+                
     def adapt(self):
 
             #If current frame is a multiple of the 1000 frames

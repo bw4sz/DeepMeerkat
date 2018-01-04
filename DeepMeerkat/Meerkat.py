@@ -1,45 +1,63 @@
-import cv2
-import numpy as np
 import os
 import Video
 import CommandArgs
-import glob
+from functools import partial
 
+def start_tensorflow(args):
+    import tensorflow as tf
+    print("Loading Tensorflow model")
+    sess=tf.Session()
+    tf.saved_model.loader.load(sess,[tf.saved_model.tag_constants.SERVING], args.path_to_model)
+    print("Complete")
+    return(sess)
+
+def process_args(argv=None):
+    args=CommandArgs.CommandArgs(argv)
+    return(args)
+    
+def create_queue(args,video=None):
+    #get all videos in queue
+    queue= []
+
+    #if run as a function a video can be passed as a function
+    if video:
+        queue.append(video)
+
+    #Create Pool of Videos
+    if not os.path.isfile(args.input):
+        for (root, dirs, files) in os.walk(args.input):
+            for files in files:
+                fileupper=files.upper()
+                if fileupper.endswith((".TLV",".AVI",".MPG",".MP4",".MOD",".MTS",".WMV",".MOV",".MP2",".MPEG-4",".DTS",".VOB",".MJPEG","MPEG",".M4V",".XBA")):
+                    queue.append(os.path.join(root, files))
+                    print("Added " + str(files) + " to queue")
+    else:
+        queue=[args.input]
+
+    if len(queue)==0:
+        raise ValueError("No videos in the supplied folder. If videos exist, ensure that they can be read by standard video CODEC libraries.")
+    return(queue)
+            
 class DeepMeerkat:
-    def __init__(self):
+    def __init__(self,vid,args,sess=None):
         print("Welcome to DeepMeerkat")
-    
-    def process_args(self,argv=None):
-        self.args=CommandArgs.CommandArgs(argv) 
         
-        #add tensorflow flag for kivy
-        self.tensorflow_status="Loading"        
-    
-    def create_queue(self,video=None):
-        #get all videos in queue
-        self.queue= []
-
-        #if run as a function a video can be passed as a function
-        if video:
-            self.queue.append(video)
-
-        #Create Pool of Videos
-        if not os.path.isfile(self.args.input):
-            for (root, dirs, files) in os.walk(self.args.input):
-                for files in files:
-                    fileupper=files.upper()
-                    if fileupper.endswith((".TLV",".AVI",".MPG",".MP4",".MOD",".MTS",".WMV",".MOV",".MP2",".MPEG-4",".DTS",".VOB",".MJPEG","MPEG",".M4V",".XBA")):
-                        self.queue.append(os.path.join(root, files))
-                        print("Added " + str(files) + " to queue")
-        else:
-            self.queue=[self.args.input]
-
-        if len(self.queue)==0:
-            raise ValueError("No videos in the supplied folder. If videos exist, ensure that they can be read by standard video CODEC libraries.")
+        #Get command line arguments
+        self.sess=sess
+        self.args=args
         
-        #if running in non-threaded environment, only open model once between batches
-        if not self.args.threaded:
-            #load tensorflow model
+        #Run Video
+        self.run(vid=vid)
+    
+    def run(self,vid):
+        
+        print("Processing: " + str(vid))
+        if not os.path.exists(vid):
+            raise "Video does not exist at specified path"        
+        
+        if self.args.threaded:
+
+            #load tensorflow session and model if in threaded mode to keep thread safe
             if self.args.tensorflow:
                 import tensorflow as tf
                 print("Loading Tensorflow model")
@@ -48,71 +66,40 @@ class DeepMeerkat:
                 print("Complete")
     
             else:
-                self.sess=None
-        
-    def run_threaded(self,vid):
-
-        #hold on to original mog variance
-        mogvariance=self.args.mogvariance
-
-        #load tensorflow model
-        if self.args.tensorflow:
-            import tensorflow as tf
-            print("Loading Tensorflow model")
-            sess=tf.Session()
-            tf.saved_model.loader.load(sess,[tf.saved_model.tag_constants.SERVING], self.args.path_to_model)
-            print("Complete")
-
+                sess=None
+            
         else:
-            sess=None
-
-        #run each video, use created tensorflow instance.
-        print("Processing: " + str(vid))
-        if not os.path.exists(vid):
-            raise "Video does not exist at specified path"
+            pass
         
-        self.video_instance=Video.Video(vid,self.args,tensorflow_session=sess)
-        self.video_instance.analyze()
-        self.video_instance.write()
-
-        #reset mog variance if adapting during run.
-        self.args.mogvariance=mogvariance
+        #Create Video Class
+        self.video_instance=Video.Video(vid,args=self.args,tensorflow_session=self.sess)
         
-        #close tensorflow session
-        if self.args.tensorflow:
-            sess.close()
-
-    def run(self,vid,sess):
-
-        #hold on to original mog variance
-        mogvariance=self.args.mogvariance
-
-        #run each video, use created tensorflow instance.
-        print("Processing: " + str(vid))
-        if not os.path.exists(vid):
-            raise "Video does not exist at specified path"
-        
-        self.video_instance=Video.Video(vid,self.args,tensorflow_session=sess)
-        self.video_instance.analyze()
-        self.video_instance.write()
-
-        #reset mog variance if adapting during run.
-        self.args.mogvariance=mogvariance
-        
-        
+        #close tensorflow session to keep thread safe
+        if self.args.threaded:
+            if self.args.tensorflow:
+                self.sess.close()        
+     
 if __name__ == "__main__":
-    DM=DeepMeerkat()
-    DM.process_args()
-    DM.create_queue()
-    if DM.args.threaded:
-        from multiprocessing import Pool
-        from multiprocessing.dummy import Pool as ThreadPool 
-        pool = ThreadPool(3)         
-        results = pool.map(DM.run_threaded,DM.queue)
-        print(results)
+    
+    #Peek at the args to see if threaded, if not, we can make a new tensorflow session
+    args=CommandArgs.CommandArgs(argv=None) 
+    
+    if not args.threaded:
+        if args.tensorflow:   
+            #add tensorflow flag for kivy
+            tensorflow_status="Loading"                  
+            sess=start_tensorflow(args)
+    
+    #Create queue of videos to run
+    queue=create_queue(args=args)
+    
+    if args.threaded:
+        from multiprocessing.dummy import Pool
+        pool = Pool(3)         
+        mapfunc = partial(DeepMeerkat, args=args)        
+        results = pool.map(mapfunc, queue)
         pool.close()
         pool.join()
-
     else:
-        for vid in DM.queue:
-            DM.run(vid=vid,sess=DM.sess)
+        for vid in queue:
+            results=DeepMeerkat(vid=vid,args=args,sess=sess)

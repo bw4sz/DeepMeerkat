@@ -4,7 +4,7 @@
 source env/bin/activate
 
 #make sure all requirements are upgraded
-pip install -r requirements.txt
+#pip install -r requirements.txt
 
 declare  PROJECT=$(gcloud config list project --format "value(core.project)")
 declare  BUCKET="gs://${PROJECT}-ml"
@@ -17,7 +17,7 @@ gsutil rsync -d /Users/Ben/Dropbox/GoogleCloud/Training/Positives/ gs://api-proj
 gsutil rsync -d /Users/Ben/Dropbox/GoogleCloud/Training/Negatives/ gs://api-project-773889352370-ml/Hummingbirds/Training/Negatives
 
 #Create Docs
-python CreateDocs.py
+#python CreateDocs.py
 
 #get eval set size
 eval=$(gsutil cat gs://api-project-773889352370-ml/Hummingbirds/testingdata.csv | wc -l)
@@ -27,25 +27,25 @@ eval=$(gsutil cat gs://api-project-773889352370-ml/Hummingbirds/testingdata.csv 
 ############
 
 #python pipeline.py \
-    --project ${PROJECT} \
-    --cloud \
-    --train_input_path gs://api-project-773889352370-ml/Hummingbirds/trainingdata.csv \
-    --eval_input_path gs://api-project-773889352370-ml/Hummingbirds/testingdata.csv \
-    --input_dict gs://api-project-773889352370-ml/Hummingbirds/dict.txt \
-    --deploy_model_name "DeepMeerkat" \
-    --gcs_bucket ${BUCKET} \
-    --output_dir "${GCS_PATH}/"  \
-    --eval_set_size  ${eval} 
+    #--project ${PROJECT} \
+    #--cloud \
+    #--train_input_path gs://api-project-773889352370-ml/Hummingbirds/trainingdata.csv \
+    #--eval_input_path gs://api-project-773889352370-ml/Hummingbirds/testingdata.csv \
+    #--input_dict gs://api-project-773889352370-ml/Hummingbirds/dict.txt \
+    #--deploy_model_name "DeepMeerkat" \
+    #--gcs_bucket ${BUCKET} \
+    #--output_dir "${GCS_PATH}/"  \
+    #--eval_set_size  ${eval} 
 
 #Monitor
 tensorboard --logdir ${GCS_PATH} 
 
-already preprocessed
+#already preprocessed
 python pipeline.py \
     --project ${PROJECT} \
     --cloud \
-    --preprocessed_train_set gs://api-project-773889352370-ml/DeepMeerkat/DeepMeerkat_20171217_164338/preprocessed/train* \
-    --preprocessed_eval_set gs://api-project-773889352370-ml/DeepMeerkat/DeepMeerkat_20171217_164338/preprocessed/eval* \
+    --preprocessed_train_set gs://api-project-773889352370-ml/DeepMeerkat/DeepMeerkat_20180102_080423/preprocessed/train* \
+    --preprocessed_eval_set gs://api-project-773889352370-ml/DeepMeerkat/DeepMeerkat_20180102_080423/preprocessed/eval* \
     --input_dict gs://api-project-773889352370-ml/Hummingbirds/dict.txt \
     --deploy_model_name "DeepMeerkat" \
     --gcs_bucket ${BUCKET} \
