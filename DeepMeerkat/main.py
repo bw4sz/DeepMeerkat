@@ -280,9 +280,11 @@ if __name__ == "__main__":
                               from multiprocessing.dummy import Pool
                               pool = Pool(3)
                               mapfunc = partial(Meerkat.DeepMeerkat, args=args)        
-                              results = pool.map(mapfunc, queue)                              
+                              results = pool.map(mapfunc, queue)      
                               pool.close()
                               pool.join()
+                              #A bit ugly, use the last result for the output arguments
+                              results=results[-1]
                          else:
                               self.video_id=0                              
                               for vid in queue:

@@ -214,7 +214,7 @@
             text:"Tensorflow threshold"
         TextInput:
             size_hint_y:0.6
-            text:str(0.95)
+            text:str(app.args.tensorflow_threshold)
             on_text: app.args.tensorflow_threshold=self.text
             font_size:25
             multiline:False
@@ -282,7 +282,7 @@
         Button:
             text: "Open Output Folder"
             size_hint:(1,0.5)
-            on_press: root.openparfile(app.MM)    
+            on_press: root.openparfile(app.args)    
 <ErrorScreen>
     on_enter:root.getMessage(app.root)
     BoxLayout:

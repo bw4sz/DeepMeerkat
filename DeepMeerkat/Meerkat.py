@@ -77,8 +77,8 @@ class DeepMeerkat:
         #close tensorflow session to keep thread safe
         if self.args.threaded:
             if self.args.tensorflow:
-                self.sess.close()        
-     
+                self.sess.close()
+             
 if __name__ == "__main__":
     
     #Peek at the args to see if threaded, if not, we can make a new tensorflow session
@@ -100,6 +100,7 @@ if __name__ == "__main__":
         results = pool.map(mapfunc, queue)
         pool.close()
         pool.join()
+        
     else:
         for vid in queue:
             results=DeepMeerkat(vid=vid,args=args,sess=sess)
