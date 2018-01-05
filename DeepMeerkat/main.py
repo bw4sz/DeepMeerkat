@@ -30,7 +30,28 @@ if __name__ == "__main__":
      #if system arg, command line version, skip the GUI
      if len(sys.argv)>= 2:
           
-          Meerkat.runMeerkat()
+          #Peek at the args to see if threaded, if not, we can make a new tensorflow session
+          args=CommandArgs.CommandArgs(argv=None) 
+     
+          if not args.threaded:
+               if args.tensorflow:   
+                    #add tensorflow flag for kivy
+                    tensorflow_status="Loading"                  
+                    sess=start_tensorflow(args)
+     
+          #Create queue of videos to run
+          queue=create_queue(args=args)
+     
+          if args.threaded:
+               from multiprocessing.dummy import Pool
+               pool = Pool(3)         
+               mapfunc = partial(Meerkat.DeepMeerkat, args=args)        
+               results = pool.map(mapfunc, queue)
+               pool.close()
+               pool.join()
+          else:
+               for vid in queue:
+                    results=Meerkat.DeepMeerkat(vid=vid,args=args,sess=sess)
               
      else:            
           #run GUI
@@ -97,15 +118,6 @@ if __name__ == "__main__":
                     #Run Meerkat
                     #Peek at the args to see if threaded, if not, we can make a new tensorflow session
                     args=CommandArgs.CommandArgs(argv=None) 
-               
-                    if not args.threaded:
-                         if args.tensorflow:   
-                              #add tensorflow flag for kivy
-                              tensorflow_status="Loading"                  
-                              sess=Meerkat.start_tensorflow(args)
-               
-                    #Create queue of videos to run
-                    queue=Meerkat.create_queue(args=args)
                     
                     #TODO OS dependent paths
                     if os.name=="nt":
@@ -119,16 +131,6 @@ if __name__ == "__main__":
                          args.path_to_model="/Applications/DeepMeerkat.app/Contents/Resources/model/"
                          args.output=home +"/DeepMeerkat"                          
                
-                    if args.threaded:
-                         from multiprocessing.dummy import Pool
-                         pool = Pool(3)         
-                         mapfunc = partial(DeepMeerkat, args=args)        
-                         results = pool.map(mapfunc, queue)
-                         pool.close()
-                         pool.join()
-                    else:
-                         for vid in queue:
-                              results=DeepMeerkat(vid=vid,args=args,sess=sess)
                     
                except Exception as e:
                     traceback.print_exc()
@@ -147,20 +149,20 @@ if __name__ == "__main__":
                def help_issue(instance):
                     webbrowser.open("https://github.com/bw4sz/DeepMeerkat/issues")
                
-               def on_check_roi(self, value,MM):
+               def on_check_roi(self, value,args):
                     if value:
-                         MM.args.crop=True
+                         args.crop=True
                     else:
-                         MM.args.crop=False
+                         args.crop=False
           
                #Drawing checkbox
-               def on_check_draw(self, value,MM):     
+               def on_check_draw(self, value,args):     
                     if value:
-                         MM.args.draw_size='draw'
+                         args.draw_size='draw'
                     else:
-                         MM.args.draw_size='enter'
+                         args.draw_size='enter'
                
-               def checkfile(self,MM):
+               def checkfile(self,args):
                     if isfile(self.ids.fc.text):
                          self.ids.fc.background_color=(1,1,1,1)
                     elif isdir(self.ids.fc.text):
@@ -171,7 +173,7 @@ if __name__ == "__main__":
                          self.ids.fc.background_color=(1,0,0,1)
                     
                     #send text to motion object
-                    MM.args.input=self.ids.fc.text
+                    args.input=self.ids.fc.text
                          
                def run_press(self,root):
                     root.getProgress()
@@ -258,17 +260,15 @@ if __name__ == "__main__":
                video_id=NumericProperty()
                video_count=NumericProperty()
 
-               def worker(self,MM):
+               def worker(self,args):
                     try:
                          
-                         #Peek at the args to see if threaded, if not, we can make a new tensorflow session
-                         args=CommandArgs.CommandArgs(argv=None) 
                     
                          if not args.threaded:
                               if args.tensorflow:   
                                    #add tensorflow flag for kivy
                                    tensorflow_status="Loading"                  
-                                   sess=start_tensorflow()
+                                   sess=Meerkat.start_tensorflow(args)
                                    self.tensorflow_loaded="Complete"                                   
                     
                          #Create queue of videos to run
@@ -279,7 +279,7 @@ if __name__ == "__main__":
                               self.tensorflow_loaded="Multithreaded version"                              
                               from multiprocessing.dummy import Pool
                               pool = Pool(3)
-                              mapfunc = partial(DeepMeerkat, args=args)        
+                              mapfunc = partial(Meerkat.DeepMeerkat, args=args)        
                               results = pool.map(mapfunc, queue)                              
                               pool.close()
                               pool.join()
@@ -288,7 +288,7 @@ if __name__ == "__main__":
                               for vid in queue:
                                    self.video_id+=1
                                    self.video_name=vid                                   
-                                   results=DeepMeerkat(vid=vid,args=args,sess=sess)                              
+                                   results=Meerkat.DeepMeerkat(vid=vid,args=args,sess=sess)                              
                          
                          #save outputs
                          self.total_min=results.video_instance.total_min
@@ -303,10 +303,10 @@ if __name__ == "__main__":
                          self.tb.append(str(traceback.format_exc()))
                          self.errorflag=1
                     
-               def MotionM(self,MM):
+               def MotionM(self,args):
                     self.waitflag=0   
                     self.errorflag=0                    
-                    Thread(target=self.worker,kwargs=dict(MM=MM)).start()
+                    Thread(target=self.worker,kwargs=dict(args=args)).start()
                     
                def gotoErrorScreen(self,screenmanage):
                     screenmanage.transition.direction='left'          
@@ -324,12 +324,12 @@ if __name__ == "__main__":
                     screenmanage.transition.direction='right'          
                     screenmanage.current='GUI'   
                                         
-               def openparfile(self,MM):
+               def openparfile(self,args):
                     #platform dependent
                     if os.name=="nt":
-                         subprocess.call('explorer /n,/e,' + os.path.normpath(MM.args.output))
+                         subprocess.call('explorer /n,/e,' + os.path.normpath(args.output))
                     else:
-                         subprocess.call(["open", MM.args.output])
+                         subprocess.call(["open", args.output])
           
           class ErrorScreen(Screen):
                em=StringProperty()
