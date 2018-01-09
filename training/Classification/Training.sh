@@ -16,8 +16,6 @@ declare  GCS_PATH="${BUCKET}/${MODEL_NAME}/${JOB_ID}"
 gsutil rsync -d /Users/Ben/Dropbox/GoogleCloud/Training/Positives/ gs://api-project-773889352370-ml/Hummingbirds/Training/Positives
 gsutil rsync -d /Users/Ben/Dropbox/GoogleCloud/Training/Negatives/ gs://api-project-773889352370-ml/Hummingbirds/Training/Negatives
 
-#Create Docs
-#python CreateDocs.py
 
 #get eval set size
 eval=$(gsutil cat gs://api-project-773889352370-ml/Hummingbirds/testingdata.csv | wc -l)
@@ -25,6 +23,9 @@ eval=$(gsutil cat gs://api-project-773889352370-ml/Hummingbirds/testingdata.csv 
 ############
 #Train Model
 ############
+
+#Create Docs
+#python CreateDocs.py
 
 #python pipeline.py \
     #--project ${PROJECT} \
@@ -37,17 +38,20 @@ eval=$(gsutil cat gs://api-project-773889352370-ml/Hummingbirds/testingdata.csv 
     #--output_dir "${GCS_PATH}/"  \
     #--eval_set_size  ${eval} 
 
-#Monitor
-tensorboard --logdir ${GCS_PATH} 
+
 
 #already preprocessed
 python pipeline.py \
     --project ${PROJECT} \
     --cloud \
-    --preprocessed_train_set gs://api-project-773889352370-ml/DeepMeerkat/DeepMeerkat_20180102_080423/preprocessed/train* \
-    --preprocessed_eval_set gs://api-project-773889352370-ml/DeepMeerkat/DeepMeerkat_20180102_080423/preprocessed/eval* \
+    --preprocessed_train_set gs://api-project-773889352370-ml/DeepMeerkat/DeepMeerkat_20180108_205121/preprocessed/train* \
+    --preprocessed_eval_set gs://api-project-773889352370-ml/DeepMeerkat/DeepMeerkat_20180108_205121/preprocessed/eval* \
     --input_dict gs://api-project-773889352370-ml/Hummingbirds/dict.txt \
     --deploy_model_name "DeepMeerkat" \
     --gcs_bucket ${BUCKET} \
     --output_dir "${GCS_PATH}/" \
     --eval_set_size  ${eval} 
+    
+    
+#Monitor
+tensorboard --logdir ${GCS_PATH} 

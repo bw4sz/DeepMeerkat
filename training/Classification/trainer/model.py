@@ -1,17 +1,6 @@
-# Copyright 2016 Google Inc. All Rights Reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-"""Flowers classification model.
+#Forked from 
+#https://github.com/GoogleCloudPlatform/cloudml-samples/blob/master/flowers/trainer/model.py
+"""Hummingbird classification model.
 """
 
 import argparse
@@ -85,7 +74,7 @@ def create_model():
       type=str,
       default=DEFAULT_INCEPTION_CHECKPOINT)
   args, task_args = parser.parse_known_args()
-  override_if_not_in_args('--max_steps', '8000', task_args)
+  override_if_not_in_args('--max_steps', '20000', task_args)
   override_if_not_in_args('--batch_size', '100', task_args)
   override_if_not_in_args('--eval_set_size', '500', task_args)
   override_if_not_in_args('--eval_interval_secs', '2', task_args)

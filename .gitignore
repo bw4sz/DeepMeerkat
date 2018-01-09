@@ -9,3 +9,4 @@ Training/env/*
 Training/Detection/detection/*
 Training/Detection/checkpoint/
 dataflowenv/
+Training/Keras/kerasenv/*

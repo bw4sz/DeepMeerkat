@@ -4,7 +4,7 @@ import random
 import os
 
 cv2.namedWindow("image")
-images=glob.glob("/Users/ben/Dropbox/GoogleCloud/TestCrops/Negatives/*.jpg")
+images=glob.glob("/Users/ben/Dropbox/GoogleCloud/TestCrops/Positives/*.jpg")
 position=0
 
 for path in images:
