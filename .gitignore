@@ -9,4 +9,5 @@ Training/env/*
 Training/Detection/detection/*
 Training/Detection/checkpoint/
 dataflowenv/
-Training/Keras/kerasenv/*
+training/Keras/kerasenv/*
+training/Keras/trainer/inceptionv3-ft.model
