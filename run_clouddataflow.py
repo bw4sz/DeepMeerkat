@@ -57,11 +57,15 @@ class PredictDoFn(beam.DoFn):
     logging.info(args)
     
     #file queue
-    queue=Meerkat.create_queue(video=local_path)
+    queue=Meerkat.create_queue(video=local_path,args=args)
     
+    if not args.threaded:
+      if args.tensorflow:   
+        sess=Meerkat.start_tensorflow(args)
+        
     #Run DeepMeerkat
     for vid in queue:
-      Meerkat.DeepMeerkat(vid=vid)
+      Meerkat.DeepMeerkat(vid=vid,args=args,sess=sess)
     
     #Set output folder
     output_path=parsed.scheme+"://"+parsed.netloc+"/DeepMeerkat_20171011_134826/"     
