@@ -16,16 +16,16 @@ class PredictDoFn(beam.DoFn):
     ##The namespaces inside of clouddataflow workers is not inherited
     import csv
     from DeepMeerkat import Meerkat
+    from DeepMeerkat import CommandArgs
     from urlparse import urlparse
     import os
     import subprocess
     import logging
 
-    DM=Meerkat.DeepMeerkat()
 
     #Download tensorflow model, if it does not exist
     if not os.path.exists("/tmp/model/"):
-      cmd=["gsutil","cp","-r","gs://api-project-773889352370-ml/DeepMeerkat/DeepMeerkat_20171217_164338/model","/tmp/"]
+      cmd=["gsutil","cp","-r","gs://api-project-773889352370-ml/DeepMeerkat/DeepMeerkat_20171011_134826/model","/tmp/"]
       subprocess.call(cmd)
       
     logging.info(element)
@@ -48,23 +48,23 @@ class PredictDoFn(beam.DoFn):
     
     #Assign input from DataFlow/manifest.
     #default args
-    DM.process_args(argv=self.argv)
+    args=CommandArgs.CommandArgs(self.argv)
     
     #specify output location
-    DM.args.output="/tmp/Frames"
-    DM.args.path_to_model = "/tmp/model/"
+    args.output="/tmp/Frames"
+    args.path_to_model = "/tmp/model/"
     
-    logging.info(DM.args)
+    logging.info(args)
     
     #file queue
-    DM.create_queue(video=local_path)
+    queue=Meerkat.create_queue(video=local_path)
     
     #Run DeepMeerkat
-    for vid in DM.queue:
-      DM.run(vid=vid,sess=DM.sess)
+    for vid in queue:
+      Meerkat.DeepMeerkat(vid=vid)
     
     #Set output folder
-    output_path=parsed.scheme+"://"+parsed.netloc+"/DeepMeerkat/"     
+    output_path=parsed.scheme+"://"+parsed.netloc+"/DeepMeerkat_20171011_134826/"     
 
     cmd=["gsutil","-m","cp","-r","/tmp/Frames/*",output_path]
     subprocess.call(cmd)

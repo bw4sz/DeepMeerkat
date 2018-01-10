@@ -112,7 +112,7 @@ def interactive(path):
 if __name__ == "__main__":
     sess=tf.Session()
     print("Loading tensorflow model. May take several minutes.")
-    tf.saved_model.loader.load(sess,[tf.saved_model.tag_constants.SERVING], "/Users/ben/Dropbox/GoogleCloud/DeepMeerkat_20180109_090611/model/")    
+    tf.saved_model.loader.load(sess,[tf.saved_model.tag_constants.SERVING], "/Users/ben/Dropbox/GoogleCloud/DeepMeerkat_20171011_134826/model/")    
     print("Model loaded")
     
     #Interactive

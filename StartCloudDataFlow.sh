@@ -1,5 +1,7 @@
 #! /bin/bash
 
+source dataflowenv/bin/activate
+
 PROJECT=$(gcloud config list project --format "value(core.project)")
 BUCKET=gs://$PROJECT-testing
 
