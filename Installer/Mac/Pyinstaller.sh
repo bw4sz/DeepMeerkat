@@ -10,7 +10,7 @@ pyinstaller  --windowed --onedir DeepMeerkat.spec
 cp -f /usr/local/Cellar/libpng/1.6.32/lib/libpng16.16.dylib /Users/ben/Documents/DeepMeerkat/Installer/Mac/dist/DeepMeerkat.app/Contents/MacOS/libpng16.16.dylib
 
 #copy model across
-cp -r /Users/ben/Dropbox/GoogleCloud/DeepMeerkat_20171011_134826/model dist/DeepMeerkat.app/Contents/Resources
+cp -r /Users/ben/Dropbox/GoogleCloud/DeepMeerkat_20180109_090611/model dist/DeepMeerkat.app/Contents/Resources
 
 pushd dist
 
