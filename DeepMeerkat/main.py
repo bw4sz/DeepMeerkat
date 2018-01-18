@@ -263,7 +263,6 @@ if __name__ == "__main__":
                def worker(self,args):
                     try:
                          
-                    
                          if not args.threaded:
                               if args.tensorflow:   
                                    #add tensorflow flag for kivy
@@ -276,7 +275,7 @@ if __name__ == "__main__":
                          self.video_count=len(queue)
                          
                          if args.threaded:
-                              self.tensorflow_loaded="Multithreaded version"                              
+                              self.tensorflow_loaded="Multithreaded version "                              
                               from multiprocessing.dummy import Pool
                               pool = Pool(3)
                               mapfunc = partial(Meerkat.DeepMeerkat, args=args)        
@@ -302,7 +301,7 @@ if __name__ == "__main__":
                          self.waitflag=1
                                                   
                     except Exception as e:
-                         self.tb.append(str(traceback.format_exc()))
+                         self.tb.append(str(traceback.format_exc() + "DeepMeerkat failed while running " + str(self.video_name)))
                          self.errorflag=1
                     
                def MotionM(self,args):

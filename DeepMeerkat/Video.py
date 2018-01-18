@@ -85,12 +85,11 @@ class Video:
             try: 
                 os.makedirs(self.file_destination)
             except:
-                print("Multithreaded, multiple threads creating at once?")
                 pass
 
         #read video
         self.cap=cv2.VideoCapture(self.args.video)
-
+        
         #set frame frate
         self.frame_rate=round(self.cap.get(5))
 
@@ -122,6 +121,10 @@ class Video:
             ret,self.read_image=self.read_frame()
 
             if not ret:
+                
+                #Check if video was corrupted
+                if self.frame_count==0:
+                    raise ValueError("DeepMeerkat was unable to read the supplied file. Check if the file is corrupt and can be opened on your computer.")
                 #end time
                 self.end_time=time.time()
                 break
@@ -353,8 +356,9 @@ class Video:
                 writer.writerow(["Motion Events",len(self.annotations)])
     
                 #Hit rate
-                writer.writerow(["Return rate",float(len(self.annotations))/self.frame_count])
-    
+                if not self.frame_count==0:
+                    writer.writerow(["Return rate",float(len(self.annotations))/self.frame_count])
+                
                 #Frames per second
                 writer.writerow(["Frame processing rate",round(float(self.frame_count)/(self.total_min*60),2)])
 

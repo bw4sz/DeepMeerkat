@@ -12,6 +12,9 @@ cp -f /usr/local/Cellar/libpng/1.6.32/lib/libpng16.16.dylib /Users/ben/Documents
 #copy model across
 cp -r /Users/ben/Dropbox/GoogleCloud/DeepMeerkat_20180109_090611/model dist/DeepMeerkat.app/Contents/Resources
 
+#sign it (may need to remove .DS_store files)
+codesign --deep -f -s "Ben Weinstein" DeepMeerkat.app
+
 pushd dist
 
 hdiutil create ./DeepMeerkat.dmg -srcfolder DeepMeerkat.app -ov

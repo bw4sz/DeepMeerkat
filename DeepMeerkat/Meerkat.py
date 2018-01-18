@@ -26,11 +26,11 @@ def create_queue(args,video=None):
     #Create Pool of Videos
     if not os.path.isfile(args.input):
         for (root, dirs, files) in os.walk(args.input):
-            for files in files:
-                fileupper=files.upper()
+            for f in files:
+                fileupper=f.upper()
                 if fileupper.endswith((".TLV",".AVI",".MPG",".MP4",".MOD",".MTS",".WMV",".MOV",".MP2",".MPEG-4",".DTS",".VOB",".MJPEG","MPEG",".M4V",".XBA")):
-                    queue.append(os.path.join(root, files))
-                    print("Added " + str(files) + " to queue")
+                    queue.append(os.path.join(root, f))
+                    print("Added " + str(f) + " to queue")
     else:
         queue=[args.input]
 
@@ -54,7 +54,7 @@ class DeepMeerkat:
         print("Processing: " + str(vid))
         if not os.path.exists(vid):
             raise "Video does not exist at specified path"        
-        
+            
         if self.args.threaded:
 
             #load tensorflow session and model if in threaded mode to keep thread safe
