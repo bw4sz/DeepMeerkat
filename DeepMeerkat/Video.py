@@ -124,7 +124,7 @@ class Video:
                 
                 #Check if video was corrupted
                 if self.frame_count==0:
-                    raise ValueError("DeepMeerkat was unable to read the supplied file. Check if the file is corrupt and can be opened on your computer.")
+                    raise ValueError("DeepMeerkat was unable to read the supplied file. Check if the file is corrupt and can be opened on your computer. You may need to download the proper video codecs for your machine.")
                 #end time
                 self.end_time=time.time()
                 break

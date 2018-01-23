@@ -116,10 +116,10 @@ if __name__ == "__main__":
                try:
                     
                     #Run Meerkat
-                    #Peek at the args to see if threaded, if not, we can make a new tensorflow session
+                    #Get args to see if threaded, if not, we can make a new tensorflow session
                     args=CommandArgs.CommandArgs(argv=None) 
                     
-                    #TODO OS dependent paths
+                    #OS dependent paths
                     if os.name=="nt":
                          #set default video and tensorflow model, assuming its been installed in the default location
                          args.input="C:/Program Files/DeepMeerkat/Hummingbird.avi"
@@ -137,7 +137,12 @@ if __name__ == "__main__":
                     if len(sys.argv)<= 2:          
                          k=input("Enter any key to exit:")
                          sys.exit(0)
-                         
+                
+                #Define stopping behavior? Windows only?
+               #def on_stop(self):
+               #     pass
+                
+                     
                def build(self):
                     return MyScreenManager()
           
