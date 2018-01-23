@@ -294,7 +294,7 @@ if __name__ == "__main__":
                               for vid in queue:
                                    self.video_id+=1
                                    self.video_name=vid                                   
-                                   results=Meerkat.DeepMeerkat(vid=vid,args=args,sess=sess)                              
+                                   results=Meerkat.DeepMeerkat(vid=vid,args=args,sess=None)                              
                          
                          #save outputs
                          self.total_min=results.video_instance.total_min

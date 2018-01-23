@@ -14,6 +14,7 @@ cp -r /Users/ben/Dropbox/GoogleCloud/DeepMeerkat_20180109_090611/model dist/Deep
 
 #sign it (may need to remove .DS_store files)
 codesign --deep -f -s "Ben Weinstein" DeepMeerkat.app
+codesign --deep -f -s "Ben Weinstein" DeepMeerkat.dmg
 
 pushd dist
 
