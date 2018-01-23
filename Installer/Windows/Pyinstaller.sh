@@ -1,5 +1,5 @@
 #!/bin/bash
-rm -rf C:/Users/Ben/Documents/DeepMeerkat/Installer/Windows/dis
+rm -rf C:/Users/Ben/Documents/DeepMeerkat/Installer/Windows/dist
 rm -rf C:/Users/Ben/Documents/DeepMeerkat/Installer/Windows/build 
 rm -rf C:/Users/Ben/Documents/DeepMeerkat/Installer/Windows/Output 
 

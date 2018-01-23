@@ -70,15 +70,15 @@ class Video:
         #create output directory
         normFP=os.path.normpath(vid)
         (filepath, filename)=os.path.split(normFP)
-        (shortname, extension) = os.path.splitext(filename)
+        (self.shortname, extension) = os.path.splitext(filename)
         (_,IDFL) = os.path.split(filepath)
         
         #if output is path add a container folder
         if os.path.isdir(self.args.input):
             self.file_destination=os.path.join(self.args.output,IDFL)
-            self.file_destination=os.path.join(self.file_destination,shortname)            
+            self.file_destination=os.path.join(self.file_destination,self.shortname)            
         else:
-            self.file_destination=os.path.join(self.args.output,shortname)
+            self.file_destination=os.path.join(self.args.output,self.shortname)
 
         #create if directory does not exist
         if not os.path.exists(self.file_destination):
@@ -182,7 +182,7 @@ class Video:
                 
                 for box in remaining_bounding_box:
                     clip_to_write=resize_box(self.original_image, box)
-                    fname=self.file_destination + "/"+str(self.frame_count) + "_" + str(clip_counter)+".jpg"                            
+                    fname=self.file_destination + "/"+str(self.shortname) +"_"+str(self.frame_count) + "_" + str(clip_counter)+".jpg"                            
                     cv2.imwrite(fname, clip_to_write)   
                     clip_counter+=1
                 

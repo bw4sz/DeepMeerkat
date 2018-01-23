@@ -12,9 +12,6 @@ cp -f /usr/local/Cellar/libpng/1.6.32/lib/libpng16.16.dylib /Users/ben/Documents
 #copy model across
 cp -r /Users/ben/Dropbox/GoogleCloud/DeepMeerkat_20180109_090611/model dist/DeepMeerkat.app/Contents/Resources
 
-#sign it (may need to remove .DS_store files)
-codesign --deep -f -s "Ben Weinstein" DeepMeerkat.app
-codesign --deep -f -s "Ben Weinstein" DeepMeerkat.dmg
 
 pushd dist
 
@@ -24,3 +21,8 @@ popd
 
 #test if it works
 open /Users/ben/Documents/DeepMeerkat/Installer/Mac/dist/DeepMeerkat.app
+
+#sign it (may need to remove .DS_store files)
+rm -f dist/DeepMeerkat.app/Contents/MacOS/.DS_Store
+codesign --deep -f -s "Ben Weinstein" dist/DeepMeerkat.app
+codesign --deep -f -s "Ben Weinstein" dist/DeepMeerkat.dmg
