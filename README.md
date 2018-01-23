@@ -2,7 +2,6 @@
 Background subtraction and image classification for stationary cameras in ecological videos.
 ![](https://github.com/bw4sz/DeepMeerkat/blob/master/images/Hummingbird.png)
 
-
 # Installation
 
 DeepMeerkat has been tested on Windows 10, OSX Sierra 10.12.16, and Linux (Debian)
@@ -21,20 +20,32 @@ If not running an installer, DeepMeerkat requires
 
 Command line arguments can be found [here](https://github.com/bw4sz/DeepMeerkat/blob/master/DeepMeerkat/CommandArgs.py)
 
-# Use
+# Training new models
 
-1. Retrain a neural network for a two class classification. DeepMeerkat requires a tensorflow model in the SavedModel format. These classes correspond to "positive" and "negative". Positive are frames that the user is interested in reviewing, negative are frames that can be ignored. I suggest following this [tutorial](https://cloud.google.com/blog/big-data/2016/12/how-to-classify-images-with-tensorflow-using-google-cloud-machine-learning-and-cloud-dataflow). A starter [scripts](https://github.com/bw4sz/DeepMeerkat/blob/master/training/Training.sh) can be found under the /Training directory. In future, we hope to provide a web platform to automate this process for local deployment.
+0. Set up [google cloud environment](https://cloud.google.com/ml-engine/docs/getting-started-training-prediction).
+
+1. Retrain a neural network for a two class classification. DeepMeerkat requires a tensorflow model in the [SavedModel](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/python/saved_model/README.md) format. These classes correspond to "positive" and "negative". Positive are frames that the user is interested in reviewing, negative are frames that can be ignored. I suggest following this [tutorial](https://cloud.google.com/blog/big-data/2016/12/how-to-classify-images-with-tensorflow-using-google-cloud-machine-learning-and-cloud-dataflow). 
+
+I provide example scripts that will help smooth out this process [scripts](https://github.com/bw4sz/DeepMeerkat/blob/master/training/Classification/Training.sh). This [example](https://cloud.google.com/blog/big-data/2016/12/how-to-classify-images-with-tensorflow-using-google-cloud-machine-learning-and-cloud-dataflow) from google is the inspiration for the approach. In future, I hope to provide a web platform to automate this process for local deployment.
 
 Training Example
+
+0. Collect data. DeepMeerkat comes with a training mode to help automate this process. Select advanced settings -> training mode.
+
+Example output looks like this:
+
+From this output you need to score with the underscores. So 33_0.jpg is the first bounding box returned in frame 33. If there was two crops, there would also be 33_1.jpg. Don't score 33.jpg (for the moment). Put all the crops that have the target organism into into a folder called Positives. Put all the crops that do not have the target organism into a folder called Negatives. 
+
+One thing to keep in mind is that the final dataset you will use needs to be balanced (# of Positives = # of Negatives). So while you can score every single negative in a video (there will be many), once you have roughly equal to the number of positives, just move to the next video.
 
 Let's say I have a folder of positive images, and a folder of negative images. I need to 
 
 1. Upload them into a google bucket
 2. Create a .csv file that links the labels to the images.
 3. Train a neural network using Google's tensorflow and Cloud Machine Learning Engine
+4. *Ensure that dict.txt matches [here](https://github.com/bw4sz/DeepMeerkat/blob/master/training/Classification/dict.txt), don't change the order. DeepMeerkat (for the moment), has only been tested on a 2 class (foreground versus background) model.*
 
-
-Training.sh
+This can be done in Training.sh. Your paths will no doubt be different than mine.
 
 Let's start by declaring some variables. 
 
@@ -46,7 +57,7 @@ declare -r JOB_ID="${MODEL_NAME}_$(date +%Y%m%d_%H%M%S)"
 declare -r GCS_PATH="${BUCKET}/${MODEL_NAME}/${JOB_ID}"
 ```
 
-Either upload or update your bucket with newly labeled images.
+Either upload or update your bucket with newly labeled images. Change "/Users/Ben/Dropbox/GoogleCloud/Training" to your correct paths.
 
 ```
 #make sure paths are updated
@@ -73,7 +84,7 @@ eval=$(gsutil cat gs://api-project-773889352370-ml/Hummingbirds/testingdata.csv 
 #Train Model
 ############
 
-Using Google's [pipeline](https://cloud.google.com/blog/big-data/2016/12/how-to-classify-images-with-tensorflow-using-google-cloud-machine-learning-and-cloud-dataflow) for retraining inception.
+Using Google's [pipeline](https://cloud.google.com/blog/big-data/2016/12/how-to-classify-images-with-tensorflow-using-google-cloud-machine-learning-and-cloud-dataflow) for retraining inception. Change "gs://api-project-773889352370-ml/Hummingbirds" to your bucket address.
 
 ```
 python pipeline.py \
