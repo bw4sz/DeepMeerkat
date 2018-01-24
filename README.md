@@ -30,7 +30,7 @@ Command line arguments can be found [here](https://github.com/bw4sz/DeepMeerkat/
 
 I provide example scripts that will help smooth out this process [scripts](https://github.com/bw4sz/DeepMeerkat/blob/master/training/Classification/Training.sh). This [example](https://cloud.google.com/blog/big-data/2016/12/how-to-classify-images-with-tensorflow-using-google-cloud-machine-learning-and-cloud-dataflow) from google is the inspiration for the approach. In future, I hope to provide a web platform to automate this process for local deployment.
 
-Training Example
+## Training Example
 
 0. Collect data. DeepMeerkat comes with a training mode to help automate this process. Select advanced settings -> training mode.
 
