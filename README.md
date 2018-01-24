@@ -2,6 +2,8 @@
 Background subtraction and image classification for stationary cameras in ecological videos.
 ![](https://github.com/bw4sz/DeepMeerkat/blob/master/images/Hummingbird.png)
 
+DeepMeerkat was supported by a Open Data Fellow from [Segment](https://open.segment.com/fellowship)
+
 # Installation
 
 DeepMeerkat has been tested on Windows 10, OSX Sierra 10.12.16, and Linux (Debian)
@@ -22,7 +24,7 @@ Command line arguments can be found [here](https://github.com/bw4sz/DeepMeerkat/
 
 # Training new models
 
-0. Set up [google cloud environment](https://cloud.google.com/ml-engine/docs/getting-started-training-prediction).
+0. Set up [google cloud environment](https://cloud.google.com/ml-engine/docs/getting-started-training-prediction). See the section "Set up and test your Cloud environment". You will need a operating GCP account, gsutil on your local machine, and the Cloud Machine Learning Engine API authenticated.
 
 1. Retrain a neural network for a two class classification. DeepMeerkat requires a tensorflow model in the [SavedModel](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/python/saved_model/README.md) format. These classes correspond to "positive" and "negative". Positive are frames that the user is interested in reviewing, negative are frames that can be ignored. I suggest following this [tutorial](https://cloud.google.com/blog/big-data/2016/12/how-to-classify-images-with-tensorflow-using-google-cloud-machine-learning-and-cloud-dataflow). 
 
@@ -33,6 +35,8 @@ Training Example
 0. Collect data. DeepMeerkat comes with a training mode to help automate this process. Select advanced settings -> training mode.
 
 Example output looks like this:
+
+<img src="https://github.com/bw4sz/DeepMeerkat/blob/master/images/trainingmode.png" style=" width:50px ; height:50px " />
 
 From this output you need to score with the underscores. So 33_0.jpg is the first bounding box returned in frame 33. If there was two crops, there would also be 33_1.jpg. Don't score 33.jpg (for the moment). Put all the crops that have the target organism into into a folder called Positives. Put all the crops that do not have the target organism into a folder called Negatives. 
 
@@ -45,7 +49,7 @@ Let's say I have a folder of positive images, and a folder of negative images. I
 3. Train a neural network using Google's tensorflow and Cloud Machine Learning Engine
 4. *Ensure that dict.txt matches [here](https://github.com/bw4sz/DeepMeerkat/blob/master/training/Classification/dict.txt), don't change the order. DeepMeerkat (for the moment), has only been tested on a 2 class (foreground versus background) model.*
 
-This can be done in Training.sh. Your paths will no doubt be different than mine.
+This can be done in [Training.sh](https://github.com/bw4sz/DeepMeerkat/blob/master/training/Classification/Training.sh). Your paths will no doubt be different than mine.
 
 Let's start by declaring some variables. 
 
@@ -66,7 +70,6 @@ gsutil rsync -d /Users/Ben/Dropbox/GoogleCloud/Training/Negatives/ gs://api-proj
 ```
 
 Along with those images, you need a document specifying their path and label. Modify CreateDocs.py to point to your designed bucket and location.
-
 
 #Create Docs
 ```
@@ -98,8 +101,19 @@ python pipeline.py \
     --output_dir "${GCS_PATH}/"  \
     --eval_set_size  ${eval} 
 ```
+You can check on the status of the cloud dataflow run, which should look like this:
 
-This will result in a SavedModel object in your output_dir. Now download that folder
+<img src="https://github.com/bw4sz/DeepMeerkat/blob/master/images/DataFlow.png" style=" width:50px ; height:50px " />
+
+The pipeline will then take those features and fine tune the network using Cloud Machine Learning Engine
+
+<img src="https://github.com/bw4sz/DeepMeerkat/blob/master/images/Engine.png" style=" width:50px ; height:50px " />
+
+This will result in a SavedModel object in your output_dir. 
+
+<img src="https://github.com/bw4sz/DeepMeerkat/blob/master/images/model.png" style=" width:50px ; height:50px " />
+
+Now download that folder
 
 ```
 gsutil cp -r ${GCS_PATH}/model .
@@ -107,4 +121,3 @@ gsutil cp -r ${GCS_PATH}/model .
 
 When you run DeepMeerkat, this is the path you supply for your model. Either in the advanced settings (GUI) or --path_to_model from command line.
 
-DeepMeerkat was supported by a Open Data Fellow from [Segment](https://open.segment.com/fellowship)
