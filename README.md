@@ -45,7 +45,7 @@ Let's say I have a folder of positive images, and a folder of negative images. I
 3. Train a neural network using Google's tensorflow and Cloud Machine Learning Engine
 4. *Ensure that dict.txt matches [here](https://github.com/bw4sz/DeepMeerkat/blob/master/training/Classification/dict.txt), don't change the order. DeepMeerkat (for the moment), has only been tested on a 2 class (foreground versus background) model.*
 
-This can be done in Training.sh. Your paths will no doubt be different than mine.
+This can be done in [Training.sh](https://github.com/bw4sz/DeepMeerkat/blob/master/training/Classification/Training.sh). Your paths will no doubt be different than mine.
 
 Let's start by declaring some variables. 
 
@@ -66,7 +66,6 @@ gsutil rsync -d /Users/Ben/Dropbox/GoogleCloud/Training/Negatives/ gs://api-proj
 ```
 
 Along with those images, you need a document specifying their path and label. Modify CreateDocs.py to point to your designed bucket and location.
-
 
 #Create Docs
 ```
