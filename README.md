@@ -18,6 +18,8 @@ If not running an installer, DeepMeerkat requires
 * Tensorflow
 * OpenCV
 
+Please note that on Windows, Tensorflow requires python 3.5. On Mac >2.7 will work fine.
+
 # Command Line
 
 Command line arguments can be found [here](https://github.com/bw4sz/DeepMeerkat/blob/master/DeepMeerkat/CommandArgs.py)
