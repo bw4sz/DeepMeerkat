@@ -103,4 +103,4 @@ if __name__ == "__main__":
         
     else:
         for vid in queue:
-            results=DeepMeerkat(vid=vid,args=args,sess=None)
+            results=DeepMeerkat(vid=vid,args=args,sess=sess)
