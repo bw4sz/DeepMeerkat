@@ -26,3 +26,6 @@ open /Users/ben/Documents/DeepMeerkat/Installer/Mac/dist/DeepMeerkat.app
 rm -f dist/DeepMeerkat.app/Contents/MacOS/.DS_Store
 codesign --deep -f -s "Ben Weinstein" dist/DeepMeerkat.app
 codesign --deep -f -s "Ben Weinstein" dist/DeepMeerkat.dmg
+
+#Trying to clear
+#spctl --assess -vv dist/DeepMeerkat.app
