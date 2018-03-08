@@ -25,7 +25,7 @@ class PredictDoFn(beam.DoFn):
 
     #Download tensorflow model, if it does not exist
     if not os.path.exists("/tmp/model/"):
-      cmd=["gsutil","cp","-r","gs://api-project-773889352370-ml/DeepMeerkat/DeepMeerkat_20171011_134826/model","/tmp/"]
+      cmd=["gsutil","cp","-r","gs://api-project-773889352370-ml/DeepMeerkat/DeepMeerkat_20180301_145641/model","/tmp/"]
       subprocess.call(cmd)
       
     logging.info(element)
@@ -68,7 +68,7 @@ class PredictDoFn(beam.DoFn):
       Meerkat.DeepMeerkat(vid=vid,args=args,sess=sess)
     
     #Set output folder
-    output_path=parsed.scheme+"://"+parsed.netloc+"/DeepMeerkat_20171011_134826/"     
+    output_path=parsed.scheme+"://"+parsed.netloc+"/DeepMeerkat_20180301_145641/"     
 
     cmd=["gsutil","-m","cp","-r","/tmp/Frames/*",output_path]
     subprocess.call(cmd)

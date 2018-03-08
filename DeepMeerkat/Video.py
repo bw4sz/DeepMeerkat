@@ -203,7 +203,6 @@ class Video:
                 
                 if self.args.write_text:
                     for index,label in enumerate(labels):
-                        cv2.rectangle(self.original_image,(20,0+20*index),(330,40+25*index),(255,255,255),thickness=-1)
                         cv2.putText(self.original_image,str(label[0]),(30,30+20*index),cv2.FONT_HERSHEY_SIMPLEX,0.75,(0,0,255),2)
                                  
                 #next frame if negative label that has score greater than user threshold
