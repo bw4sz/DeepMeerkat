@@ -26,7 +26,7 @@ Command line arguments can be found [here](https://github.com/bw4sz/DeepMeerkat/
 
 # Training new models
 
-0. Set up [google cloud environment](https://cloud.google.com/ml-engine/docs/getting-started-training-prediction). See the section "Set up and test your Cloud environment". You will need a operating GCP account, gsutil on your local machine, and the Cloud Machine Learning Engine API authenticated.
+0. Set up [google cloud environment](https://cloud.google.com/ml-engine/docs/getting-started-training-prediction). See the section "Set up and test your Cloud environment". You will need a operating GCP account, gsutil on your local machine, and the Cloud Machine Learning Engine API authenticated. While its greatly recommended to use google cloud, a slower local training example is in the 'local' branch of this repo.  
 
 1. Retrain a neural network for a two class classification. DeepMeerkat requires a tensorflow model in the [SavedModel](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/python/saved_model/README.md) format. These classes correspond to "positive" and "negative". Positive are frames that the user is interested in reviewing, negative are frames that can be ignored. I suggest following this [tutorial](https://cloud.google.com/blog/big-data/2016/12/how-to-classify-images-with-tensorflow-using-google-cloud-machine-learning-and-cloud-dataflow). 
 
