@@ -69,7 +69,7 @@ class DeepMeerkat:
                 sess=None
             
         else:
-            pass
+            sess=None
         
         #Create Video Class
         self.video_instance=Video.Video(vid,args=self.args,tensorflow_session=self.sess)

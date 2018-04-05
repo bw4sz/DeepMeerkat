@@ -268,13 +268,6 @@ if __name__ == "__main__":
                def worker(self,args):
                     try:
                          
-                         if not args.threaded:
-                              if args.tensorflow:   
-                                   #add tensorflow flag for kivy
-                                   tensorflow_status="Loading"                  
-                                   sess=Meerkat.start_tensorflow(args)
-                                   self.tensorflow_loaded="Complete"                                   
-                    
                          #Create queue of videos to run
                          queue=Meerkat.create_queue(args=args)
                          self.video_count=len(queue)
@@ -290,11 +283,18 @@ if __name__ == "__main__":
                               #A bit ugly, use the last result for the output arguments
                               results=results[-1]
                          else:
-                              self.video_id=0                              
-                              for vid in queue:
-                                   self.video_id+=1
-                                   self.video_name=vid                                   
-                                   results=Meerkat.DeepMeerkat(vid=vid,args=args,sess=sess)                              
+                              if args.tensorflow:   
+                                   #add tensorflow flag for kivy
+                                   tensorflow_status="Loading"                  
+                                   sess=Meerkat.start_tensorflow(args)
+                                   self.tensorflow_loaded="Complete"
+                              else:
+                                   sess=None
+                                   self.video_id=0                              
+                                   for vid in queue:
+                                        self.video_id+=1
+                                        self.video_name=vid                                   
+                                        results=Meerkat.DeepMeerkat(vid=vid,args=args,sess=sess)                              
                          
                          #save outputs
                          self.total_min=results.video_instance.total_min
