@@ -34,7 +34,9 @@ I provide example scripts that will help smooth out this process [scripts](https
 
 ## Training Example
 
-0. Collect data. DeepMeerkat comes with a training mode to help automate this process. Select advanced settings -> training mode.
+0. Collect data
+
+DeepMeerkat comes with a training mode to help automate this process. Select advanced settings -> training mode. If you want to get all possible motion frames (suggested for first training), set tensorflow threshold to 1, i.e, return every frame regardless of its probability of being a background frame.
 
 Example output looks like this:
 
