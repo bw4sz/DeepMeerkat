@@ -8,7 +8,6 @@ def CommandArgs(argv=None):
     parser.add_argument("--draw_size", help="'Draw' or 'enter' object size",type=str,default='enter')
     parser.add_argument("--size", help="Minimum size of contour",default=0.02,type=float)
     parser.add_argument("--tensorflow_threshold", help="Confidence level to ignore frames",default=0.95, type=float)    
-    parser.add_argument("--buffer", help="Frames to auto write on either side of tensorflow event",default=1,type=int)
     parser.add_argument("--moglearning", help="Speed of MOG background detector, lowering values are more sensitive to movement",default=0.10,type=float)
     parser.add_argument("--mogvariance", help="Variance in MOG to select background",default=20,type=int)
     parser.add_argument("--crop", help="Set region of interest?",action='store_true')
@@ -18,7 +17,6 @@ def CommandArgs(argv=None):
     parser.add_argument("--tensorflow", help="Process model with a tensorflow image trained on google cloud machine learning engine",action='store_false')
     parser.add_argument("--write_text", help="Write tensorflow label on image",action='store_true')    
     parser.add_argument("--training", help="Just return crop images",action='store_true')    
-    parser.add_argument("--resize", help="reduce to half size",action='store_true')    
     
     #couple OS specific paths
     if os.name=="nt":

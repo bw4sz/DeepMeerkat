@@ -37,10 +37,10 @@ if __name__ == "__main__":
                if args.tensorflow:   
                     #add tensorflow flag for kivy
                     tensorflow_status="Loading"                  
-                    sess=start_tensorflow(args)
+                    sess=Meerkat.start_tensorflow(args)
      
           #Create queue of videos to run
-          queue=create_queue(args=args)
+          queue=Meerkat.create_queue(args=args)
      
           if args.threaded:
                from multiprocessing.dummy import Pool
