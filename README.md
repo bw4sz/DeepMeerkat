@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/89757881.svg)](https://zenodo.org/badge/latestdoi/89757881)
+
 # DeepMeerkat
 Background subtraction and image classification for stationary cameras in ecological videos.
 ![](https://github.com/bw4sz/DeepMeerkat/blob/master/images/Hummingbird.png)
