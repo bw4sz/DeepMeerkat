@@ -9,5 +9,5 @@ proj.launch-config = {loc('DeepMeerkat/Meerkat.py'): ('project',
         (u'--training',
          '')),
                       loc('DeepMeerkat/main.py'): ('project',
-        (u'--i /Users/ben/Dropbox/GoogleCloud/Manakin/GP150027.MP4\n--training\n--moglearning 0.05\n',
+        (u'--i /Users/ben/Dropbox/GoogleCloud/Manakin/GP150027.MP4 --training --size 0.001\n',
          ''))}

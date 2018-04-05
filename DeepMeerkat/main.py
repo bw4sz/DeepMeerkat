@@ -38,6 +38,8 @@ if __name__ == "__main__":
                     #add tensorflow flag for kivy
                     tensorflow_status="Loading"                  
                     sess=Meerkat.start_tensorflow(args)
+               else:
+                    sess=None
      
           #Create queue of videos to run
           queue=Meerkat.create_queue(args=args)
