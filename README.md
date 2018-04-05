@@ -34,7 +34,9 @@ I provide example scripts that will help smooth out this process [scripts](https
 
 ## Training Example
 
-0. Collect data. DeepMeerkat comes with a training mode to help automate this process. Select advanced settings -> training mode.
+0. Collect data
+
+DeepMeerkat comes with a training mode to help automate this process. Select advanced settings -> training mode. This will return all frames of motion, regardless of predicted foreground/background probability.
 
 Example output looks like this:
 
