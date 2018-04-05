@@ -89,6 +89,8 @@ if __name__ == "__main__":
             #add tensorflow flag for kivy
             tensorflow_status="Loading"                  
             sess=start_tensorflow(args)
+        else:
+            sess=None
     
     #Create queue of videos to run
     queue=create_queue(args=args)

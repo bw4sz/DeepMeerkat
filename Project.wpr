@@ -5,3 +5,6 @@
 ##################################################################
 [project attributes]
 proj.file-type = 'shared'
+proj.launch-config = {loc('DeepMeerkat/Meerkat.py'): ('project',
+        (u'--training',
+         ''))}
