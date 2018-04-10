@@ -17,6 +17,7 @@ def CommandArgs(argv=None):
     parser.add_argument("--tensorflow", help="Process model with a tensorflow image trained on google cloud machine learning engine",action='store_false')
     parser.add_argument("--write_text", help="Write tensorflow label on image",action='store_true')    
     parser.add_argument("--training", help="Just return crop images",action='store_true')    
+    parser.add_argument("--output_video", help="Return clips of videos, rather than frames",action='store_true')    
     parser.add_argument("--resize", help="reduce to half size",action='store_true')    
     
     #couple OS specific paths

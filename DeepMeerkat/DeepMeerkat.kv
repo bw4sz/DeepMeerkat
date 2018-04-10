@@ -66,7 +66,7 @@
                     size_hint_x:0.5
                     text_size: self.size
                     halign:"right"
-                    text:"v0.0.5"
+                    text:"v0.0.6"
                     font_size:12
             BoxLayout:
                 size_hint_x:0.25
@@ -172,7 +172,7 @@
         orientation:'vertical'
         Button:
             text: "Back"
-            size_hint:(0.5,.5)
+            size_hint:(0.5,.6)
             pos_hint:{'top':0}
             on_press:root.gotoMain(app.root)
         BoxLayout:
@@ -206,23 +206,40 @@
             CheckBox:
                 color:(0,0,0,1)
                 active: False
-                on_active:app.args.training=self.active;app.args.tensorflow=not self.active
+                on_active:app.args.training=self.active
+        BoxLayout:
+            size_hint_x:0.75
+            Label:
+                text: "Output Video Clips"
+            CheckBox:
+                color:(0,0,0,1)
+                active: False
+                on_active:app.args.output_video=self.active
         BoxLayout:
             orientation:"horizontal"
         Label:
             font_size:25
             text:"Tensorflow threshold"
         TextInput:
-            size_hint_y:0.6
+            size_hint_y:0.7
             text:str(app.args.tensorflow_threshold)
             on_text: app.args.tensorflow_threshold=self.text
+            font_size:20
+            multiline:False
+        Label:
             font_size:25
+            text:"Minimum object size (% of frame)"
+        TextInput:
+            size_hint_y:0.7
+            text:str(app.args.size)
+            on_text: app.args.size=self.text
+            font_size:20
             multiline:False
         Label:
             font_size:25
             text:"Path to tensorflow model"
         TextInput:
-            size_hint_y:0.5
+            size_hint_y:0.8
             text:str(app.args.path_to_model)
             on_text: app.args.path_to_model=self.text
             font_size:20

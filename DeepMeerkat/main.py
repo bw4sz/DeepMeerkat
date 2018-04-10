@@ -218,7 +218,7 @@ if __name__ == "__main__":
                     screenmanage.current='GUI'   
           
           class Outdir(Screen):
-               from pathlib import Path
+               from pathlib import Path 
                import os
                
                #OS specific directory
@@ -292,12 +292,13 @@ if __name__ == "__main__":
                                    self.tensorflow_loaded="Complete"
                               else:
                                    sess=None
+                                   self.tensorflow_loaded="Deactivated"                                   
                                    self.video_id=0                              
-                                   for vid in queue:
-                                        self.video_id+=1
-                                        self.video_name=vid                                   
-                                        results=Meerkat.DeepMeerkat(vid=vid,args=args,sess=sess)                              
-                         
+                              for vid in queue:
+                                   self.video_id+=1
+                                   self.video_name=vid                                   
+                                   results=Meerkat.DeepMeerkat(vid=vid,args=args,sess=sess)    
+                    
                          #save outputs
                          self.total_min=results.video_instance.total_min
                          self.frame_count=results.video_instance.frame_count

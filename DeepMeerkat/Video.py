@@ -8,44 +8,8 @@ from Geometry import *
 import csv
 import time
 import Crop
+from VideoClip import video_clips
 import predict
-
-def mult(p,x):
-    return(int(p+p*x))
-
-def check_bounds(img,axis,p):
-    if p > img.shape[axis]:
-        p=img.shape[axis]
-    if p < 0:
-        p=0
-    return(p)
-    
-def resize_box(img,bbox,m=(math.sqrt(2)-1)/2):
-
-    #expand box by multiplier m, limit to image edge
-
-    #min height
-    p1=mult(bbox.y,-m)
-    p1=check_bounds(img, 0, p1)
-
-    #max height
-    p2=mult(bbox.y+bbox.h,m)
-    p2=check_bounds(img, 0, p2)
-
-    #min width
-    p3=mult(bbox.x,-m)
-    p3=check_bounds(img, 1, p3)
-
-    #max width
-    p4=mult(bbox.x+bbox.w,m)
-    p4=check_bounds(img, 1, p4)
-
-    #create a mask, in case its bigger than image
-    cropped_image=img[p1:p2,p3:p4]
-
-    #Resize Image
-    resized_image = cv2.resize(cropped_image, (299, 299))
-    return(resized_image)
 
 class Video:
     def __init__(self,vid,args,tensorflow_session=None):
@@ -100,9 +64,6 @@ class Video:
 
         #background subtraction
         self.background_instance=self.create_background()
-
-        #Detector almost always returns first frame
-        self.IS_FIRST_FRAME = True
         
         #Analyze Video
         self.analyze()
@@ -119,7 +80,7 @@ class Video:
 
             #read frame
             ret,self.read_image=self.read_frame()
-
+            
             if not ret:
                 
                 #Check if video was corrupted
@@ -130,15 +91,13 @@ class Video:
                 break
 
             self.frame_count+=1
-
+            
             #skip the first frame after adding it to the background.
-            if self.IS_FIRST_FRAME:
-                print("Skipping first frame")
-                self.IS_FIRST_FRAME=False
+            if self.frame_count < 4:
+                print("Background model initializing")
                 self.width = np.size(self.read_image, 1)
                 self.height = np.size(self.read_image, 0)
                 self.image_area = self.width * self.height
-                
                 continue
 
             #adapt settings of mogvariance to keep from running away
@@ -278,9 +237,13 @@ class Video:
         self.MotionHistory.append(Motion)
 
         if Motion:
-            #write current frame
-            fname=self.file_destination + "/"+str(self.frame_count)+".jpg"
-            cv2.imwrite(fname,self.original_image)
+            
+            if not self.args.output_video:
+                #write current frame
+                fname=self.file_destination + "/"+str(self.frame_count)+".jpg"
+                cv2.imwrite(fname,self.original_image)
+            else:
+                pass
 
     def cluster_bounding_boxes(self, contours):
         bounding_boxes = []
@@ -332,6 +295,11 @@ class Video:
 
     def write(self):
 
+        #If output video clips, combine and write
+        if self.args.output_video:
+            self.file_destination
+            video_clips(MotionHistory=self.MotionHistory,frame_rate=self.frame_rate,input_path=self.args.video,output_path=self.file_destination)
+            
         #write parameter logs
         self.output_args=self.file_destination + "/parameters.csv"
             
@@ -368,11 +336,12 @@ class Video:
             self.output_annotations=self.file_destination + "/annotations.csv"
             with open(self.output_annotations, 'w',newline="") as f:
                 writer = csv.writer(f,)
-                writer.writerow(["Frame","x","y","h","w","label","score"])
+                writer.writerow(["Frame","Clock","x","y","h","w","label","score"])
                 for x in sorted(self.annotations.keys()):
                     bboxes=self.annotations[x]
                     for bbox in bboxes:
-                        writer.writerow([x,bbox.x,bbox.y,bbox.h,bbox.w,bbox.label[0],bbox.label[1]])
+                        clock_time=get_clock_time(x,self.frame_rate)                        
+                        writer.writerow([x,clock_time,bbox.x,bbox.y,bbox.h,bbox.w,bbox.label[0],bbox.label[1]])
                 f.flush()
         else:
 
@@ -402,13 +371,14 @@ class Video:
             self.output_annotations=self.file_destination + "/annotations.csv"
             with open(self.output_annotations, 'wb') as f:
                 writer = csv.writer(f,)
-                writer.writerow(["Frame","x","y","h","w","label","score"])
+                writer.writerow(["Frame","Clock","x","y","h","w","label","score"])
                 for x in sorted(self.annotations.keys()):
                     bboxes=self.annotations[x]
                     for bbox in bboxes:
-                        writer.writerow([x,bbox.x,bbox.y,bbox.h,bbox.w,bbox.label[0],bbox.label[1]])
+                        #Add in estimated time, frame_count * frame rate
+                        clock_time=get_clock_time(x,self.frame_rate)
+                        writer.writerow([x,clock_time,bbox.x,bbox.y,bbox.h,bbox.w,bbox.label[0],bbox.label[1]])
                 f.flush()
-                
                 
     def adapt(self):
 
@@ -424,3 +394,51 @@ class Video:
                     if self.args.mogvariance > 60:
                         self.args.mogvariance = 60
                     print("Adapting to video conditions: increasing MOG variance tolerance to %d" % self.args.mogvariance)
+
+##Helper functions##
+                    
+def mult(p,x):
+    return(int(p+p*x))
+
+def check_bounds(img,axis,p):
+    if p > img.shape[axis]:
+        p=img.shape[axis]
+    if p < 0:
+        p=0
+    return(p)
+    
+def resize_box(img,bbox,m=(math.sqrt(2)-1)/2):
+
+    #expand box by multiplier m, limit to image edge
+
+    #min height
+    p1=mult(bbox.y,-m)
+    p1=check_bounds(img, 0, p1)
+
+    #max height
+    p2=mult(bbox.y+bbox.h,m)
+    p2=check_bounds(img, 0, p2)
+
+    #min width
+    p3=mult(bbox.x,-m)
+    p3=check_bounds(img, 1, p3)
+
+    #max width
+    p4=mult(bbox.x+bbox.w,m)
+    p4=check_bounds(img, 1, p4)
+
+    #create a mask, in case its bigger than image
+    cropped_image=img[p1:p2,p3:p4]
+
+    #Resize Image
+    resized_image = cv2.resize(cropped_image, (299, 299))
+    return(resized_image)
+
+def get_clock_time(frame_count,frame_rate):
+    #Add in estimated time, frame_count * frame rate
+    time_est=(frame_count/frame_rate)/3600.0                        
+    hours = int(time_est)
+    minutes = (time_est*60) % 60
+    seconds = (time_est*3600) % 60 
+    clock_time="%d:%02d:%02d" % (hours, minutes, seconds)
+    return clock_time
