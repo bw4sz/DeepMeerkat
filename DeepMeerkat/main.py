@@ -127,8 +127,11 @@ if __name__ == "__main__":
                          #set default video and tensorflow model, assuming its been installed in the default location
                          args.input="C:/Program Files/DeepMeerkat/Hummingbird.avi"
                          args.path_to_model="C:/Program Files/DeepMeerkat/model/"
-                         args.output=home +"\DeepMeerkat"      
+                         args.output=home +"\DeepMeerkat" 
                          
+                         #On Windows, just use package resources for ffmpeg
+                         args.path_to_ffmpeg='C:\\Program Files\\DeepMeerkat\\FFmpeg\\ffmpeg.exe'
+
                     else:
                          args.input="/Applications/DeepMeerkat.app/Contents/Resources/Hummingbird.avi"
                          args.path_to_model="/Applications/DeepMeerkat.app/Contents/Resources/model/"
