@@ -20,6 +20,7 @@ if os.name=="nt":
      home = str(Path.home())
 else:
      home=os.path.expanduser("~")
+     
 
 #Entry Point
 
@@ -131,7 +132,14 @@ if __name__ == "__main__":
                     else:
                          args.input="/Applications/DeepMeerkat.app/Contents/Resources/Hummingbird.avi"
                          args.path_to_model="/Applications/DeepMeerkat.app/Contents/Resources/model/"
-                         args.output=home +"/DeepMeerkat"                          
+                         args.output=home +"/DeepMeerkat"
+                         
+                         #Search for ffmpeg on path
+                         try: 
+                              args.path_to_ffmpeg=subprocess.check_output('which ffmpeg',shell=True).rstrip()
+                         except: 
+                              #If not use package resource
+                              args.path_to_ffmpeg="/Applications/DeepMeerkat.app/Contents/Resources/ffmpeg"
                
                     
                except Exception as e:

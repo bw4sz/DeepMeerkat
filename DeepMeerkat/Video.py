@@ -297,8 +297,7 @@ class Video:
 
         #If output video clips, combine and write
         if self.args.output_video:
-            self.file_destination
-            video_clips(MotionHistory=self.MotionHistory,frame_rate=self.frame_rate,input_path=self.args.video,output_path=self.file_destination)
+            video_clips(MotionHistory=self.MotionHistory,frame_rate=self.frame_rate,input_path=self.args.video,output_path=self.file_destination,path_to_ffmpeg=self.args.path_to_ffmpeg)
             
         #write parameter logs
         self.output_args=self.file_destination + "/parameters.csv"

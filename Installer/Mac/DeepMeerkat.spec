@@ -4,7 +4,7 @@ block_cipher = None
 
 a = Analysis(['/Users/Ben/Documents/DeepMeerkat/DeepMeerkat/main.py'],
              pathex=['/Users/ben/Documents/DeepMeerkat/DeepMeerkat/'],
-             binaries=[],
+             binaries=[ ],
              datas=[],
              hiddenimports=["tensorflow"],
              hookspath=[],
@@ -22,6 +22,7 @@ exe = EXE(pyz,
           debug=False,
           strip=False,
           upx=True,
+          icon='DeepMeerkatLogoWithText.icns',
           console=False )
 coll = COLLECT(exe, Tree('/Users/ben/Documents/DeepMeerkat/DeepMeerkat'),
                a.binaries,
@@ -32,5 +33,5 @@ coll = COLLECT(exe, Tree('/Users/ben/Documents/DeepMeerkat/DeepMeerkat'),
                name='Lib')
 app = BUNDLE(coll,
              name='DeepMeerkat.app',
-             icon='/Users/ben/Documents/DeepMeerkat/DeepMeerkat/images/thumbnail.png',
+             icon='DeepMeerkatLogoWithText.icns',
              bundle_identifier=None)

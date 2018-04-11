@@ -178,7 +178,7 @@
         BoxLayout:
             size_hint_x:0.75
             Label:
-                text: "Draw Motion Objects"
+                text: "Draw motion boxes"
             CheckBox:
                 color:(0,0,0,1)
                 active: False
@@ -186,7 +186,7 @@
         BoxLayout:
             size_hint_x:0.75
             Label:
-                text: "Overlay annotations on image"
+                text: "Overlay annotations"
             CheckBox:
                 color:(0,0,0,1)
                 active: False
@@ -210,7 +210,15 @@
         BoxLayout:
             size_hint_x:0.75
             Label:
-                text: "Output Video Clips"
+                text: "Motion detection only"
+            CheckBox:
+                color:(0,0,0,1)
+                active: False
+                on_active:app.args.tensorflow=not self.active        
+        BoxLayout:
+            size_hint_x:0.75
+            Label:
+                text: "Output video clips"
             CheckBox:
                 color:(0,0,0,1)
                 active: False

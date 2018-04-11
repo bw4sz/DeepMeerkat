@@ -3,7 +3,7 @@
 rm -rf /Users/Ben/Documents/DeepMeerkat/Installer/Mac/dist 
 rm -rf /Users/Ben/Documents/DeepMeerkat/Installer/Mac/build 
 
-pyinstaller  --windowed --onedir DeepMeerkat.spec
+pyinstaller  --windowed --icon DeepMeerkatLogoWithText.icns --onedir DeepMeerkat.spec 
 
 #Somehow the wrong libpng gets pulled, replace it
 #grab from homebrew
@@ -12,6 +12,8 @@ cp -f /usr/local/Cellar/libpng/1.6.32/lib/libpng16.16.dylib /Users/ben/Documents
 #copy model across
 cp -r /Users/ben/Dropbox/GoogleCloud/DeepMeerkat_20180109_090611/model dist/DeepMeerkat.app/Contents/Resources
 
+#copy ffmpeg binary
+cp ffmpeg dist/DeepMeerkat.app/Contents/Resources
 
 pushd dist
 

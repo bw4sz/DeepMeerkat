@@ -14,7 +14,7 @@ def CommandArgs(argv=None):
     parser.add_argument("--draw_box", help="Draw boxes to highlight motion'?",action="store_true")
     parser.add_argument("--show", help="Show frames as you process",action='store_true')
     parser.add_argument("--threaded", help="Run two instances simultaneously on different cores",action='store_true')    
-    parser.add_argument("--tensorflow", help="Process model with a tensorflow image trained on google cloud machine learning engine",action='store_false')
+    parser.add_argument("--tensorflow", help="Classify motion objects using tensorflow",action='store_false')
     parser.add_argument("--write_text", help="Write tensorflow label on image",action='store_true')    
     parser.add_argument("--training", help="Just return crop images",action='store_true')    
     parser.add_argument("--output_video", help="Return clips of videos, rather than frames",action='store_true')    
