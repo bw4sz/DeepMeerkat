@@ -11,3 +11,5 @@ Training/Detection/checkpoint/
 dataflowenv/
 training/Keras/kerasenv/*
 training/Keras/trainer/inceptionv3-ft.model
+*.pyc
+Project.wpu
