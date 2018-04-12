@@ -93,7 +93,7 @@ class Video:
             self.frame_count+=1
             
             #skip the first frame after adding it to the background.
-            if self.frame_count < 4:
+            if self.frame_count < 2:
                 print("Background model initializing")
                 self.width = np.size(self.read_image, 1)
                 self.height = np.size(self.read_image, 0)
@@ -120,18 +120,23 @@ class Video:
             #Next frame if no bounding boxes
             if len(bounding_boxes) == 0 :
                 self.end_sequence(Motion=False)
+                #print("No bounding boxes after clustering")
                 continue
 
             #remove if smaller than min size
             remaining_bounding_box=[]
 
+            print("There were %d boxes before size filter" %len(bounding_boxes))
             for bounding_box in bounding_boxes:
-                if self.image_area * self.args.size < bounding_box.h * bounding_box.w:
+                print("Bounding box size is %f of frame" %(float(bounding_box.h * bounding_box.w)/float(self.image_area)))                            
+                if (self.image_area * self.args.size) < (bounding_box.h * bounding_box.w):
                     remaining_bounding_box.append(bounding_box)
+            print("There were %d boxes after size filter" %len(remaining_bounding_box))
 
             #next frame is no remaining bounding boxes
             if len(remaining_bounding_box)==0:
                 self.end_sequence(Motion=False)
+                print("No remaining boxes based on size.")
                 continue
             
             #if training, just spit out clips
@@ -261,7 +266,7 @@ class Video:
                     x2,y2,w2,h2 = cv2.boundingRect(contours[j])
                     rect = Rect(x2, y2, w2, h2)
                     distance = parent_bounding_box.rect.distance_to_rect(rect)
-                    if distance < 50:
+                    if distance < 75:
                         parent_bounding_box.update_rect(self.extend_rectangle(parent_bounding_box.rect, rect))
                         parent_bounding_box.members.append(j)
         return bounding_boxes

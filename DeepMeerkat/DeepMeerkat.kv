@@ -227,20 +227,20 @@
             orientation:"horizontal"
         Label:
             font_size:25
-            text:"Tensorflow threshold"
-        TextInput:
-            size_hint_y:0.7
-            text:str(app.args.tensorflow_threshold)
-            on_text: app.args.tensorflow_threshold=self.text
-            font_size:20
-            multiline:False
-        Label:
-            font_size:25
             text:"Minimum object size (% of frame)"
         TextInput:
             size_hint_y:0.7
             text:str(app.args.size)
-            on_text: app.args.size=self.text
+            on_text: app.args.size=root.to_float(self.text)
+            font_size:20
+            multiline:False
+        Label:
+            font_size:25
+            text:"Tensorflow threshold"
+        TextInput:
+            size_hint_y:0.7
+            text:str(app.args.tensorflow_threshold)
+            on_text: app.args.tensorflow_threshold=root.to_float(self.text)
             font_size:20
             multiline:False
         Label:

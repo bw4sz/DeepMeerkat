@@ -255,8 +255,14 @@ if __name__ == "__main__":
                     screenmanage.current='GUI'   
                def run_press(self,root):
                     root.getProgress()     
+               def to_float(self,unicode_text):
+                    try:
+                         return(float(unicode_text))
+                    except:
+                         return(unicode_text)
+
                     
-          class ProgressScreen(Screen):  
+          class ProgressScreen(Screen): 
                
                #updated properties for reporting
                len_annotations=NumericProperty()                              
@@ -304,7 +310,8 @@ if __name__ == "__main__":
                                    self.video_id=0                              
                               for vid in queue:
                                    self.video_id+=1
-                                   self.video_name=vid                                   
+                                   self.video_name=os.path.basename(vid)
+                                   print(args)
                                    results=Meerkat.DeepMeerkat(vid=vid,args=args,sess=sess)    
                     
                          #save outputs
