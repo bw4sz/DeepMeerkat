@@ -84,6 +84,13 @@ if __name__ == "__main__":
     #Peek at the args to see if threaded, if not, we can make a new tensorflow session
     args=CommandArgs.CommandArgs(argv=None) 
     
+    #Search for ffmpeg on path
+    try: 
+        args.path_to_ffmpeg=subprocess.check_output('which ffmpeg',shell=True).rstrip()
+    except: 
+        #If not use package resource
+        args.path_to_ffmpeg="/Applications/DeepMeerkat.app/Contents/Resources/ffmpeg"
+    
     if not args.threaded:
         if args.tensorflow:   
             #add tensorflow flag for kivy

@@ -4,6 +4,7 @@ import os
 from operator import itemgetter
 from itertools import groupby
 import subprocess
+import datetime
 
 def video_clips(MotionHistory,frame_rate,input_path,output_path,path_to_ffmpeg):
     ''''
@@ -43,7 +44,8 @@ def video_clips(MotionHistory,frame_rate,input_path,output_path,path_to_ffmpeg):
     #add a small buffer to show beginning and end
     buffer=1
     for index,clip in enumerate(rule2):
-        local_path= output_path + "/" + vname+"_"+str(index)+".avi"            
+        index
+        local_path= output_path + "/" + vname+"_"+str(format_name(clip[0]-buffer))+".avi"            
         ffmpeg_extract_subclip(input_path, clip[0]-buffer, clip[1]+buffer, local_path,path_to_ffmpeg)
 
 ###Helper Functions#####
@@ -101,3 +103,11 @@ def ffmpeg_extract_subclip(filename, t1, t2, targetname,path_to_ffmpeg):
       "-vcodec", "copy", "-acodec", "copy", targetname]
     
     subprocess.call(cmd)
+    
+def format_name(seconds):
+    if seconds < 0:
+        seconds=0
+    hms=str(datetime.timedelta(seconds=int(seconds)))
+    return(hms.replace(":","_"))
+    
+    
