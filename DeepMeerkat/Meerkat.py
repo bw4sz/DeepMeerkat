@@ -28,7 +28,7 @@ def create_queue(args,video=None):
         for (root, dirs, files) in os.walk(args.input):
             for f in files:
                 fileupper=f.upper()
-                if fileupper.endswith((".TLV",".AVI",".MPG",".MP4",".MOD",".MTS",".WMV",".MOV",".MP2",".MPEG-4",".DTS",".VOB",".MJPEG","MPEG",".M4V",".XBA")):
+                if fileupper.endswith((".TLV",".AVI",".MPG",".MP4",".MOD",".MTS",".WMV",".MOV",".MP2",".MPEG-4",".DTS",".VOB",".MJPEG","MPEG",".M4V",".XBA",".ASF")):
                     queue.append(os.path.join(root, f))
                     print("Added " + str(f) + " to queue")
     else:

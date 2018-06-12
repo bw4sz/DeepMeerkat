@@ -317,7 +317,7 @@ if __name__ == "__main__":
                                    print(args)
                                    results=Meerkat.DeepMeerkat(vid=vid,args=args,sess=sess)    
                     
-                         #save outputs
+                         #save outputs for display
                          self.total_min=results.video_instance.total_min
                          self.frame_count=results.video_instance.frame_count
                          self.len_annotations=len(results.video_instance.annotations)

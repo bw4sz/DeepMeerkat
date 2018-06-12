@@ -6,5 +6,5 @@
 [project attributes]
 proj.file-type = 'shared'
 proj.launch-config = {loc('DeepMeerkat/Meerkat.py'): ('project',
-        (u'--output_video --tensorflow',
+        (u'--output_video --tensorflow --i /Users/ben/Dropbox/GoogleCloud/Manakin/00211_SLECO1_16.10.17.MTS --size 0',
          ''))}
