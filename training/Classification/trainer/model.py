@@ -235,7 +235,7 @@ class Model(object):
 
     # We assume a default label, so the total number of labels is equal to
     # label_count+1.
-    all_labels_count = self.label_count + 1
+    all_labels_count = self.label_count
     with tf.name_scope('final_ops'):
       softmax, logits = self.add_final_training_ops(
           embeddings,
