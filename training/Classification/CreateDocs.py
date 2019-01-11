@@ -31,31 +31,37 @@ class Organizer:
     def __init__(self,args):
         
         credentials = GoogleCredentials.get_application_default()
+        
         """Downloads a blob from the bucket."""
         storage_client = storage.Client()
         
         #parse names
-        bucket_name=args.train_positives.split("/")[2]
-    
+        parsed_url = urlparse(args.DATA_PATH)
+        bucket_name= "://".join([parsed_url.scheme, parsed_url.netloc])
+            
         #open bucket
-        self.bucket = storage_client.get_bucket(bucket_name)
+        self.bucket = storage_client.get_bucket(parsed_url.netloc)
         
-        ##TRAINING
-        #positives
-        train_positives_folder_name=args.train_positives.split("/")[3:]
-        iterator=self.bucket.list_blobs(prefix="/".join(train_positives_folder_name))        
+        #Set folder names
+        self.data_folder =  parsed_url.path.split("/")[-1] 
+        train_positives_folder_name = self.data_folder + "/Training/Positives/"
+        train_negatives_folder_name =  self.data_folder + "/Training/Negatives/"
+        test_positives_folder_name = self.data_folder  + "/Testing/Positives/"
+        test_negatives_folder_name = self.data_folder + "/Testing/Negatives/"
         
-        self.train_positives_files=[]        
+        #### Positives
+        iterator = self.bucket.list_blobs(prefix =  train_positives_folder_name)     
+        
+        self.train_positives_files = [ ]        
         for item in iterator:
             self.train_positives_files.append("gs://" + item.bucket.name + "/" + item.name)
             
-        print( "Positive training samples: %d" %(len( self.train_positives_files)))  
+        print( "Positive training samples: %d" % (len( self.train_positives_files)))  
         
-        #negatives
-        train_negatives_folder_name=args.train_negatives.split("/")[3:]
-        iterator=self.bucket.list_blobs(prefix="/".join(train_negatives_folder_name))        
+        #### Negatives
+        iterator = self.bucket.list_blobs(prefix = train_negatives_folder_name)       
         
-        self.train_negatives_files=[]        
+        self.train_negatives_files = [ ]        
         for f in iterator:
             self.train_negatives_files.append("gs://" + f.bucket.name + "/" + f.name)
                     
@@ -66,39 +72,32 @@ class Organizer:
         #add_to_negative_train=self.train_negatives_files[len(self.train_positives_files):]
         
         #cut the file to match positives
-        self.train_negatives_files=self.train_negatives_files[:len(self.train_positives_files)]
+        self.train_negatives_files = self.train_negatives_files[ : len(self.train_positives_files)]
+        print("Negative Training Samples: %d" % (len(self.train_negatives_files)))          
         
-        print( "Negative Training Samples: %d" % (len( self.train_negatives_files)))          
+        ##Testing 
+        #Positives
+        iterator=self.bucket.list_blobs(prefix = test_positives_folder_name)        
         
-        ##Testing - comes from a different folder
-        
-        #positives
-        test_positives_folder_name=args.test_positives.split("/")[3:]
-        iterator=self.bucket.list_blobs(prefix="/".join(test_positives_folder_name))        
-        
-        self.test_positives_files=[]        
+        self.test_positives_files = [ ]        
         for f in iterator:     
             self.test_positives_files.append("gs://" + f.bucket.name + "/" + f.name)
-            
-        print( "Positive Testing samples: %d" %(len( self.test_positives_files)))  
+        print("Positive Testing samples: %d" % (len(self.test_positives_files)))  
         
         #negatives
-        test_negatives_folder_name=args.test_negatives.split("/")[3:]
-        iterator=self.bucket.list_blobs(prefix="/".join(test_negatives_folder_name))        
+        iterator = self.bucket.list_blobs(prefix = test_negatives_folder_name)
         
-        self.test_negatives_files=[]        
+        self.test_negatives_files = [ ]        
         for f in iterator:   
                 self.test_negatives_files.append("gs://" + f.bucket.name + "/" + f.name)
             
-        #add in thhe negatives
+        #add in the negatives
         #self.test_negatives_files=add_to_negative_train + self.test_negatives_files
-       
-        print( "Negative testing samples: %d" % (len( self.test_negatives_files)))    
+        print("Negative testing samples: %d" % (len(self.test_negatives_files)))    
         
     def write_data(self):
         
         ##Training
-        
         #Write to temp then send to google cloud
         handle, fn = tempfile.mkstemp(suffix='.csv')
         
@@ -110,11 +109,10 @@ class Organizer:
                 writer.writerow([str(eachrow),"negative"])
         
         #write to google cloud
-        blob=self.bucket.blob("Hummingbirds/trainingdata.csv")
+        blob=self.bucket.blob(self.data_folder + "/trainingdata.csv")
         blob.upload_from_filename(fn)
         
         ##Testing
-        
         #Write to temp then send to google cloud
         handle, fn = tempfile.mkstemp(suffix='.csv')
         
@@ -126,7 +124,7 @@ class Organizer:
                 writer.writerow([str(eachrow),"negative"])
         
         #write to google cloud
-        blob=self.bucket.blob("Hummingbirds/testingdata.csv")
+        blob=self.bucket.blob(self.data_folder + "/testingdata.csv")
         blob.upload_from_filename(fn)    
 
         #write dict file 
@@ -137,16 +135,13 @@ class Organizer:
             f.close()
         
         #write to google cloud
-        blob=self.bucket.blob("Hummingbirds/dict.txt")
+        blob=self.bucket.blob(self.data_folder + "/dict.txt")
         blob.upload_from_filename(fn)  
             
 def process_args():
     parser = argparse.ArgumentParser(description='Runs Flowers Sample E2E pipeline.')
-    parser.add_argument('--train_positives', help='Google cloud storage path for positive samples.',default="gs://api-project-773889352370-ml/Hummingbirds/Training/Positives/")
-    parser.add_argument('--train_negatives', help='Google cloud storage path for negatives samples.',default="gs://api-project-773889352370-ml/Hummingbirds/Training/Negatives/")
-    parser.add_argument('--test_positives', help='Google cloud storage path for positive samples.',default="gs://api-project-773889352370-ml/Hummingbirds/Testing/Positives/")
-    parser.add_argument('--test_negatives', help='Google cloud storage path for negatives samples.',default="gs://api-project-773889352370-ml/Hummingbirds/Testing/Negatives/")
-    parser.add_argument('--debug', help='Debug dataset, only write a small portion to reduce run time',action="store_true")    
+    parser.add_argument('--DATA_PATH', help='Google cloud storage path for data', default="gs://api-project-773889352370-ml/Hummingbirds/")
+    parser.add_argument('--debug', help='Debug dataset, only write a small portion to reduce run time', action="store_true")    
     
     args, _ = parser.parse_known_args()
     return args                 
