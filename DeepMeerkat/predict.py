@@ -9,10 +9,6 @@ from collections import defaultdict
 import csv
 import itertools
 
-def grouper(iterable, n, fillvalue=None):
-    args = [iter(iterable)] * n
-    return izip_longest(*args, fillvalue=fillvalue)
-
 def TensorflowPredict(read_from,sess,image_array=None,imagedir=None,wait_time=10,label_lines=None):
     
     #frames to be analyzed
