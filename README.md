@@ -10,7 +10,7 @@ DeepMeerkat was supported by a Open Data Fellow from [Segment](https://open.segm
 
 DeepMeerkat has been tested on Windows 10, OSX Sierra 10.12.16, and Linux (Debian)
 
-* Installers for a GUI interface are available for [Mac and Windows](benweinstein.weebly.com/deepmeerkat.html)
+* Installers for a GUI interface are available for [Mac and Windows](http://benweinstein.weebly.com/deepmeerkat.html)
 <img src="https://github.com/bw4sz/DeepMeerkat/blob/master/images/DeepMeerkatFrontScreen.png" style=" width:50px ; height:50px " />
 
 # Source Dependencies
