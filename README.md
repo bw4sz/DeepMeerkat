@@ -40,16 +40,24 @@ deepmeerkat-gui
 
 **Windows** — run the downloaded `.exe`.
 
-**macOS** — the release file `DeepMeerkat-v3.0.0-macOS` (name includes the version) is **not** a `.dmg` or `.app`. It is a **single executable** you run from **Terminal** (double-click usually does nothing useful, and the app is **not** signed for Gatekeeper):
+**macOS** — the release file is named like **`DeepMeerkat-v3.0.0-macOS`** (version in the name). It is **not** a `.dmg` or `.app`; it is a **single unsigned executable**. Use **Terminal** (double-click usually does not launch the GUI):
 
 1. Open **Terminal**.
-2. Go to the folder where the file is (example: `cd ~/Downloads`).
-3. Allow execute permission once: `chmod +x DeepMeerkat-v3.0.0-macOS` (adjust the filename if the version differs).
-4. Start the GUI: `./DeepMeerkat-v3.0.0-macOS`
+2. `cd` to the folder where you saved the file (often `~/Downloads`).
+3. Make it executable once: `chmod +x DeepMeerkat-v3.0.0-macOS` (match the filename from the release).
+4. Run it: `./DeepMeerkat-v3.0.0-macOS`
 
-If macOS says the app **can’t be opened** because it’s from an unidentified developer: open **System Settings → Privacy & Security**, scroll to the message about the file, and click **Open Anyway**; or **Control-click** the file in Finder, choose **Open**, then confirm.
+Copy-paste example (adjust filename if your version differs):
 
-Easier path on Mac: skip the download and use **pip** in a venv (same GUI): `pip install "deepmeerkat[ui]"` then `deepmeerkat-gui`.
+```bash
+cd ~/Downloads
+chmod +x DeepMeerkat-v3.0.0-macOS
+./DeepMeerkat-v3.0.0-macOS
+```
+
+If macOS blocks it (**unidentified developer**): **System Settings → Privacy & Security** → find the prompt → **Open Anyway**; or in **Finder**, **Control-click** the file → **Open** → confirm.
+
+Easier on Mac: **`pip install "deepmeerkat[ui]"`** then **`deepmeerkat-gui`** (same app, no unsigned binary).
 
 ## Install
 
