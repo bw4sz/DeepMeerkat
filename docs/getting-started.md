@@ -7,6 +7,18 @@
 
 ## Install
 
+**Option A — pip from GitHub** (no PyPI needed; requires `git` on your PATH):
+
+```bash
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install "deepmeerkat[ui] @ git+https://github.com/bw4sz/DeepMeerkat.git"
+```
+
+Pin to a release: add `@v3.0.0` (or another tag) to the URL.
+
+**Option B — editable clone** (development):
+
 ```bash
 git clone https://github.com/bw4sz/DeepMeerkat.git
 cd DeepMeerkat
@@ -14,6 +26,8 @@ python -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -e ".[ui]"
 ```
+
+**Option C — PyPI** (when published): `pip install "deepmeerkat[ui]"`.
 
 ## CLI (MegaDetector default)
 
