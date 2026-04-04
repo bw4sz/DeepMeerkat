@@ -4,6 +4,8 @@ Desktop and CLI tooling for ecological camera video: **MegaDetector** (default) 
 
 **Documentation:** [deepmeerkat.readthedocs.io](https://deepmeerkat.readthedocs.io/) (enable the repo on [Read the Docs](https://readthedocs.org/) using `.readthedocs.yaml`).
 
+Development uses the **`main`** branch (and CI runs on pushes/PRs to `main`).
+
 ## DeepMeerkat 2.0 (legacy)
 
 The previous **2.x** line is preserved as Git tag **`v2.0.0`** and branch **`v2.0`** (last state before 3.0). Use those if you need the older codebase.
