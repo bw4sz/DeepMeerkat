@@ -1,6 +1,0 @@
-numpy
-cython==0.25.2
-kivy
-tensorflow
-imutils
-Pyinstaller
