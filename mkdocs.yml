@@ -1,0 +1,16 @@
+site_name: DeepMeerkat
+site_description: Ecological video review with MegaDetector and classic motion detection
+site_url: https://deepmeerkat.readthedocs.io/
+
+theme:
+  name: readthedocs
+
+nav:
+  - Home: index.md
+  - Getting started: getting-started.md
+  - Review window: review.md
+
+markdown_extensions:
+  - admonition
+  - toc:
+      permalink: true

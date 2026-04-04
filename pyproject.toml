@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "deepmeerkat"
+version = "3.0.0"
+description = "DeepMeerkat 3.0 — ecological video review with MegaDetector and classic motion detection"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Ben Weinstein" }]
+dependencies = [
+    "numpy>=1.26",
+    "opencv-python-headless>=4.8",
+    "typer>=0.12",
+    "platformdirs>=4.0",
+    "megadetector>=5.0",
+]
+
+[project.optional-dependencies]
+ui = ["pyside6>=6.6"]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.4",
+]
+
+[project.scripts]
+deepmeerkat = "deepmeerkat.cli:app"
+deepmeerkat-gui = "deepmeerkat.ui.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+deepmeerkat = ["ui/assets/*.png"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

@@ -1,5 +1,0 @@
-keras
-tensorflow
-matplotlib
-h5py
-pillow
