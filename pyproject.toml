@@ -24,6 +24,8 @@ dev = [
     "pytest>=8.0",
     "ruff>=0.4",
 ]
+# Local PyInstaller builds (see README — bundles are large).
+packaging = ["pyinstaller>=6.0"]
 
 [project.scripts]
 deepmeerkat = "deepmeerkat.cli:app"
