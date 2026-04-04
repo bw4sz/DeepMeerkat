@@ -1,5 +1,8 @@
 # Build PyInstaller GUI bundles (large: includes PyTorch + MegaDetector).
 # Runs on version tags and can be run manually from the Actions tab.
+#
+# Linux is omitted: one-file bundles often exceed GitHub's 2 GiB per-asset limit for releases.
+# Linux users should install from PyPI / pip (see README).
 
 name: Build installers
 
@@ -25,7 +28,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        # Windows + macOS only (GitHub release assets max 2 GiB; Linux PyInstaller + torch is often larger).
+        os: [windows-latest, macos-latest]
 
     steps:
       - uses: actions/checkout@v4
@@ -69,9 +73,6 @@ jobs:
             macOS)
               cp "dist/deepmeerkat-gui" "staging/DeepMeerkat-${V}-macOS"
               chmod +x "staging/DeepMeerkat-${V}-macOS"
-              ;;
-            Linux)
-              tar -C dist -czvf "staging/DeepMeerkat-${V}-Linux-x64.tar.gz" deepmeerkat-gui
               ;;
           esac
 

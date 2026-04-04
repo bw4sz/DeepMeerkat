@@ -74,7 +74,7 @@ git push origin v3.0.0
 Pushing `v*` triggers:
 
 - **`.github/workflows/publish.yml`** — sdist/wheel to **Test PyPI** then **PyPI** (requires repository secrets `TEST_PYPI_TOKEN` and `PYPI_TOKEN`).
-- **`.github/workflows/build_installers.yml`** — builds **GUI** PyInstaller bundles on **Linux, Windows, and macOS** and uploads them to the **GitHub Release** for that tag (uses `GITHUB_TOKEN`).
+- **`.github/workflows/build_installers.yml`** — builds **GUI** PyInstaller bundles for **Windows and macOS** and uploads them to the **GitHub Release** for that tag (uses `GITHUB_TOKEN`). **Linux** is not shipped as a release binary: bundles include PyTorch and often exceed **GitHub’s 2 GiB per-file limit** for release assets. On Linux, use **`pip install deepmeerkat`** (and `[ui]` for the GUI) or run from a git checkout.
 
 If installer jobs fail (timeouts, size limits, or missing system libs), fix the workflow or build locally (below) and attach assets by hand on the release page.
 
@@ -84,9 +84,8 @@ After the tag build, the release **v3.0.0** should list downloadable files simil
 
 - `DeepMeerkat-v3.0.0-Windows-x64.exe`
 - `DeepMeerkat-v3.0.0-macOS` (unsigned binary; see below)
-- `DeepMeerkat-v3.0.0-Linux-x64.tar.gz`
 
-Names follow the staging step in `build_installers.yml`.
+Names follow the staging step in `build_installers.yml`. **Linux:** install with pip (see **Install** above), or build a local PyInstaller bundle if you need a standalone binary (may be over 2 GiB; not uploaded to GitHub Releases).
 
 ### 4. Manual installer build (optional)
 
@@ -102,7 +101,7 @@ Outputs live under **`dist/`** (`deepmeerkat-gui` or `deepmeerkat-gui.exe`). A *
 
 **macOS distribution:** CI produces a raw binary, not a signed **`.app`** or **`.dmg`**. For public distribution outside the lab, plan for **codesigning** and optionally **notarization** (Apple Developer Program), or ship via **pip** / conda instead.
 
-**Linux:** The tarball contains a single executable built on a recent glibc (GitHub’s `ubuntu-latest`). Very old distributions may need a build on that target or a **pip** install.
+**Linux:** Prefer **`pip install "deepmeerkat[ui]"`** (or a virtualenv from this repo). A PyInstaller one-file GUI on Linux is often **larger than GitHub’s 2 GiB release limit**, so we do not publish a Linux installer on Releases. Shrinking would mean a custom torch build or splitting dependencies—not worth it for most users versus pip.
 
 ## License
 
