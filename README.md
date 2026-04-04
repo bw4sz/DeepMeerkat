@@ -38,7 +38,18 @@ pip install "deepmeerkat[ui]"
 deepmeerkat-gui
 ```
 
-**Windows / macOS** — use the `.exe` or `DeepMeerkat-*-macOS` binary from the latest release, or install with pip as above.
+**Windows** — run the downloaded `.exe`.
+
+**macOS** — the release file `DeepMeerkat-v3.0.0-macOS` (name includes the version) is **not** a `.dmg` or `.app`. It is a **single executable** you run from **Terminal** (double-click usually does nothing useful, and the app is **not** signed for Gatekeeper):
+
+1. Open **Terminal**.
+2. Go to the folder where the file is (example: `cd ~/Downloads`).
+3. Allow execute permission once: `chmod +x DeepMeerkat-v3.0.0-macOS` (adjust the filename if the version differs).
+4. Start the GUI: `./DeepMeerkat-v3.0.0-macOS`
+
+If macOS says the app **can’t be opened** because it’s from an unidentified developer: open **System Settings → Privacy & Security**, scroll to the message about the file, and click **Open Anyway**; or **Control-click** the file in Finder, choose **Open**, then confirm.
+
+Easier path on Mac: skip the download and use **pip** in a venv (same GUI): `pip install "deepmeerkat[ui]"` then `deepmeerkat-gui`.
 
 ## Install
 
