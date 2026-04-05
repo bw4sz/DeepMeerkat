@@ -141,7 +141,7 @@ git push origin v3.0.0
 
 Pushing `v*` triggers:
 
-- **`.github/workflows/publish.yml`** — sdist/wheel to **Test PyPI** then **PyPI** (requires repository secrets `TEST_PYPI_TOKEN` and `PYPI_TOKEN`).
+- **`.github/workflows/publish.yml`** — sdist/wheel to **PyPI** (requires repository secret **`PYPI_TOKEN`**).
 - **`.github/workflows/build_installers.yml`** — builds **GUI** PyInstaller bundles for **Windows and macOS** only; uploads to the **GitHub Release** (uses `GITHUB_TOKEN`). **No Linux binary** (see **Downloads** above).
 
 If installer jobs fail (timeouts, size limits, or missing system libs), fix the workflow or build locally (below) and attach assets by hand on the release page.
