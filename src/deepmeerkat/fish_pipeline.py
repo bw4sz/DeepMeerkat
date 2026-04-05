@@ -12,6 +12,7 @@ import cv2
 
 from deepmeerkat.config import JobConfig
 from deepmeerkat.export import write_annotations_csv, write_json, write_parameters_csv
+from deepmeerkat.fish_weights import ensure_fish_weights
 from deepmeerkat.timecode import frame_to_clock_str
 from deepmeerkat.video import VideoMeta, bgr_to_rgb, effective_stride, iter_frames, probe_video
 
@@ -22,9 +23,7 @@ def _try_import_rfdetr() -> Any:
     except ImportError as e:
         raise ImportError(
             "Community Fish Detector requires optional dependencies. Install with:\n"
-            '  pip install "deepmeerkat[fish]"\n'
-            "Then download RF-DETR weights from:\n"
-            "  https://github.com/filippovarini/community-fish-detector/releases"
+            '  pip install "deepmeerkat[fish]"'
         ) from e
     return RFDETRNano
 
@@ -81,13 +80,18 @@ def run_fish_job(
     if not video_path.is_file():
         raise FileNotFoundError(f"Expected a video file for fish mode: {video_path}")
 
-    weights = Path(config.fish.weights_path).expanduser()
-    if not weights.is_file():
-        raise FileNotFoundError(
-            f"Fish model weights not found: {weights}\n"
-            "Download the RF-DETR .pth from:\n"
-            "https://github.com/filippovarini/community-fish-detector/releases"
-        )
+    def report(p: float, msg: str) -> None:
+        if progress:
+            progress(p, msg)
+
+    def ensure_prog(p: float, msg: str) -> None:
+        report(min(0.99, p * 0.08), msg)
+
+    weights = ensure_fish_weights(
+        config.fish.weights_path,
+        progress=ensure_prog if progress else None,
+        cancel=cancel,
+    )
 
     meta = probe_video(video_path)
     stride = effective_stride(
@@ -101,11 +105,7 @@ def run_fish_job(
     out_dir = config.output_dir / stem
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    def report(p: float, msg: str) -> None:
-        if progress:
-            progress(p, msg)
-
-    report(0.0, "Loading Community Fish Detector (RF-DETR)…")
+    report(0.08, "Loading Community Fish Detector (RF-DETR)…")
     res = int(fish.resolution)
     model = RFDETRNano(pretrain_weights=str(weights), resolution=res)
     from PIL import Image
@@ -198,7 +198,9 @@ def run_fish_job(
             cv2.imwrite(str(det_dir / f"frame_{frame_idx:06d}.jpg"), vis)
 
         processed += 1
-        frac = min(0.99, processed / float(frame_total_guess))
+        span = 0.91
+        base = 0.08
+        frac = base + min(span, (processed / float(frame_total_guess)) * span)
         report(frac, f"Frame {frame_idx} ({processed} processed)")
 
     elapsed = time.time() - t0

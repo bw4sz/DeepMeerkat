@@ -34,7 +34,7 @@ class MegaDetectorSettings:
 class FishDetectorSettings:
     """Community Fish Detector (RF-DETR Nano) — see https://github.com/filippovarini/community-fish-detector"""
 
-    #: Path to downloaded .pth weights (required for fish mode).
+    #: Path to `.pth` weights, or empty string to auto-download once to the app cache.
     weights_path: str = ""
     confidence_threshold: float = 0.3
     #: RF-DETR input resolution (community model trained at 640).

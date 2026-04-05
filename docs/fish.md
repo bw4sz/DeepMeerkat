@@ -10,13 +10,21 @@ The implementation uses **RF-DETR** (`rfdetr` on PyPI), **supervision**, and **P
 pip install "deepmeerkat[fish]"
 ```
 
-## Download weights
+## Weights (automatic by default)
 
-Download the published **`.pth`** checkpoint (for example **RF-DETR Nano @ 640**) from the project’s **[GitHub Releases](https://github.com/filippovarini/community-fish-detector/releases)** and note the path on disk.
+On first fish run, DeepMeerkat **downloads** the published RF-DETR Nano **`.pth`** (~116 MB) from the [Community Fish Detector release](https://github.com/filippovarini/community-fish-detector/releases/tag/cfd-2026.02.02-rf-detr-nano), verifies **SHA-256**, and caches it under the OS user cache (see `platformdirs` — typically `~/Library/Caches/deepmeerkat/fish/` on macOS). Later runs reuse the cache offline.
+
+To use a **custom** checkpoint instead, pass `--fish-weights` / set **Weights** in the GUI.
 
 ## CLI
 
 ```bash
+# Uses cached weights, or downloads once if missing
+deepmeerkat run /path/to/video.avi --output ./out --mode fish
+```
+
+```bash
+# Optional: point at a specific .pth file
 deepmeerkat run /path/to/video.avi --output ./out --mode fish \
   --fish-weights /path/to/community-fish-detector-2026.02.02-rf-detr-nano-640.pth
 ```
@@ -25,7 +33,7 @@ Optional flags match the GUI: `--fish-confidence`, `--fish-resolution` (default 
 
 ## GUI
 
-Choose **Community Fish Detector (underwater)** in **Mode**, set **Weights (.pth)** to your checkpoint file, then **Run**.
+Choose **Community Fish Detector (underwater)** in **Mode**, then **Run**. Leave **Weights** empty to download automatically, or browse to a `.pth` file you manage yourself.
 
 ## Outputs
 

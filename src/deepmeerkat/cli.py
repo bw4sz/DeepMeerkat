@@ -70,7 +70,7 @@ def run_cmd(
     fish_weights: Path | None = typer.Option(  # noqa: B008
         None,
         "--fish-weights",
-        help="[fish] Path to community-fish-detector .pth weights",
+        help="[fish] Weights .pth (omit to download once to the user cache)",
     ),
     fish_conf: float = typer.Option(0.3, "--fish-confidence", help="[fish] Minimum confidence"),
     fish_resolution: int = typer.Option(

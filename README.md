@@ -95,11 +95,10 @@ Classic motion mode:
 deepmeerkat run /path/to/video.mp4 --output ./out --mode motion
 ```
 
-**Community Fish Detector** (underwater; install `pip install "deepmeerkat[fish]"` and download `.pth` weights from the upstream repo’s releases):
+**Community Fish Detector** (underwater; install `pip install "deepmeerkat[fish]"`). Weights download **automatically** on first fish run (~116 MB, cached under the OS user cache). Optional: `--fish-weights /path/to/custom.pth`.
 
 ```bash
-deepmeerkat run /path/to/video.avi --output ./out --mode fish \
-  --fish-weights /path/to/community-fish-detector-*.pth
+deepmeerkat run /path/to/video.avi --output ./out --mode fish
 ```
 
 See the docs: **[Community Fish Detector](https://deepmeerkat.readthedocs.io/en/latest/fish/)**.

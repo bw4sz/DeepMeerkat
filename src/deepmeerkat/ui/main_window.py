@@ -193,7 +193,9 @@ class MainWindow(QMainWindow):
         fish_form = QFormLayout()
         fw_row = QHBoxLayout()
         self.fish_weights_edit = QLineEdit()
-        self.fish_weights_edit.setPlaceholderText("Path to .pth weights (see docs)")
+        self.fish_weights_edit.setPlaceholderText(
+            "Optional: path to .pth — leave blank to download automatically (~116 MB, once)"
+        )
         btn_fw = QPushButton("Weights file…")
         btn_fw.clicked.connect(self._browse_fish_weights)
         fw_row.addWidget(self.fish_weights_edit)
@@ -224,7 +226,7 @@ class MainWindow(QMainWindow):
             "Save JPEG frames for frames with detections (detection_frames/)"
         )
         self.fish_save_frames.setChecked(False)
-        fish_form.addRow("Weights (.pth)", fw_w)
+        fish_form.addRow("Weights (.pth, optional)", fw_w)
         fish_form.addRow("Min confidence", self.fish_conf)
         fish_form.addRow("RF-DETR resolution", self.fish_resolution)
         fish_form.addRow("Frame stride", self.fish_stride)
@@ -478,14 +480,6 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "DeepMeerkat", "Please set input and output paths.")
             return
         cfg = self._build_config()
-        if cfg.mode == DetectionMode.FISH and not cfg.fish.weights_path.strip():
-            QMessageBox.warning(
-                self,
-                "DeepMeerkat",
-                "Fish mode requires weights.\n"
-                "Download the .pth from the Community Fish Detector releases and set “Weights”.",
-            )
-            return
         self.log.clear()
         self.run_btn.setEnabled(False)
         self.cancel_btn.setEnabled(True)
