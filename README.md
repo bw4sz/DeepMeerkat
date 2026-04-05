@@ -29,16 +29,14 @@ The **2.x** codebase is frozen at Git tag **`v2.0.0`** on branch **`v2.0`**. Use
 
 ## Downloads (GUI installers)
 
-[GitHub Releases](https://github.com/bw4sz/DeepMeerkat/releases/latest) attach **Windows** and **macOS** GUI builds when CI succeeds. There is **no Linux `.tar.gz` or AppImage**: bundled PyTorch pushes past **GitHub’s 2 GiB per-file limit**, so **Linux uses pip** (see **Install** below — from GitHub or PyPI).
+[GitHub Releases](https://github.com/bw4sz/DeepMeerkat/releases/latest) attach **Windows** and **macOS** GUI builds when CI succeeds. There is **no Linux `.tar.gz` or AppImage**: bundled PyTorch pushes past **GitHub’s 2 GiB per-file limit**, so **Linux uses pip** from **[PyPI](https://pypi.org/project/deepmeerkat/)** (see **Install** below).
 
 **Linux**
 
 ```bash
-pip install "deepmeerkat[ui] @ git+https://github.com/bw4sz/DeepMeerkat.git"
+pip install "deepmeerkat[ui]"
 deepmeerkat-gui
 ```
-
-(If the package is on PyPI, you can use `pip install "deepmeerkat[ui]"` instead.)
 
 **Windows** — run the downloaded `.exe`.
 
@@ -59,39 +57,17 @@ chmod +x DeepMeerkat-v3.0.0-macOS
 
 If macOS blocks it (**unidentified developer**): **System Settings → Privacy & Security** → find the prompt → **Open Anyway**; or in **Finder**, **Control-click** the file → **Open** → confirm.
 
-Easier on Mac: install with **pip** from **GitHub** (or PyPI when published), then **`deepmeerkat-gui`** — same app, no unsigned binary. See **Install** below.
+Easier on Mac: **`pip install "deepmeerkat[ui]"`** then **`deepmeerkat-gui`** — same app, no unsigned binary. See **Install** below.
 
 ## Install
 
-You need **Python 3.11+** and **`git`** on your PATH for installs straight from GitHub.
-
-### From GitHub with pip (no PyPI required)
-
-Latest **`main`**:
-
-```bash
-pip install "deepmeerkat[ui] @ git+https://github.com/bw4sz/DeepMeerkat.git"
-```
-
-Pinned to a **release tag** (example `v3.0.0`):
-
-```bash
-pip install "deepmeerkat[ui] @ git+https://github.com/bw4sz/DeepMeerkat.git@v3.0.0"
-```
-
-CLI only (no PySide6 GUI):
-
-```bash
-pip install "deepmeerkat @ git+https://github.com/bw4sz/DeepMeerkat.git"
-```
-
-Then run `deepmeerkat-gui` or `deepmeerkat run ...` as usual.
-
-### From PyPI (when the package is published)
+### From PyPI
 
 ```bash
 pip install "deepmeerkat[ui]"
 ```
+
+CLI only (no PySide6 GUI): `pip install deepmeerkat`
 
 ### Editable install from a clone (development)
 
@@ -169,7 +145,7 @@ Outputs live under **`dist/`** (`deepmeerkat-gui` or `deepmeerkat-gui.exe`). A *
 
 **macOS distribution:** CI produces a raw binary, not a signed **`.app`** or **`.dmg`**. For public distribution outside the lab, plan for **codesigning** and optionally **notarization** (Apple Developer Program), or ship via **pip** / conda instead.
 
-**Linux:** We do **not** publish a release binary. Use **`pip install "deepmeerkat[ui] @ git+https://github.com/bw4sz/DeepMeerkat.git"`** (or PyPI when available). Advanced users can run PyInstaller locally; the bundle is typically too large for GitHub Releases.
+**Linux:** We do **not** publish a release binary. Use **`pip install "deepmeerkat[ui]"`**. Advanced users can run PyInstaller locally; the bundle is typically too large for GitHub Releases.
 
 ## License
 
