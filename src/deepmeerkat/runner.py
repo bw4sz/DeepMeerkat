@@ -7,6 +7,7 @@ from pathlib import Path
 from threading import Event
 
 from deepmeerkat.config import DetectionMode, JobConfig
+from deepmeerkat.fish_pipeline import run_fish_job
 from deepmeerkat.megadetector_pipeline import run_megadetector_job
 from deepmeerkat.motion_pipeline import run_motion_job
 
@@ -46,6 +47,7 @@ def run_job(
             mode=config.mode,
             megadetector=config.megadetector,
             motion=config.motion,
+            fish=config.fish,
             roi=config.roi,
             ffmpeg_path=config.ffmpeg_path,
         )
@@ -56,6 +58,8 @@ def run_job(
 
         if config.mode == DetectionMode.MEGADETECTOR:
             results.append(run_megadetector_job(sub, progress=on_progress, cancel=cancel))
+        elif config.mode == DetectionMode.FISH:
+            results.append(run_fish_job(sub, progress=on_progress, cancel=cancel))
         else:
             results.append(run_motion_job(sub, progress=on_progress, cancel=cancel))
     return results

@@ -10,6 +10,7 @@ from pathlib import Path
 class DetectionMode(StrEnum):
     MEGADETECTOR = "megadetector"
     MOTION = "motion"
+    FISH = "fish"
 
 
 @dataclass
@@ -26,6 +27,22 @@ class MegaDetectorSettings:
     #: Max dimension for resize before inference (0 = no resize).
     max_dimension: int = 1280
     #: Save full-frame JPEGs (with boxes) for each frame that has detections.
+    save_detection_frames: bool = False
+
+
+@dataclass
+class FishDetectorSettings:
+    """Community Fish Detector (RF-DETR Nano) — see https://github.com/filippovarini/community-fish-detector"""
+
+    #: Path to downloaded .pth weights (required for fish mode).
+    weights_path: str = ""
+    confidence_threshold: float = 0.3
+    #: RF-DETR input resolution (community model trained at 640).
+    resolution: int = 640
+    frame_stride: int = 1
+    target_fps: float | None = None
+    write_json: bool = True
+    max_dimension: int = 1280
     save_detection_frames: bool = False
 
 
@@ -52,6 +69,7 @@ class JobConfig:
     mode: DetectionMode = DetectionMode.MEGADETECTOR
     megadetector: MegaDetectorSettings = field(default_factory=MegaDetectorSettings)
     motion: MotionSettings = field(default_factory=MotionSettings)
+    fish: FishDetectorSettings = field(default_factory=FishDetectorSettings)
     #: Optional ROI as (x, y, width, height) in pixels; applied after optional resize.
     roi: tuple[int, int, int, int] | None = None
     ffmpeg_path: str | None = None

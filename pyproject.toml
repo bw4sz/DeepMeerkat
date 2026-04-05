@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "deepmeerkat"
-version = "3.0.1"
-description = "DeepMeerkat 3.0 — ecological video review with MegaDetector and classic motion detection"
+version = "3.1.0"
+description = "DeepMeerkat 3.0 — MegaDetector, Community Fish Detector, and classic motion for ecological video"
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
@@ -26,6 +26,8 @@ dev = [
 ]
 # Local PyInstaller builds (see README — bundles are large).
 packaging = ["pyinstaller>=6.0"]
+# Community Fish Detector (RF-DETR) — https://github.com/filippovarini/community-fish-detector
+fish = ["rfdetr>=1.0", "supervision>=0.20", "pillow>=10.0"]
 
 [project.scripts]
 deepmeerkat = "deepmeerkat.cli:app"

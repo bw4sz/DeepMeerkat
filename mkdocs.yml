@@ -1,5 +1,5 @@
 site_name: DeepMeerkat
-site_description: Ecological video review with MegaDetector and classic motion detection
+site_description: Ecological video review with MegaDetector, Community Fish Detector, and classic motion
 site_url: https://deepmeerkat.readthedocs.io/
 
 theme:
@@ -8,6 +8,7 @@ theme:
 nav:
   - Home: index.md
   - Getting started: getting-started.md
+  - Community Fish Detector: fish.md
   - Review window: review.md
 
 markdown_extensions:

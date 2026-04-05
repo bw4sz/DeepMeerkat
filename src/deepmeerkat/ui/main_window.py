@@ -28,10 +28,12 @@ from PySide6.QtWidgets import (
 
 from deepmeerkat.config import (
     DetectionMode,
+    FishDetectorSettings,
     JobConfig,
     MegaDetectorSettings,
     MotionSettings,
 )
+from deepmeerkat.result_paths import paths_from_result_run_folder
 from deepmeerkat.ui.preview import first_video_in_folder, pixmap_from_video_first_frame
 from deepmeerkat.ui.resources import logo_png_bytes
 from deepmeerkat.ui.review_dialog import ReviewDialog
@@ -57,6 +59,11 @@ class MainWindow(QMainWindow):
         file_menu = menubar.addMenu("File")
         act_review = file_menu.addAction("Review results folder…")
         act_review.triggered.connect(self._menu_review_folder)
+        act_open_result = file_menu.addAction("Open result folder…")
+        act_open_result.triggered.connect(self._menu_open_result_folder)
+        self._act_reopen_last = file_menu.addAction("Reopen last results")
+        self._act_reopen_last.triggered.connect(self._menu_reopen_last)
+        self._act_reopen_last.setEnabled(False)
 
         central = QWidget()
         self.setCentralWidget(central)
@@ -79,7 +86,7 @@ class MainWindow(QMainWindow):
         title_col = QVBoxLayout()
         title = QLabel("DeepMeerkat")
         title.setObjectName("HeaderTitle")
-        subtitle = QLabel("Ecological video review · MegaDetector & classic motion")
+        subtitle = QLabel("Ecological video review · MegaDetector · fish detector · classic motion")
         subtitle.setObjectName("HeaderSubtitle")
         title_col.addWidget(title)
         title_col.addWidget(subtitle)
@@ -137,6 +144,7 @@ class MainWindow(QMainWindow):
         mode_layout = QHBoxLayout()
         self.mode_combo = QComboBox()
         self.mode_combo.addItem("MegaDetector (recommended)", DetectionMode.MEGADETECTOR)
+        self.mode_combo.addItem("Community Fish Detector (underwater)", DetectionMode.FISH)
         self.mode_combo.addItem("Classic motion (OpenCV)", DetectionMode.MOTION)
         self.mode_combo.currentIndexChanged.connect(self._on_mode_changed)
         mode_layout.addWidget(QLabel("Detection:"))
@@ -179,6 +187,53 @@ class MainWindow(QMainWindow):
         md_form.addRow(self.md_save_frames)
         self.md_group.setLayout(md_form)
         layout.addWidget(self.md_group)
+
+        # Community Fish Detector (RF-DETR)
+        self.fish_group = QGroupBox("Community Fish Detector (RF-DETR)")
+        fish_form = QFormLayout()
+        fw_row = QHBoxLayout()
+        self.fish_weights_edit = QLineEdit()
+        self.fish_weights_edit.setPlaceholderText("Path to .pth weights (see docs)")
+        btn_fw = QPushButton("Weights file…")
+        btn_fw.clicked.connect(self._browse_fish_weights)
+        fw_row.addWidget(self.fish_weights_edit)
+        fw_row.addWidget(btn_fw)
+        fw_w = QWidget()
+        fw_w.setLayout(fw_row)
+        self.fish_conf = QDoubleSpinBox()
+        self.fish_conf.setRange(0.0, 1.0)
+        self.fish_conf.setSingleStep(0.05)
+        self.fish_conf.setValue(0.3)
+        self.fish_resolution = QSpinBox()
+        self.fish_resolution.setRange(320, 1280)
+        self.fish_resolution.setValue(640)
+        self.fish_stride = QSpinBox()
+        self.fish_stride.setRange(1, 1000)
+        self.fish_stride.setValue(1)
+        self.fish_target_fps = QDoubleSpinBox()
+        self.fish_target_fps.setRange(0.0, 120.0)
+        self.fish_target_fps.setSpecialValueText("off")
+        self.fish_target_fps.setValue(0.0)
+        self.fish_max_dim = QSpinBox()
+        self.fish_max_dim.setRange(0, 8000)
+        self.fish_max_dim.setValue(1280)
+        self.fish_max_dim.setSpecialValueText("full")
+        self.fish_json = QCheckBox("Write fish_results.json")
+        self.fish_json.setChecked(True)
+        self.fish_save_frames = QCheckBox(
+            "Save JPEG frames for frames with detections (detection_frames/)"
+        )
+        self.fish_save_frames.setChecked(False)
+        fish_form.addRow("Weights (.pth)", fw_w)
+        fish_form.addRow("Min confidence", self.fish_conf)
+        fish_form.addRow("RF-DETR resolution", self.fish_resolution)
+        fish_form.addRow("Frame stride", self.fish_stride)
+        fish_form.addRow("Target FPS cap (0=off)", self.fish_target_fps)
+        fish_form.addRow("Max dimension (0=full)", self.fish_max_dim)
+        fish_form.addRow(self.fish_json)
+        fish_form.addRow(self.fish_save_frames)
+        self.fish_group.setLayout(fish_form)
+        layout.addWidget(self.fish_group)
 
         # Motion options (secondary)
         self.motion_group = QGroupBox("Classic motion (OpenCV)")
@@ -285,9 +340,9 @@ class MainWindow(QMainWindow):
 
     def _on_mode_changed(self) -> None:
         mode = self.mode_combo.currentData()
-        is_md = mode == DetectionMode.MEGADETECTOR
-        self.md_group.setVisible(is_md)
-        self.motion_group.setVisible(not is_md)
+        self.md_group.setVisible(mode == DetectionMode.MEGADETECTOR)
+        self.fish_group.setVisible(mode == DetectionMode.FISH)
+        self.motion_group.setVisible(mode == DetectionMode.MOTION)
 
     def _browse_input_file(self) -> None:
         path, _ = QFileDialog.getOpenFileName(
@@ -318,6 +373,47 @@ class MainWindow(QMainWindow):
         if d:
             ReviewDialog(Path(d), self).exec()
 
+    def _browse_fish_weights(self) -> None:
+        path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Fish detector weights (.pth)",
+            str(Path.home()),
+            "PyTorch weights (*.pth);;All (*.*)",
+        )
+        if path:
+            self.fish_weights_edit.setText(path)
+
+    def _menu_open_result_folder(self) -> None:
+        d = QFileDialog.getExistingDirectory(
+            self,
+            "Result folder (contains annotations.csv)",
+            str(Path.home()),
+        )
+        if not d:
+            return
+        video, out_parent = paths_from_result_run_folder(Path(d))
+        if out_parent is None:
+            QMessageBox.warning(
+                self,
+                "DeepMeerkat",
+                "That folder does not contain annotations.csv.",
+            )
+            return
+        if video is not None:
+            self.input_edit.setText(str(video))
+        self.output_edit.setText(str(out_parent))
+        QMessageBox.information(
+            self,
+            "DeepMeerkat",
+            "Loaded input video and output folder from the result directory.\n"
+            "Use “Review results folder…” or run again after changing settings.",
+        )
+
+    def _menu_reopen_last(self) -> None:
+        if not self._last_output_dirs:
+            return
+        ReviewDialog(self._last_output_dirs[0], self).exec()
+
     def _build_config(self) -> JobConfig:
         inp = Path(self.input_edit.text().strip())
         out = Path(self.output_edit.text().strip())
@@ -344,6 +440,22 @@ class MainWindow(QMainWindow):
             max_dimension=max_d,
             save_detection_frames=self.md_save_frames.isChecked(),
         )
+        ft = self.fish_target_fps.value()
+        if ft <= 0:
+            ft = None
+        fmax = self.fish_max_dim.value()
+        if fmax <= 0:
+            fmax = 0
+        fi = FishDetectorSettings(
+            weights_path=self.fish_weights_edit.text().strip(),
+            confidence_threshold=float(self.fish_conf.value()),
+            resolution=int(self.fish_resolution.value()),
+            frame_stride=int(self.fish_stride.value()),
+            target_fps=ft,
+            write_json=self.fish_json.isChecked(),
+            max_dimension=fmax,
+            save_detection_frames=self.fish_save_frames.isChecked(),
+        )
         mo = MotionSettings(
             mog_learning_rate=float(self.mog_lr.value()),
             mog_variance=int(self.mog_var.value()),
@@ -357,6 +469,7 @@ class MainWindow(QMainWindow):
             mode=mode,
             megadetector=md,
             motion=mo,
+            fish=fi,
             roi=roi,
         )
 
@@ -365,6 +478,14 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "DeepMeerkat", "Please set input and output paths.")
             return
         cfg = self._build_config()
+        if cfg.mode == DetectionMode.FISH and not cfg.fish.weights_path.strip():
+            QMessageBox.warning(
+                self,
+                "DeepMeerkat",
+                "Fish mode requires weights.\n"
+                "Download the .pth from the Community Fish Detector releases and set “Weights”.",
+            )
+            return
         self.log.clear()
         self.run_btn.setEnabled(False)
         self.cancel_btn.setEnabled(True)
@@ -388,6 +509,7 @@ class MainWindow(QMainWindow):
     def _on_done(self, paths: list) -> None:
         self.progress_label.setText("Complete.")
         self._last_output_dirs = [Path(p) for p in paths]
+        self._act_reopen_last.setEnabled(bool(self._last_output_dirs))
         primary = self._last_output_dirs[0]
         msg = QMessageBox(self)
         msg.setIcon(QMessageBox.Icon.Information)

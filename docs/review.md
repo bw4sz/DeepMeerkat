@@ -1,6 +1,8 @@
 # Review detections
 
-After a run finishes, choose **Review detections** in the completion dialog, or use **File → Review results folder…** and pick a directory that contains `annotations.csv` (and a resolvable source video via `megadetector_results.json` or `parameters.csv`).
+After a run finishes, choose **Review detections** in the completion dialog, or use **File → Review results folder…** and pick a directory that contains `annotations.csv` (and a resolvable source video via `megadetector_results.json`, `fish_results.json`, or `parameters.csv`).
+
+To **reload paths** from an old run into the main form (input video + output folder), use **File → Open result folder…**. After any completed run, **File → Reopen last results** jumps straight back into the review player for that output.
 
 The review window shows the source video, a timeline scrubber, and a table of rows from `annotations.csv`. Bounding boxes on the video match the **filtered** table: change filters to focus on a class or confidence range.
 

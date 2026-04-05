@@ -31,6 +31,13 @@ pip install -e ".[ui]"
 deepmeerkat run /path/to/video.mp4 --output ./out
 ```
 
+**Community Fish Detector** (underwater; requires `[fish]` extras and a downloaded `.pth` — see [fish.md](fish.md)):
+
+```bash
+deepmeerkat run /path/to/video.avi --output ./out --mode fish \
+  --fish-weights /path/to/community-fish-detector-*.pth
+```
+
 Classic motion mode:
 
 ```bash

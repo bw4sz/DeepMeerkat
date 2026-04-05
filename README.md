@@ -1,6 +1,6 @@
 # DeepMeerkat 3.0
 
-Desktop and CLI tooling for ecological camera video: **MegaDetector** (default) for animal / person / vehicle bounding boxes, plus **classic OpenCV motion** mode for legacy workflows.
+Desktop and CLI tooling for ecological camera video: **MegaDetector** (default) for animal / person / vehicle bounding boxes, **[Community Fish Detector](https://github.com/filippovarini/community-fish-detector)** for underwater **fish** detection (optional `[fish]` extras), plus **classic OpenCV motion** for legacy workflows.
 
 **Documentation:** [deepmeerkat.readthedocs.io](https://deepmeerkat.readthedocs.io/) (enable the repo on [Read the Docs](https://readthedocs.org/) using `.readthedocs.yaml`).
 
@@ -94,6 +94,19 @@ Classic motion mode:
 ```bash
 deepmeerkat run /path/to/video.mp4 --output ./out --mode motion
 ```
+
+**Community Fish Detector** (underwater; install `pip install "deepmeerkat[fish]"` and download `.pth` weights from the upstream repo’s releases):
+
+```bash
+deepmeerkat run /path/to/video.avi --output ./out --mode fish \
+  --fish-weights /path/to/community-fish-detector-*.pth
+```
+
+See the docs: **[Community Fish Detector](https://deepmeerkat.readthedocs.io/en/latest/fish/)**.
+
+### Re-open previous results (GUI)
+
+Use **File → Open result folder…** and select a run directory that contains `annotations.csv` (for example `…/output/garcon_test/`). DeepMeerkat fills in the original **input video** and **output folder** from `parameters.csv` so you can **Review** again or re-run. After a successful run, **File → Reopen last results** opens the review player for the last output folder.
 
 ## Optional local smoke test
 

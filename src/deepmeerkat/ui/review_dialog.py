@@ -40,6 +40,8 @@ def _bgr_for_label(name: str) -> tuple[int, int, int]:
         return (220, 120, 52)
     if n == "vehicle":
         return (34, 126, 230)
+    if n == "fish":
+        return (60, 180, 255)
     return (99, 180, 40)
 
 
