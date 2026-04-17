@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import hashlib
+import ssl
 from collections.abc import Callable
 from pathlib import Path
 from threading import Event
 from urllib.error import URLError
 from urllib.request import Request, urlopen
 
+import certifi
 from platformdirs import user_cache_dir
 
 # Pinned to upstream release cfd-2026.02.02-rf-detr-nano (digest from GitHub API).
@@ -21,6 +23,11 @@ FISH_WEIGHTS_SHA256_HEX = "076b0a80d5dbc3361fb2be707d521ce96fe990b453fb1c215d991
 FISH_WEIGHTS_SIZE_BYTES = 122_064_141
 
 _READ_CHUNK = 1024 * 1024  # 1 MiB
+
+
+def _https_ssl_context() -> ssl.SSLContext:
+    """CA bundle for HTTPS (fixes Windows Python missing root certs on fish weight download)."""
+    return ssl.create_default_context(cafile=certifi.where())
 
 
 def fish_weights_cache_dir() -> Path:
@@ -59,7 +66,7 @@ def _download_to_path(
         headers={"User-Agent": "DeepMeerkat/3.1 (+https://github.com/bw4sz/DeepMeerkat)"},
     )
     try:
-        with urlopen(req, timeout=300) as resp:
+        with urlopen(req, timeout=300, context=_https_ssl_context()) as resp:
             total = int(resp.headers.get("Content-Length") or 0) or expected_size
             got = 0
             with tmp.open("wb") as out:
@@ -130,11 +137,20 @@ def ensure_fish_weights(
             cancel=cancel,
         )
     except URLError as e:
+        reason = str(e.reason) if getattr(e, "reason", None) else str(e)
+        ssl_hint = ""
+        if "CERTIFICATE_VERIFY_FAILED" in reason or "certificate verify failed" in reason.lower():
+            ssl_hint = (
+                "\n\nSSL certificate verification failed (common on Windows with stock Python). "
+                "DeepMeerkat uses the certifi CA bundle; try: "
+                "pip install --upgrade certifi deepmeerkat"
+            )
         raise RuntimeError(
             "Could not download fish detector weights. Check your network, or download manually "
             "from:\n"
             f"  {FISH_WEIGHTS_URL}\n"
             "Then set --fish-weights or the GUI Weights field to that file."
+            f"{ssl_hint}"
         ) from e
 
     if progress:

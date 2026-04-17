@@ -16,6 +16,8 @@ On first fish run, DeepMeerkat **downloads** the published RF-DETR Nano **`.pth`
 
 To use a **custom** checkpoint instead, pass `--fish-weights` / set **Weights** in the GUI.
 
+Downloads use the **certifi** CA bundle so HTTPS works on **Windows** installs where Python’s default store is empty (`SSL: CERTIFICATE_VERIFY_FAILED`). If you still see that error, run `pip install --upgrade certifi` (or place a `.pth` file manually and set **Weights**).
+
 ## CLI
 
 ```bash
