@@ -283,6 +283,27 @@ class MainWindow(QMainWindow):
         roi_box.setLayout(roi_layout)
         layout.addWidget(roi_box)
 
+        timing_box = QGroupBox("Video timing (optional)")
+        timing_form = QFormLayout()
+        self.video_fps_override = QDoubleSpinBox()
+        self.video_fps_override.setRange(0.0, 120.0)
+        self.video_fps_override.setDecimals(3)
+        self.video_fps_override.setSpecialValueText("Auto")
+        self.video_fps_override.setValue(0.0)
+        timing_form.addRow(
+            "FPS override (0 = auto)",
+            self.video_fps_override,
+        )
+        tip = QLabel(
+            "Use when the file’s FPS metadata is wrong (e.g. some .tlv). "
+            "Affects timecodes, stride with target FPS, and review playback."
+        )
+        tip.setWordWrap(True)
+        tip.setStyleSheet("color: palette(mid); font-size: 11px;")
+        timing_form.addRow(tip)
+        timing_box.setLayout(timing_form)
+        layout.addWidget(timing_box)
+
         # Run
         btn_row = QHBoxLayout()
         self.run_btn = QPushButton("Run")
@@ -351,7 +372,7 @@ class MainWindow(QMainWindow):
             self,
             "Video file",
             str(Path.home()),
-            "Video (*.mp4 *.avi *.mov *.mkv);;All (*.*)",
+            "Video (*.mp4 *.avi *.mov *.mkv *.tlv);;All (*.*)",
         )
         if path:
             self.input_edit.setText(path)
@@ -465,6 +486,8 @@ class MainWindow(QMainWindow):
             use_knn=self.motion_knn.isChecked(),
             training_mode=self.training.isChecked(),
         )
+        vfo = self.video_fps_override.value()
+        vf_override = float(vfo) if vfo > 0 else None
         return JobConfig(
             input_path=inp,
             output_dir=out,
@@ -473,6 +496,7 @@ class MainWindow(QMainWindow):
             motion=mo,
             fish=fi,
             roi=roi,
+            video_fps_override=vf_override,
         )
 
     def _run(self) -> None:

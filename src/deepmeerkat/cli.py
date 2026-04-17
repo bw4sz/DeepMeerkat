@@ -42,6 +42,11 @@ def run_cmd(
         "--roi",
         help="Optional region of interest: x,y,width,height",
     ),
+    video_fps: float | None = typer.Option(  # noqa: B008
+        None,
+        "--video-fps",
+        help="Override OpenCV-reported FPS (timecodes, stride, review). Omit for auto.",
+    ),
     # MegaDetector
     md_model: str = typer.Option("MDV5A", "--md-model", help="MegaDetector model name or path"),
     md_conf: float = typer.Option(0.25, "--md-confidence", help="Minimum detection confidence"),
@@ -171,6 +176,7 @@ def run_cmd(
         motion=mo,
         fish=fi,
         roi=roi_tuple,
+        video_fps_override=video_fps,
     )
 
     def progress(p: float, msg: str) -> None:

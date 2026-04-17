@@ -50,6 +50,7 @@ def run_job(
             fish=config.fish,
             roi=config.roi,
             ffmpeg_path=config.ffmpeg_path,
+            video_fps_override=config.video_fps_override,
         )
 
         def on_progress(p: float, msg: str, _i: int = i) -> None:

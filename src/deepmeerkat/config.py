@@ -73,3 +73,5 @@ class JobConfig:
     #: Optional ROI as (x, y, width, height) in pixels; applied after optional resize.
     roi: tuple[int, int, int, int] | None = None
     ffmpeg_path: str | None = None
+    #: If set (>0), overrides OpenCV-reported FPS (timecodes, stride, review playback).
+    video_fps_override: float | None = None

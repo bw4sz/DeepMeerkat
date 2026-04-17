@@ -17,18 +17,48 @@ class VideoMeta:
     width: int
     height: int
     frame_count: int
+    #: True when frame_count came from the container (OpenCV); False when counted by scan.
+    frame_count_from_metadata: bool = True
 
 
-def probe_video(path: Path) -> VideoMeta:
+def count_frames_sequential(path: Path) -> int:
+    """Count frames by decoding sequentially (for containers with broken CAP_PROP_FRAME_COUNT)."""
+    cap = cv2.VideoCapture(str(path))
+    if not cap.isOpened():
+        return 0
+    n = 0
+    while True:
+        ret, _ = cap.read()
+        if not ret:
+            break
+        n += 1
+    cap.release()
+    return n
+
+
+def probe_video(path: Path, *, fps_override: float | None = None) -> VideoMeta:
     cap = cv2.VideoCapture(str(path))
     if not cap.isOpened():
         raise ValueError(f"Cannot open video: {path}")
     fps = float(cap.get(cv2.CAP_PROP_FPS) or 0.0) or 30.0
+    if fps_override is not None and fps_override > 0:
+        fps = float(fps_override)
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH) or 0)
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT) or 0)
     n = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
     cap.release()
-    return VideoMeta(path=path, fps=fps, width=width, height=height, frame_count=n)
+    from_metadata = n > 0
+    if n <= 0:
+        n = count_frames_sequential(path)
+        from_metadata = False
+    return VideoMeta(
+        path=path,
+        fps=fps,
+        width=width,
+        height=height,
+        frame_count=max(1, n),
+        frame_count_from_metadata=from_metadata,
+    )
 
 
 def effective_stride(fps: float, frame_stride: int, target_fps: float | None) -> int:

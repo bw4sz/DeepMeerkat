@@ -93,7 +93,9 @@ def run_fish_job(
         cancel=cancel,
     )
 
-    meta = probe_video(video_path)
+    meta = probe_video(video_path, fps_override=config.video_fps_override)
+    if not meta.frame_count_from_metadata:
+        report(0.0, f"Counted {meta.frame_count} frames (no frame count in file metadata).")
     stride = effective_stride(
         meta.fps,
         config.fish.frame_stride,
@@ -231,6 +233,8 @@ def run_fish_job(
         "target_fps": fish.target_fps,
         "effective_stride": stride,
         "video_fps": meta.fps,
+        "video_fps_override": config.video_fps_override or "",
+        "video_frame_count_from_metadata": "true" if meta.frame_count_from_metadata else "false",
         "minutes": elapsed / 60.0,
         "frames_processed": processed,
         "detections": len(csv_rows),

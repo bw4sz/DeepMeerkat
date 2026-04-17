@@ -15,6 +15,7 @@ from deepmeerkat.config import JobConfig
 from deepmeerkat.export import write_parameters_csv
 from deepmeerkat.motion_geometry import BoundingBox, contour_boxes, resize_box_crop
 from deepmeerkat.timecode import frame_to_clock_str
+from deepmeerkat.video import count_frames_sequential
 
 
 def run_motion_job(
@@ -33,7 +34,15 @@ def run_motion_job(
         raise ValueError(f"Cannot open video: {video_path}")
 
     fps = round(float(cap.get(cv2.CAP_PROP_FPS) or 30.0))
+    if config.video_fps_override is not None and config.video_fps_override > 0:
+        fps = round(float(config.video_fps_override))
     frame_count_est = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
+    if frame_count_est <= 0:
+        cap.release()
+        frame_count_est = max(1, count_frames_sequential(video_path))
+        cap = cv2.VideoCapture(str(video_path))
+        if not cap.isOpened():
+            raise ValueError(f"Cannot open video: {video_path}")
 
     stem = video_path.stem
     out_dir = config.output_dir / stem
@@ -199,6 +208,7 @@ def run_motion_job(
         "total_frames": frame_idx,
         "motion_events": len(annotations),
         "video_fps": fps,
+        "video_fps_override": config.video_fps_override or "",
     }
     write_parameters_csv(out_dir / "parameters.csv", params)
     report(1.0, "Done.")

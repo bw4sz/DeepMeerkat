@@ -50,8 +50,15 @@ Useful options:
 | `--md-stride N` | Process every Nth frame |
 | `--md-target-fps X` | Auto-stride to approximate X FPS |
 | `--md-save-frames` | Save JPEGs for frames that have detections (`detection_frames/`) |
+| `--video-fps X` | Override OpenCV-reported FPS (timecodes, stride with target FPS, review playback) |
 
 Full help: `deepmeerkat run --help`.
+
+### Unusual video (e.g. `.tlv`) and wrong FPS in the file
+
+Some containers report **no frame count** (`CAP_PROP_FRAME_COUNT` is 0) or **broken random seek** in OpenCV. DeepMeerkat **scans the file once** to count frames when needed (so the progress bar and stride math stay sane), and the **Review** window **decodes sequentially** for those runs so the image matches the frame index. Scrubbing to a frame far ahead can take a few seconds on long clips.
+
+If **timestamps or stride** still look wrong because the declared FPS does not match reality (for example true 1 fps but metadata says 10), use **Video timing → FPS override** in the desktop app or `--video-fps` on the CLI. The value is stored in `parameters.csv` as `video_fps_override` for the next review session.
 
 ## Desktop app
 

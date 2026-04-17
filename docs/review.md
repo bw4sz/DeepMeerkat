@@ -34,3 +34,5 @@ Playback stops when you scrub the slider, use arrow keys, jump to a detection, o
 - **Open result folder** opens the run directory in the system file manager (CSV, optional JSON, optional `detection_frames/` JPEGs).
 
 If the source video path is missing or the file moved, the review window cannot open the player; keep outputs next to the original video or ensure `parameters.csv` lists the correct `source_video` path.
+
+For files where the container reported **no frame count** or DeepMeerkat had to **scan** frames (see `video_frame_count_from_metadata` / `false` in `parameters.csv`), the player **does not use fast seek**; it decodes from the start of the file to reach the frame you chose. That avoids a black or frozen image when OpenCV’s `CAP_PROP_POS_FRAMES` is unreliable (some `.tlv` and similar). Optional **`video_fps_override`** in `parameters.csv` adjusts playback timing if you overrode FPS when running the job.

@@ -26,12 +26,26 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from deepmeerkat.result_paths import load_annotation_rows, resolve_source_video
+from deepmeerkat.result_paths import (
+    load_annotation_rows,
+    read_parameters_csv,
+    resolve_source_video,
+)
 from deepmeerkat.ui.review_filters import (
     filter_annotation_rows,
     sorted_unique_frames,
     unique_labels,
 )
+
+
+def _max_frame_index_from_rows(rows: list[dict[str, str]]) -> int:
+    m = 1
+    for r in rows:
+        try:
+            m = max(m, int(float(r.get("frame", "0"))))
+        except (TypeError, ValueError):
+            continue
+    return m
 
 
 def _bgr_for_label(name: str) -> tuple[int, int, int]:
@@ -63,6 +77,8 @@ class ReviewDialog(QDialog):
         self._detection_frames: list[int] = []
         self._playing = False
         self._play_timer = QTimer(self)
+        self._sequential_decode = False
+        self._next_read_idx = 0
 
         layout = QVBoxLayout(self)
 
@@ -86,8 +102,35 @@ class ReviewDialog(QDialog):
             layout.addWidget(bb)
             return
 
-        self._fps = float(self._cap.get(cv2.CAP_PROP_FPS) or 30.0)
-        self._total_frames = max(1, int(self._cap.get(cv2.CAP_PROP_FRAME_COUNT) or 1))
+        params = read_parameters_csv(self._output_dir / "parameters.csv")
+        ov = params.get("video_fps_override", "").strip()
+        if ov:
+            try:
+                fo = float(ov)
+                if fo > 0:
+                    self._fps = fo
+                else:
+                    self._fps = float(self._cap.get(cv2.CAP_PROP_FPS) or 30.0)
+            except ValueError:
+                self._fps = float(self._cap.get(cv2.CAP_PROP_FPS) or 30.0)
+        else:
+            self._fps = float(self._cap.get(cv2.CAP_PROP_FPS) or 30.0)
+
+        opencv_fc = int(self._cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
+        meta_fc = params.get("video_frame_count_from_metadata", "").strip().lower()
+        scanned_count = meta_fc in ("false", "0", "no")
+        self._sequential_decode = scanned_count or opencv_fc <= 0
+        self._next_read_idx = 0
+        max_ann = _max_frame_index_from_rows(self._all_rows)
+        self._total_frames = max(max(1, opencv_fc), max_ann)
+
+        if self._sequential_decode and self._total_frames > 2000:
+            slow_scrub_notice = QLabel(
+                "This file had missing or unreliable frame-index metadata. "
+                "Review decodes sequentially, so jumping to a distant frame may take a few seconds."
+            )
+            slow_scrub_notice.setWordWrap(True)
+            layout.addWidget(slow_scrub_notice)
 
         self._video_label = QLabel()
         self._video_label.setMinimumSize(480, 270)
@@ -228,13 +271,43 @@ class ReviewDialog(QDialog):
     def _frame_rows(self, frame_1based: int) -> list[dict[str, str]]:
         return [r for r in self._visible_rows if str(r.get("frame", "")) == str(frame_1based)]
 
+    def _reopen_cap(self) -> bool:
+        if self._cap is not None:
+            self._cap.release()
+        self._cap = cv2.VideoCapture(str(self._video_path))
+        self._next_read_idx = 0
+        return self._cap is not None and self._cap.isOpened()
+
+    def _fetch_frame_bgr(self, zero_based: int) -> tuple[bool, np.ndarray | None]:
+        """Decode frame at 0-based index (sequential path for broken CAP_PROP_POS_FRAMES)."""
+        if self._cap is None:
+            return False, None
+        if not self._sequential_decode:
+            self._cap.set(cv2.CAP_PROP_POS_FRAMES, zero_based)
+            ret, frame = self._cap.read()
+            return ret, frame
+        if self._next_read_idx > zero_based:
+            if not self._reopen_cap():
+                return False, None
+        while self._next_read_idx < zero_based:
+            ret, _ = self._cap.read()
+            if not ret:
+                return False, None
+            self._next_read_idx += 1
+        ret, frame = self._cap.read()
+        if not ret or frame is None:
+            return False, None
+        self._next_read_idx = zero_based + 1
+        return True, frame
+
     def _show_frame(self, frame_1based: int) -> None:
         if self._cap is None:
             return
         idx0 = max(0, frame_1based - 1)
-        self._cap.set(cv2.CAP_PROP_POS_FRAMES, idx0)
-        ret, frame = self._cap.read()
+        ret, frame = self._fetch_frame_bgr(idx0)
         if not ret or frame is None:
+            self._video_label.clear()
+            self._video_label.setText(f"Could not decode frame {frame_1based}.")
             return
         for r in self._frame_rows(frame_1based):
             try:
