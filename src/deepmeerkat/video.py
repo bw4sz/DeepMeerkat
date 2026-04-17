@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -21,7 +21,12 @@ class VideoMeta:
     frame_count_from_metadata: bool = True
 
 
-def count_frames_sequential(path: Path) -> int:
+def count_frames_sequential(
+    path: Path,
+    *,
+    on_progress: Callable[[int], None] | None = None,
+    every: int = 500,
+) -> int:
     """Count frames by decoding sequentially (for containers with broken CAP_PROP_FRAME_COUNT)."""
     cap = cv2.VideoCapture(str(path))
     if not cap.isOpened():
@@ -32,14 +37,26 @@ def count_frames_sequential(path: Path) -> int:
         if not ret:
             break
         n += 1
+        if on_progress is not None and every > 0 and n % every == 0:
+            on_progress(n)
     cap.release()
     return n
 
 
-def probe_video(path: Path, *, fps_override: float | None = None) -> VideoMeta:
+def probe_video(
+    path: Path,
+    *,
+    fps_override: float | None = None,
+    on_status: Callable[[str], None] | None = None,
+) -> VideoMeta:
+    def _say(msg: str) -> None:
+        if on_status is not None:
+            on_status(msg)
+
     cap = cv2.VideoCapture(str(path))
     if not cap.isOpened():
         raise ValueError(f"Cannot open video: {path}")
+    _say("Reading video metadata (resolution, fps, frame count)…")
     fps = float(cap.get(cv2.CAP_PROP_FPS) or 0.0) or 30.0
     if fps_override is not None and fps_override > 0:
         fps = float(fps_override)
@@ -49,7 +66,16 @@ def probe_video(path: Path, *, fps_override: float | None = None) -> VideoMeta:
     cap.release()
     from_metadata = n > 0
     if n <= 0:
-        n = count_frames_sequential(path)
+        _say(
+            "No frame count in file metadata — scanning every frame to measure length. "
+            "This can take a minute on long clips; the UI is not frozen."
+        )
+        n = count_frames_sequential(
+            path,
+            on_progress=lambda k: _say(f"Counting frames: {k:,} read so far…"),
+            every=500,
+        )
+        _say(f"Frame count scan finished ({n:,} frames).")
         from_metadata = False
     return VideoMeta(
         path=path,

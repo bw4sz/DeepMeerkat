@@ -505,6 +505,12 @@ class MainWindow(QMainWindow):
             return
         cfg = self._build_config()
         self.log.clear()
+        self.log.append(
+            "Job started. Messages will appear here while the video is probed, "
+            "models load, and frames run — large files or missing metadata can take "
+            "a minute before the progress bar moves."
+        )
+        self.progress_label.setText("0% — Starting…")
         self.run_btn.setEnabled(False)
         self.cancel_btn.setEnabled(True)
 

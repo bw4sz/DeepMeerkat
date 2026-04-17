@@ -57,6 +57,12 @@ def run_job(
             if progress:
                 progress((_i + p) / n, msg)
 
+        if progress:
+            progress(
+                i / n,
+                f"Video {i + 1} of {n}: {vp.name}",
+            )
+
         if config.mode == DetectionMode.MEGADETECTOR:
             results.append(run_megadetector_job(sub, progress=on_progress, cancel=cancel))
         elif config.mode == DetectionMode.FISH:

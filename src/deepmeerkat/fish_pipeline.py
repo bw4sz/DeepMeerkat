@@ -87,15 +87,19 @@ def run_fish_job(
     def ensure_prog(p: float, msg: str) -> None:
         report(min(0.99, p * 0.08), msg)
 
+    report(0.0, "Resolving fish detector weights (download or cache check)…")
     weights = ensure_fish_weights(
         config.fish.weights_path,
         progress=ensure_prog if progress else None,
         cancel=cancel,
     )
 
-    meta = probe_video(video_path, fps_override=config.video_fps_override)
-    if not meta.frame_count_from_metadata:
-        report(0.0, f"Counted {meta.frame_count} frames (no frame count in file metadata).")
+    report(0.0, f"Starting Community Fish Detector on {video_path.name}…")
+    meta = probe_video(
+        video_path,
+        fps_override=config.video_fps_override,
+        on_status=lambda m: report(0.0, m),
+    )
     stride = effective_stride(
         meta.fps,
         config.fish.frame_stride,

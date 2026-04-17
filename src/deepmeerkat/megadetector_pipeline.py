@@ -41,7 +41,16 @@ def run_megadetector_job(
     if not video_path.is_file():
         raise FileNotFoundError(f"Expected a video file for MegaDetector mode: {video_path}")
 
-    meta = probe_video(video_path, fps_override=config.video_fps_override)
+    def report(p: float, msg: str) -> None:
+        if progress:
+            progress(p, msg)
+
+    report(0.0, f"Starting MegaDetector on {video_path.name}…")
+    meta = probe_video(
+        video_path,
+        fps_override=config.video_fps_override,
+        on_status=lambda m: report(0.0, m),
+    )
     stride = effective_stride(
         meta.fps,
         config.megadetector.frame_stride,
@@ -54,13 +63,6 @@ def run_megadetector_job(
     stem = video_path.stem
     out_dir = config.output_dir / stem
     out_dir.mkdir(parents=True, exist_ok=True)
-
-    def report(p: float, msg: str) -> None:
-        if progress:
-            progress(p, msg)
-
-    if not meta.frame_count_from_metadata:
-        report(0.0, f"Counted {meta.frame_count} frames (no frame count in file metadata).")
 
     report(0.0, "Loading MegaDetector model…")
     detector = run_detector.load_detector(

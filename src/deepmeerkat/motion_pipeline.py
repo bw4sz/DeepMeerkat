@@ -29,17 +29,40 @@ def run_motion_job(
     if not video_path.is_file():
         raise FileNotFoundError(f"Expected a video file for motion mode: {video_path}")
 
+    def report(p: float, msg: str) -> None:
+        if progress:
+            progress(p, msg)
+
+    report(0.0, f"Starting motion mode on {video_path.name}…")
     cap = cv2.VideoCapture(str(video_path))
     if not cap.isOpened():
         raise ValueError(f"Cannot open video: {video_path}")
 
+    report(0.0, "Reading video metadata (fps, frame count)…")
     fps = round(float(cap.get(cv2.CAP_PROP_FPS) or 30.0))
     if config.video_fps_override is not None and config.video_fps_override > 0:
         fps = round(float(config.video_fps_override))
     frame_count_est = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
     if frame_count_est <= 0:
         cap.release()
-        frame_count_est = max(1, count_frames_sequential(video_path))
+        report(
+            0.0,
+            "No frame count in file metadata — scanning frames to estimate length "
+            "(can take a minute on long clips)…",
+        )
+
+        def _count_progress(k: int) -> None:
+            report(0.0, f"Counting frames: {k:,} read so far…")
+
+        frame_count_est = max(
+            1,
+            count_frames_sequential(
+                video_path,
+                on_progress=_count_progress,
+                every=500,
+            ),
+        )
+        report(0.0, f"Frame count scan finished ({frame_count_est:,} frames).")
         cap = cv2.VideoCapture(str(video_path))
         if not cap.isOpened():
             raise ValueError(f"Cannot open video: {video_path}")
@@ -67,10 +90,6 @@ def run_motion_job(
     annotations: dict[int, list[BoundingBox]] = {}
     frame_idx = 0
     start = time.time()
-
-    def report(p: float, msg: str) -> None:
-        if progress:
-            progress(p, msg)
 
     read_image: np.ndarray | None = None
     original_image: np.ndarray | None = None
