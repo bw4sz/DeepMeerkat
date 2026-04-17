@@ -8,8 +8,9 @@ from PyInstaller.utils.hooks import collect_data_files
 
 root = Path(os.path.dirname(os.path.abspath(SPEC))).parent
 
-# Bundled PNG (logo) for importlib.resources
+# Bundled PNG (logo) for importlib.resources; certifi CA bundle for HTTPS (fish weights on Windows).
 datas = collect_data_files("deepmeerkat", include_py_files=False)
+datas += collect_data_files("certifi")
 
 block_cipher = None
 
@@ -19,6 +20,7 @@ a = Analysis(
     binaries=[],
     datas=datas,
     hiddenimports=[
+        "certifi",
         "PySide6",
         "megadetector",
         "megadetector.detection",

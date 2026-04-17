@@ -8,7 +8,11 @@
 import os
 from pathlib import Path
 
+from PyInstaller.utils.hooks import collect_data_files
+
 root = Path(os.path.dirname(os.path.abspath(SPEC))).parent
+
+datas = collect_data_files("certifi")
 
 block_cipher = None
 
@@ -16,8 +20,9 @@ a = Analysis(
     [str(root / "packaging" / "run_cli.py")],
     pathex=[str(root / "src")],
     binaries=[],
-    datas=[],
+    datas=datas,
     hiddenimports=[
+        "certifi",
         "megadetector",
         "megadetector.detection",
         "megadetector.detection.run_detector",
