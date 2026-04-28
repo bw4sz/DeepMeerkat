@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "deepmeerkat"
-version = "3.1.3"
+version = "3.1.4"
 description = "DeepMeerkat 3.0 — MegaDetector, Community Fish Detector, and classic motion for ecological video"
 readme = "README.md"
 requires-python = ">=3.11"
