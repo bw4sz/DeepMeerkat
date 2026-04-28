@@ -13,14 +13,14 @@ This codebase is released as **DeepMeerkat 3.0** and is the modern “**Meerkat 
 | Line | What it refers to |
 |------|-------------------|
 | **1.0** | **MotionMeerkat** — earlier motion-focused tooling in the same research lineage. |
-| **2.0** | **DeepMeerkat** — the previous desktop/codebase generation, preserved as Git tag **`v2.0.0`** and branch **`v2.0`**. |
+| **2.0** | **DeepMeerkat** — the previous desktop/codebase generation (legacy code is not stored in this repository). |
 | **3.0** | **DeepMeerkat 3.0** (this repository) — MegaDetector-first PySide6 GUI and CLI, rewritten packaging and outputs. |
 
 We **start numbering releases at 3.0** here so installers and PyPI stay aligned with that story (not with MotionMeerkat or legacy DeepMeerkat release tags).
 
 ## DeepMeerkat 2.0 (legacy)
 
-The **2.x** codebase is frozen at Git tag **`v2.0.0`** on branch **`v2.0`**. Use those only if you need the older application.
+The **2.x** codebase is not present in this repository. If you need legacy behavior, use this 3.x codebase in `--mode motion` or ask maintainers for an archival 2.x source reference.
 
 ## Requirements
 
@@ -40,19 +40,24 @@ deepmeerkat-gui
 
 **Windows** — run the downloaded `.exe`.
 
-**macOS** — the release file is named like **`DeepMeerkat-v3.0.0-macOS`** (version in the name). It is **not** a `.dmg` or `.app`; it is a **single unsigned executable**. Use **Terminal** (double-click usually does not launch the GUI):
+**macOS** — releases now include two architecture-specific files:
+
+- **Intel**: `DeepMeerkat-v3.0.0-macOS-x64`
+- **Apple Silicon**: `DeepMeerkat-v3.0.0-macOS-arm64`
+
+They are **not** `.dmg` or `.app` bundles; each is a **single unsigned executable**. Use **Terminal** (double-click usually does not launch the GUI):
 
 1. Open **Terminal**.
 2. `cd` to the folder where you saved the file (often `~/Downloads`).
-3. Make it executable once: `chmod +x DeepMeerkat-v3.0.0-macOS` (match the filename from the release).
-4. Run it: `./DeepMeerkat-v3.0.0-macOS`
+3. Make it executable once: `chmod +x DeepMeerkat-v3.0.0-macOS-x64` (or `...-arm64`, matching your machine and release filename).
+4. Run it: `./DeepMeerkat-v3.0.0-macOS-x64` (or `...-arm64`).
 
 Copy-paste example (adjust filename if your version differs):
 
 ```bash
 cd ~/Downloads
-chmod +x DeepMeerkat-v3.0.0-macOS
-./DeepMeerkat-v3.0.0-macOS
+chmod +x DeepMeerkat-v3.0.0-macOS-x64
+./DeepMeerkat-v3.0.0-macOS-x64
 ```
 
 If macOS blocks it (**unidentified developer**): **System Settings → Privacy & Security** → find the prompt → **Open Anyway**; or in **Finder**, **Control-click** the file → **Open** → confirm.
@@ -139,7 +144,8 @@ If installer jobs fail (timeouts, size limits, or missing system libs), fix the 
 After the tag build, the release **v3.0.0** should list downloadable files similar to:
 
 - `DeepMeerkat-v3.0.0-Windows-x64.exe`
-- `DeepMeerkat-v3.0.0-macOS` (unsigned binary; see below)
+- `DeepMeerkat-v3.0.0-macOS-x64` (unsigned binary; Intel)
+- `DeepMeerkat-v3.0.0-macOS-arm64` (unsigned binary; Apple Silicon)
 
 Names follow `build_installers.yml`.
 

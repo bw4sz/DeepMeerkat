@@ -23,13 +23,23 @@ concurrency:
 
 jobs:
   gui:
-    name: GUI (${{ matrix.os }})
+    name: GUI (${{ matrix.label }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         # Windows + macOS only (GitHub release assets max 2 GiB; Linux PyInstaller + torch is often larger).
-        os: [windows-latest, macos-latest]
+        # Build both macOS architectures: Intel (x64) and Apple Silicon (arm64).
+        include:
+          - os: windows-latest
+            label: windows-x64
+            asset_suffix: Windows-x64.exe
+          - os: macos-13
+            label: macos-x64
+            asset_suffix: macOS-x64
+          - os: macos-14
+            label: macos-arm64
+            asset_suffix: macOS-arm64
 
     steps:
       - uses: actions/checkout@v4
@@ -65,21 +75,22 @@ jobs:
         run: |
           set -euo pipefail
           V="${{ steps.label.outputs.v }}"
+          SUFFIX="${{ matrix.asset_suffix }}"
           mkdir -p staging
           case "${{ runner.os }}" in
             Windows)
-              cp "dist/deepmeerkat-gui.exe" "staging/DeepMeerkat-${V}-Windows-x64.exe"
+              cp "dist/deepmeerkat-gui.exe" "staging/DeepMeerkat-${V}-${SUFFIX}"
               ;;
             macOS)
-              cp "dist/deepmeerkat-gui" "staging/DeepMeerkat-${V}-macOS"
-              chmod +x "staging/DeepMeerkat-${V}-macOS"
+              cp "dist/deepmeerkat-gui" "staging/DeepMeerkat-${V}-${SUFFIX}"
+              chmod +x "staging/DeepMeerkat-${V}-${SUFFIX}"
               ;;
           esac
 
       - name: Upload workflow artifact
         uses: actions/upload-artifact@v4
         with:
-          name: deepmeerkat-gui-${{ runner.os }}-${{ steps.label.outputs.v }}
+          name: deepmeerkat-gui-${{ matrix.label }}-${{ steps.label.outputs.v }}
           path: staging/*
 
   attach-to-release:
